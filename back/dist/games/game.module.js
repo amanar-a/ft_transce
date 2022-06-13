@@ -18,7 +18,8 @@ gameModule = __decorate([
     (0, common_1.Module)({
         imports: [typeorm_1.TypeOrmModule.forFeature([game_entity_1.Games])],
         controllers: [game_controller_1.gamesController],
-        providers: [game_service_1.GamesService]
+        providers: [game_service_1.GamesService],
+        exports: [game_service_1.GamesService]
     })
 ], gameModule);
 exports.gameModule = gameModule;

@@ -59,30 +59,29 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 			let sender_id = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
 
 			console.log("------ desconnection -----");
-			if(Object.keys(sender_id).length !== 0)
+			if(sender_id.length > 0)
 			{
 				if(matchMakingarray.indexOf(sender_id[0].userName) != -1)
 				{
 					matchMakingarray.splice(matchMakingarray.indexOf(sender_id[0].userName),1)
 				}
 				let player2 = await this.liveGameServ.getGameByPlayer(sender_id[0].userName)
-				if (typeof player2 !== "undefined")
+				if (typeof player2 != "undefined" && player2.length > 0)
 				{
 					var game : GamesDto = new(GamesDto)
 					game.winner_user = player2
 					game.loser_user = sender_id[0].userName
-					game.Score = "D.N.F-D.N.F"
+					game.Score = `D.N.F-D.N.F`
 					game.played_at = new Date()
 					this.gameServ.InsertGame(game)
 					this.liveGameServ.deleteGame(sender_id[0].userName)
 					var playerSocket : Socket[] = [];
-					playersStat = playersStat.filter(element => element.player1 === sender_id[0].userName || element.player2 === sender_id[0].userName)
-					console.log(intervals.find(element => element?.player1 === sender_id[0].userName || element?.player2 === sender_id[0].userName).id)
-					if (typeof intervals.find(element => element?.player1 === sender_id[0].userName || element?.player2 === sender_id[0].userName).id != "undefined"){
-						console.log("here*******")
-						clearInterval(intervals.find(element => element?.player1 === sender_id[0].userName || element?.player2 === sender_id[0].userName).id)
-					}
+					playersStat = playersStat.filter(element => element.player1 != sender_id[0].userName && element.player2 != sender_id[0].userName)
+					if (intervals.length > 0 &&  typeof intervals.find(element => element?.player1 === sender_id[0].userName || element?.player2 === sender_id[0].userName).id != "undefined")
+						clearInterval(intervals.find(element => element?.player1 === sender_id[0].userName || element?.player2 === sender_id[0].userName).id)	
+					intervals = intervals.filter(element => element?.player1 != sender_id[0].userName && element?.player2 != sender_id[0].userName)
 					playerSocket = sockets.get(player2);
+					console.log(intervals)
 					for(let ids of playerSocket)
 					{
 						ids.emit("opponentLeft",{user : player2})
@@ -251,9 +250,10 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 				let game : LiveGameDto = await this.liveGameServ.getGame(userInfo[0].userName)
 				player = sockets.get(game[0].player1)
 				player2 = sockets.get(game[0].player2)
-				console.log(game[0].player1, game[0].player2)
-				const interval = setInterval(() => this.gamePlaysServ.movingBall(userInfo[0].userName,ballStat,playersStat,player,player2) , 10)
-				intervals.push({id:interval,player1:game[0].player1,player2:game[0].player2})
+				if (userInfo[0].userName == game[0].player1){
+					const interval = setInterval(() => this.gamePlaysServ.movingBall(userInfo[0].userName,ballStat,playersStat,player,player2,intervals) , 10)
+					intervals.push({id:interval,player1:game[0].player1,player2:game[0].player2})
+				}
 			}
 		}
 	}

@@ -5,7 +5,6 @@ import {
   drawRect,
   drawBall,
   drawMiddle,
-  changeTraject,
   switch_,
 } from "../tools/gameTools";
 
@@ -202,7 +201,6 @@ export default function Game(props: any) {
     changeBall({x:newPositionX,y:newPositionY})
     console.log(data.playerStat)
     if (data.playerStat.player1score != props.score.player1 || data.playerStat.player2score != props.score.player2){
-      console.log(data.playerStat.player1score)
       props.changeScore({player1:data.playerStat.player1score,player2:data.playerStat.player2score})
     }
     })

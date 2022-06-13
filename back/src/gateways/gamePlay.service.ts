@@ -1,6 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { Socket } from "socket.io";
+import { GamesDto } from "src/dto-classes/game.dto";
 import { LiveGameDto } from "src/dto-classes/liveGame.dto";
+import { GamesService } from "src/games/game.service";
+import { liveGameService } from "src/liveGame/liveGame.service";
 
 
 var gameStat ={
@@ -16,6 +19,8 @@ let oneTime = 0
 export class gamePlayService
 {
     constructor(
+    private gameServ : GamesService,
+    private liveGameServ : liveGameService ,
 
     )
     {
@@ -93,7 +98,7 @@ export class gamePlayService
 		}
     }
 
-    movingBall(player:string,ballStat:any, playersStat:any,player1:Socket[],player2:Socket[]){
+    movingBall(player:string,ballStat:any, playersStat:any,player1:Socket[],player2:Socket[],intervals:any){
         let stats_Ball =  ballStat.find(element => element.player1 === player || element.player2 === player)
         let stats_player = playersStat.find(element => element.player1 === player || element.player2 === player)
         if (oneTime != 1 && stats_Ball.ballX + gameStat.ballSize>=gameStat.with- gameStat.rectWidth + 5 && stats_Ball.ballX + gameStat.ballSize <= gameStat.with && stats_Ball.ballY + gameStat.ballSize > stats_player.player2Y && stats_Ball.ballY < stats_player.player2Y + gameStat.rectHeigth + gameStat.ballSize) 
@@ -143,19 +148,53 @@ export class gamePlayService
 
         let ballStats = ballStat.find(element => element.player1 === player || element.player2 === player)
         let playerStat = playersStat.find(element => element.player1 === player || element.player2 === player)
-        for(let ids of player1)
-        {
-            ids.emit("ballMovement",{
-                ballStats, 
-                playerStat
-            })
+        if (playerStat.player1score >= 5 || playerStat.player2score >= 5){
+            let player1_ = playerStat.player1score > playerStat.player2score ? "Winner" : "Loser"
+            let player2_ = playerStat.player1score < playerStat.player2score ? "Winner" : "Loser"
+            var game : GamesDto = new(GamesDto)
+			game.winner_user = playerStat.player1score > playerStat.player2score ? playerStat.player1 :playerStat.player2
+			game.loser_user = playerStat.player1score < playerStat.player2score ? playerStat.player1 :playerStat.player2
+			game.Score = `${playerStat.player1score > playerStat.player2score ? playerStat.player1score : playerStat.player2score}-${playerStat.player1score < playerStat.player2score ? playerStat.player1score : playerStat.player2score}`
+			game.played_at = new Date()
+			this.gameServ.InsertGame(game)
+            this.liveGameServ.deleteGame(player)
+            ballStat = ballStat.filter(element => element.player1 != player && element.player2 != player)
+            playersStat = playersStat.filter(element => element.player1 != player && element.player2 != player)
+            clearInterval(intervals.find(element => element.player1 == player || element.player2 == player).id)
+            for(let ids of player1)
+            {
+                ids.emit("gameOver",{
+                    ballStats, 
+                    playerStat,
+                    status:player1_,
+                    player:playerStat.player1
+                })
+            }
+            for(let ids of player2)
+            {
+                ids.emit("gameOver",{
+                    ballStats, 
+                    playerStat,
+                    status:player2_,
+                    player:playerStat.player2
+                })
+            }
         }
-        for(let ids of player2)
-        {
-            ids.emit("ballMovement",{
-                ballStats, 
-                playerStat
-            })
+        else {
+            for(let ids of player1)
+            {
+                ids.emit("ballMovement",{
+                    ballStats, 
+                    playerStat
+                })
+            }
+            for(let ids of player2)
+            {
+                ids.emit("ballMovement",{
+                    ballStats, 
+                    playerStat,
+                })
+            }
         }
     }
 

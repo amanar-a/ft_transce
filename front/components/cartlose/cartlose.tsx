@@ -1,7 +1,7 @@
 import style from "../../styles/CartLose/cartlose.module.css";
 import win from "../../public/images/two-removebg-preview.png";
 import imgme from "../../public/images/profile.jpg";
-const CartLose = () => {
+const CartLose = (props:any) => {
   return (
     <div className={style.container}>
       <div className={style.gameover}>
@@ -15,16 +15,16 @@ const CartLose = () => {
                 <img src={win.src} className={style.winicon}></img>
               </div>
               <p className={style.Congra}>
-                We Are Sorry...{" "}
-                <span className={style.usertext}>UserName</span>
+                We Are Sorry...
+                <span className={style.usertext}>{props.userName}</span>
               </p>
               <div className={style.allimg}>
-                <img src={imgme.src} className={style.usericon}></img>
+                <img src={props.img} className={style.usericon}></img>
               </div>
             </div>
             <div className={style.twolastP}>
               <p className={style.scor}>
-                SCORE : <span className={style.scornbr}>7</span>
+                SCORE : <span className={style.scornbr}>{props.score}</span>
               </p>
             </div>
             <p className={style.youwin}>YOU LOSE</p>
