@@ -9,7 +9,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.gamePlayService = void 0;
 const common_1 = require("@nestjs/common");
 const game_dto_1 = require("../dto-classes/game.dto");
 const game_service_1 = require("../games/game.service");
@@ -50,6 +49,7 @@ let gamePlayService = class gamePlayService {
     }
     movingPaddles(playersStat, player, movement, player1, player2, liveGame) {
         let playersPlaying = playersStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === player || (element === null || element === void 0 ? void 0 : element.player2) === player);
+        console.log(playersPlaying);
         if (movement === "up") {
             if (playersPlaying.player1 === player) {
                 if (playersPlaying.player1Y < 6 && playersPlaying.player1Y > 0)
@@ -201,5 +201,5 @@ gamePlayService = __decorate([
     __metadata("design:paramtypes", [game_service_1.GamesService,
         liveGame_service_1.liveGameService])
 ], gamePlayService);
-exports.gamePlayService = gamePlayService;
+exports.default = gamePlayService;
 //# sourceMappingURL=gamePlay.service.js.map

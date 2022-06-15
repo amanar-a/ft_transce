@@ -2,6 +2,7 @@ import { JwtService } from "@nestjs/jwt";
 import { InjectRepository } from "@nestjs/typeorm";
 import { MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { match } from "assert";
+import { now } from "moment";
 import { SocketAddress } from "net";
 import { EMPTY } from "rxjs";
 import { Socket } from "socket.io";
@@ -10,15 +11,18 @@ import { roomMessageService } from "src/chatRoom/roomMessage.service";
 import { GamesDto } from "src/dto-classes/game.dto";
 import { LiveGameDto } from "src/dto-classes/liveGame.dto";
 import { messageDto } from "src/dto-classes/message.dtp";
+import { notificationDto } from "src/dto-classes/notification.dto";
 import { chatRoom } from "src/entities/chatRoom.entity";
 import { liveGame } from "src/entities/liveGame.entity";
+import { Notification } from "src/entities/notification.entity";
 import { User } from "src/entities/user.entity";
 import { GamesService } from "src/games/game.service";
 import { liveGameService } from "src/liveGame/liveGame.service";
 import { messageService } from "src/messages/message.service";
+import { notificationService } from "src/notification/notification.service";
 import { UserService } from "src/user/user.service";
 import { Repository } from "typeorm";
-import { gamePlayService } from "./gamePlay.service";
+import  gamePlayService  from "./gamePlay.service";
 
 
 export class moveData {
@@ -26,7 +30,6 @@ export class moveData {
 	player2 : number
 	movement : string
 }
-
 
 var playersStat = new Array
 var ballStat = new Array
@@ -40,12 +43,13 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 
 	constructor(private messageServ : messageService , private userServ : UserService, @InjectRepository(User)
 	private usersRepository: Repository<User> , 
-	private gamePlaysServ : gamePlayService, 
 	private liveGameServ : liveGameService ,
+	private gamePlaysServ : gamePlayService, 
 	private roomMessageServ : roomMessageService,
 	private chatRoomServ : chatRoomService ,
 	private readonly jwtService: JwtService,
-	private gameServ : GamesService)
+	private gameServ : GamesService,
+	private notifServ : notificationService)
 	{
 	}
 	@WebSocketServer()
@@ -59,8 +63,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 			let sender_id = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
 
 			console.log("------ desconnection -----");
-			console.log("Inter =" ,intervals, "Ball =" ,ballStat, "Player =" ,playersStat)
-			if(sender_id.length > 0)
+			if(Object.keys(sender_id).length !== 0)
 			{
 				if(matchMakingarray.indexOf(sender_id[0].userName) != -1)
 				{
@@ -78,12 +81,13 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 					this.liveGameServ.deleteGame(sender_id[0].userName)
 					var playerSocket : Socket[] = [];
 				
-					playersStat = playersStat.filter(element => element.player1 != sender_id[0].userName && element.player2 != sender_id[0].userName)
-					if (intervals.length > 0 &&  typeof intervals.find(element => element?.player1 === sender_id[0].userName || element?.player2 === sender_id[0].userName).id != "undefined")
+					if (intervals.length > 0 &&  typeof intervals.find(element => element?.player1 === sender_id[0].userName || element?.player2 === sender_id[0].userName).id != "undefined"){
 						clearInterval(intervals.find(element => element?.player1 === sender_id[0].userName || element?.player2 === sender_id[0].userName).id)	
-					intervals = intervals.filter(element => element?.player1 != sender_id[0].userName && element?.player2 != sender_id[0].userName)
+						intervals.splice(intervals.indexOf(intervals.find(element => element?.player1 === sender_id[0].userName || element?.player2 === sender_id[0].userName)),1)
+						ballStat.splice(ballStat.indexOf(ballStat.find(element => element?.player1 === sender_id[0].userName || element?.player2 === sender_id[0].userName)),1)
+						playersStat.splice(playersStat.indexOf(playersStat.find(element => element?.player1 === sender_id[0].userName || element?.player2 === sender_id[0].userName)),1)
+					}
 					playerSocket = sockets.get(player2);
-					console.log(intervals)
 					for(let ids of playerSocket)
 					{
 						ids.emit("opponentLeft",{user : player2})
@@ -117,6 +121,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 	}
 	async handleConnection(client: Socket, ...args :any) 
 	{
+		// if(hello.indexOf(5))
 		let auth_token : string  = await client.handshake.auth.Authorization;
 		if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
 		{
@@ -160,6 +165,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 	@SubscribeMessage('message')
 	async handleMessage(client : Socket , text: any)
 	{ 
+		console.log("--------messaging-------------")
 		let auth_token = client.handshake.auth.Authorization;
 		if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
 		{
@@ -172,6 +178,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 				data.senderId = sender_id[0].userName
 				data.reciverId = text[1]
 				data.time = new Date()
+				console.log(data.time)
 				await this.messageServ.createMessage(data)
 				var conversation : messageDto = await this.messageServ.getConversation(data.senderId,data.reciverId);
 				var senderSock : Socket[] = [];
@@ -188,6 +195,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 				}
 			}
 		}
+		console.log("-------------------------------")
 	}
 
 	@SubscribeMessage('matchmaking')
@@ -271,7 +279,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 			if(Object.keys(userInfo).length !== 0)
 			{
 				let liveGame : LiveGameDto = await this.liveGameServ.getGame(userInfo[0].userName)
-				if (Object.keys(userInfo).length !== 0 && (userInfo[0].userName == liveGame[0].player1 || userInfo[0].userName == liveGame[0].player2)){
+				if (Object.keys(liveGame).length !== 0 && (userInfo[0].userName == liveGame[0].player1 || userInfo[0].userName == liveGame[0].player2)){
 					var player1 : Socket[] = [];
 					var player2 : Socket[] = [];
 					player1 = sockets.get(liveGame[0].player1);
@@ -279,13 +287,13 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 					this.gamePlaysServ.movingPaddles(playersStat,userInfo[0].userName,body, player1, player2, liveGame)
 				}
 			}
-		
 		}
 	}
 
 	@SubscribeMessage('startChannels')
 	async handleChannels(client : Socket , text: any)
 	{
+		console.log("--------startChannels-------------")
 		let auth_token = client.handshake.auth.Authorization;
 		if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
 		{
@@ -295,7 +303,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 			{
 				let test = await this.usersRepository.find({
 					relations: ['chatRooms'],
-				where: { userName: userInfo.userName }
+				where: { userName: userInfo[0].userName }
 				});
 				let rooms : any = test[0].chatRooms;
 				if(rooms.length !== 0)
@@ -307,6 +315,30 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 				}
 			}
 		}
+		console.log("--------------------------------")
+
+	}
+	@SubscribeMessage('creatChannel')
+	async creatChannel(client : Socket , data: any)
+	{
+		console.log("------creatChannel----------")
+		let auth_token = client.handshake.auth.Authorization;
+		if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
+		{
+			const tokenInfo : any = this.jwtService.decode(auth_token);
+			let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+			if(Object.keys(userInfo).length !== 0)
+			{
+				let room : any = await this.chatRoomServ.createRoom(userInfo[0].userName,data)
+				let sock : Socket[] = []
+				for(let so of sock)
+				{
+
+					so.join(`${room.id}`)
+				}
+			}
+		}
+		console.log("--------------------------------")
 	}
 	@SubscribeMessage('roomMessage')
 	async handleRoomMessage(client : Socket , data: any)
@@ -318,12 +350,39 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 			let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
 			if(Object.keys(userInfo).length !== 0)
 			{
-				let room : chatRoom = await this.chatRoomServ.getRoomById(data.id) 
+				let room : chatRoom = await this.chatRoomServ.getRoomById(data.id)
 				
 			}
 		}
 	}
 
+
+	@SubscribeMessage('notification')
+	async handleNotification(client : Socket , data: any)
+	{
+		console.log("------notifications----------")
+		let auth_token = client.handshake.auth.Authorization;
+		if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
+		{
+			const tokenInfo : any = this.jwtService.decode(auth_token);
+			let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+			if(Object.keys(userInfo).length !== 0)
+			{
+				let recvSockts : Socket[] = sockets.get(data.reciverName)
+				console.log(data)
+				// noteData.reciverName = data.reciverName
+				// noteData.type = data.type
+				// noteData.time = new Date()
+				this.notifServ.saveNotification(data,userInfo[0].userName)
+				for(let sock of recvSockts)
+				{
+					console.log(sock.id)
+					sock.emit("notification", {senderName : userInfo[0].userName , type : data.type})
+				}
+			}
+		}
+		console.log("--------------------------------")
+	}
 
 
 }

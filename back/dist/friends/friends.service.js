@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.friendsService = void 0;
 const common_1 = require("@nestjs/common");
@@ -40,7 +41,6 @@ let friendsService = class friendsService {
             const image = await this.userRepo.query(`select picture from public."Users" WHERE public."Users"."userName" = '${element.userName}'`);
             ret.push({ userName: element.userName, picture: (_a = image[0]) === null || _a === void 0 ? void 0 : _a.picture });
         }
-        console.log(ret);
         return ret;
     }
     async sendInv(sender, recipent) {
@@ -50,7 +50,6 @@ let friendsService = class friendsService {
             val.sender_id = sender;
             val.recipent_id = recipent;
             const invExistInbase = await this.userRepo.query(`select * from public."FriendShip" WHERE public."FriendShip"."sender_id" = '${sender}' AND public."FriendShip"."recipent_id" = '${recipent}'`);
-            console.log(user, ' sender', sender, ' recipent', recipent);
             if (invExistInbase.length == 0)
                 await this.friendShipRepo.save(val);
         }
@@ -68,7 +67,6 @@ let friendsService = class friendsService {
                 user = await this.userRepo.query(`select * from public."FriendShip" WHERE public."FriendShip"."sender_id" = '${recipent}' AND public."FriendShip"."recipent_id" = '${sender}'`);
             }
             if (user.length != 0) {
-                console.log(user);
                 await this.friendShipRepo.delete(val);
             }
         }
@@ -109,7 +107,6 @@ let friendsService = class friendsService {
     WHERE  public."Users"."userName" IN \
     (select "userName" FROM public."FriendBlocked" WHERE public."FriendBlocked"."userId" = '${userId}') \
     `);
-        console.log('--->', userName);
         const all_users = await this.userRepo
             .query(`select public."Users"."userName", public."Users"."picture"  FROM public."Users" \
 		WHERE  public."Users"."userName" NOT IN (select "userName" FROM public."FriendBlocked" WHERE public."FriendBlocked"."userId" = '${userId}' OR public."FriendBlocked"."Blocker" = '${userName}') \
@@ -141,7 +138,6 @@ let friendsService = class friendsService {
             pending = await this.friendShipRepo.findOneBy({ recipent_id: userName });
         if (pending && !friend)
             obj.pending = 'true';
-        console.log(obj);
         return obj;
     }
 };
@@ -151,11 +147,7 @@ friendsService = __decorate([
     __param(1, (0, typeorm_1.InjectRepository)(friendShip_entity_1.FriendShip)),
     __param(2, (0, typeorm_1.InjectRepository)(friendList_entity_1.FriendLsit)),
     __param(4, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository,
-        typeorm_2.Repository,
-        typeorm_2.Repository,
-        jwt_1.JwtService,
-        typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object, typeof (_c = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _c : Object, typeof (_d = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _d : Object, typeof (_e = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _e : Object])
 ], friendsService);
 exports.friendsService = friendsService;
 //# sourceMappingURL=friends.service.js.map

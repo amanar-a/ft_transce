@@ -4,6 +4,7 @@ export declare class chatRoomDto {
     RoomOwner: string;
     name: string;
     type: string;
+    protected: boolean;
     password: string;
     messageId: roomMessage[];
     members: User[];

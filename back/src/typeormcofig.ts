@@ -8,6 +8,7 @@ import { liveGame } from './entities/liveGame.entity';
 import { messages } from './entities/message.entity';
 import { chatRoom } from './entities/chatRoom.entity';
 import { roomMessage } from './entities/roomMessage.entity';
+import { Notification } from './entities/notification.entity';
 
 // ['**/*.entity{.ts,.js}']
 
@@ -19,6 +20,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   password: 'postgres',
   database: 'trans',
   entities: [
+    Notification,
     liveGame,
     User,
     Games,

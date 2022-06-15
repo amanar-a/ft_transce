@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chatRoomService = void 0;
 const common_1 = require("@nestjs/common");
@@ -27,29 +28,24 @@ let chatRoomService = class chatRoomService {
         this.usersRepository = usersRepository;
         this.jwtService = jwtService;
     }
-    async createRoom(token, body) {
-        const tokenInfo = this.jwtService.decode(token);
-        let user_info = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-        var ow;
-        if (Object.keys(user_info).length != 0) {
-            let userName = user_info[0].userName;
-            let user = await this.usersRepository.findOneBy({ userName: userName });
-            let room = await this.RoomRepository.create({ RoomOwner: userName });
-            room.members = [user];
-            room.name = body.name;
-            if (body.type == "private") {
-                room.type = "private";
-                room.password = body.password;
+    async createRoom(owner, data) {
+        let userName = owner;
+        let user = await this.usersRepository.findOneBy({ userName: userName });
+        let room = await this.RoomRepository.create({ RoomOwner: userName });
+        room.members = [user];
+        room.RoomOwner = owner;
+        room.name = data.name;
+        room.type = data.type;
+        room.protected = data.protected;
+        if (room.protected == true)
+            room.password = data.password;
+        if (data.users.length != 0) {
+            for (let us of data.users) {
+                let userInfo = await this.usersRepository.findOneBy({ userName: us.userName });
+                room.members = [...room.members, userInfo];
             }
-            if (body.user.length != -1) {
-                for (let us of body.user) {
-                    ow = await this.userServ.findByUserName(us.userName);
-                    room.members = [...room.members, user];
-                }
-            }
-            console.log(user_info);
-            await room.save();
         }
+        return await this.RoomRepository.save(room);
     }
     async getRoomById(gameId) {
         console.log("here");
@@ -64,10 +60,7 @@ chatRoomService = __decorate([
     (0, common_1.Injectable)(),
     __param(1, (0, typeorm_1.InjectRepository)(chatRoom_entity_1.chatRoom)),
     __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [user_service_1.UserService,
-        typeorm_2.Repository,
-        typeorm_2.Repository,
-        jwt_1.JwtService])
+    __metadata("design:paramtypes", [user_service_1.UserService, typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object, typeof (_c = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _c : Object])
 ], chatRoomService);
 exports.chatRoomService = chatRoomService;
 //# sourceMappingURL=chatRoom.service.js.map

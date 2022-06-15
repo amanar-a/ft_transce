@@ -8,7 +8,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import FakeData from "../../data.json";
 
-function Profile() {
+function Profile(props:any) {
   const [usersData, setUsersData] = useState<any>([]);
   const [update, setUpdate] = useState<boolean>(false);
   const [gameHistory, seetGameHistory] = useState<any>();
@@ -31,7 +31,11 @@ function Profile() {
         setUsersData(res.data);
         seetGameHistory(res.data.gameHistory);
         console.log("usersData=", usersData);
-      });
+      }).catch(function (error){
+        if (error.response){
+            router.push({pathname :`/errorPage/${error.response.status}`})
+        }
+    });
     // }
   }, [update, router.query.id]);
   let filtredData = usersData?.all_users?.filter((value: any) => {
@@ -50,6 +54,7 @@ function Profile() {
           setUpdate={setUpdate}
           update={update}
           Myprofile={false}
+          socket={props.socket}
         />
         <Achevment />
       </div>

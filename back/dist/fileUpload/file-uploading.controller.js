@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.uploadController = void 0;
 const common_1 = require("@nestjs/common");
@@ -21,6 +22,7 @@ const user_entity_1 = require("../entities/user.entity");
 const file_upload_utis_1 = require("./file-upload.utis");
 const typeorm_2 = require("typeorm");
 const jwt_auth_gguard_1 = require("../guards/jwt-auth.gguard");
+const express_1 = require("express");
 const user_service_1 = require("../user/user.service");
 let uploadController = class uploadController {
     constructor(userRepo, userService) {
@@ -71,7 +73,7 @@ __decorate([
     __param(0, (0, common_1.UploadedFile)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object, typeof (_a = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _a : Object]),
     __metadata("design:returntype", Promise)
 ], uploadController.prototype, "uploadedFile", null);
 __decorate([
@@ -99,8 +101,7 @@ __decorate([
 uploadController = __decorate([
     (0, common_1.Controller)('upload'),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository,
-        user_service_1.UserService])
+    __metadata("design:paramtypes", [typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object, user_service_1.UserService])
 ], uploadController);
 exports.uploadController = uploadController;
 //# sourceMappingURL=file-uploading.controller.js.map

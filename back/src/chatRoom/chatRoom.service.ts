@@ -15,35 +15,28 @@ export class chatRoomService
 		private readonly jwtService: JwtService
 	){}
 
-	async createRoom(token : string , body :any)
+	async createRoom(owner : string , data : any)
 	{
-		const tokenInfo : any = this.jwtService.decode(token);
-		let user_info = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-		var ow : User 
-		if(Object.keys(user_info).length != 0)
+
+		let userName = owner
+		let user = await this.usersRepository.findOneBy({userName : userName})
+		let room : chatRoom = await this.RoomRepository.create({ RoomOwner : userName })
+		room.members = [user]
+		room.RoomOwner = owner
+		room.name = data.name
+		room.type = data.type
+		room.protected = data.protected
+		if(room.protected == true)
+			room.password = data.password
+		if(data.users.length != 0)
 		{
-			let userName = user_info[0].userName
-			let user = await this.usersRepository.findOneBy({userName : userName})
-			let room = await this.RoomRepository.create({ RoomOwner : userName })
-			room.members = [user]
-			room.name = body.name
-			if(body.type == "private")
+			for(let us of data.users)
 			{
-				room.type = "private"
-				room.password = body.password
+				let userInfo : User = await this.usersRepository.findOneBy({userName : us.userName})
+				room.members = [...room.members , userInfo]
 			}
-			if(body.user.length != -1)
-			{
-				for(let us of body.user)
-				{
-					ow =await this.userServ.findByUserName(us.userName)
-					room.members = [...room.members,user]
-				}
-			}
-			console.log(user_info)
-			await room.save();
-			// console.log( await this.RoomRepository.save(room))
 		}
+		return await this.RoomRepository.save(room)
 	}
 
 	async getRoomById(gameId : number )

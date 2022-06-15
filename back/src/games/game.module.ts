@@ -10,8 +10,7 @@ import { GamesService } from "./game.service";
 @Module({
     imports: [TypeOrmModule.forFeature([Games])],
     controllers: [gamesController], 
-    providers: [GamesService],
-    exports: [GamesService]
+    providers: [GamesService]
 })
 
 

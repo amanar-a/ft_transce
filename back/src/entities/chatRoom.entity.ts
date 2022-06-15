@@ -21,6 +21,9 @@ export class chatRoom extends BaseEntity
     @Column({default : "public"})
     type : string
 
+    @Column({default : false})
+    protected : boolean
+
     @Column({ nullable: true })
     password : string
     @OneToMany(() =>roomMessage,(message) => message.id)

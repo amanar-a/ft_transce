@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chatGateway = exports.moveData = void 0;
 const jwt_1 = require("@nestjs/jwt");
@@ -26,6 +27,7 @@ const user_entity_1 = require("../entities/user.entity");
 const game_service_1 = require("../games/game.service");
 const liveGame_service_1 = require("../liveGame/liveGame.service");
 const message_service_1 = require("../messages/message.service");
+const notification_service_1 = require("../notification/notification.service");
 const user_service_1 = require("../user/user.service");
 const typeorm_2 = require("typeorm");
 const gamePlay_service_1 = require("./gamePlay.service");
@@ -38,16 +40,17 @@ var intervals = new Array;
 var sockets = new Map();
 var matchMakingarray = new Array;
 let chatGateway = class chatGateway {
-    constructor(messageServ, userServ, usersRepository, gamePlaysServ, liveGameServ, roomMessageServ, chatRoomServ, jwtService, gameServ) {
+    constructor(messageServ, userServ, usersRepository, liveGameServ, gamePlaysServ, roomMessageServ, chatRoomServ, jwtService, gameServ, notifServ) {
         this.messageServ = messageServ;
         this.userServ = userServ;
         this.usersRepository = usersRepository;
-        this.gamePlaysServ = gamePlaysServ;
         this.liveGameServ = liveGameServ;
+        this.gamePlaysServ = gamePlaysServ;
         this.roomMessageServ = roomMessageServ;
         this.chatRoomServ = chatRoomServ;
         this.jwtService = jwtService;
         this.gameServ = gameServ;
+        this.notifServ = notifServ;
         this.server = [];
     }
     async handleDisconnect(client) {
@@ -56,8 +59,7 @@ let chatGateway = class chatGateway {
             const tokenInfo = this.jwtService.decode(auth_token);
             let sender_id = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
             console.log("------ desconnection -----");
-            console.log("Inter =", intervals, "Ball =", ballStat, "Player =", playersStat);
-            if (sender_id.length > 0) {
+            if (Object.keys(sender_id).length !== 0) {
                 if (matchMakingarray.indexOf(sender_id[0].userName) != -1) {
                     matchMakingarray.splice(matchMakingarray.indexOf(sender_id[0].userName), 1);
                 }
@@ -71,12 +73,13 @@ let chatGateway = class chatGateway {
                     this.gameServ.InsertGame(game);
                     this.liveGameServ.deleteGame(sender_id[0].userName);
                     var playerSocket = [];
-                    playersStat = playersStat.filter(element => element.player1 != sender_id[0].userName && element.player2 != sender_id[0].userName);
-                    if (intervals.length > 0 && typeof intervals.find(element => (element === null || element === void 0 ? void 0 : element.player1) === sender_id[0].userName || (element === null || element === void 0 ? void 0 : element.player2) === sender_id[0].userName).id != "undefined")
+                    if (intervals.length > 0 && typeof intervals.find(element => (element === null || element === void 0 ? void 0 : element.player1) === sender_id[0].userName || (element === null || element === void 0 ? void 0 : element.player2) === sender_id[0].userName).id != "undefined") {
                         clearInterval(intervals.find(element => (element === null || element === void 0 ? void 0 : element.player1) === sender_id[0].userName || (element === null || element === void 0 ? void 0 : element.player2) === sender_id[0].userName).id);
-                    intervals = intervals.filter(element => (element === null || element === void 0 ? void 0 : element.player1) != sender_id[0].userName && (element === null || element === void 0 ? void 0 : element.player2) != sender_id[0].userName);
+                        intervals.splice(intervals.indexOf(intervals.find(element => (element === null || element === void 0 ? void 0 : element.player1) === sender_id[0].userName || (element === null || element === void 0 ? void 0 : element.player2) === sender_id[0].userName)), 1);
+                        ballStat.splice(ballStat.indexOf(ballStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === sender_id[0].userName || (element === null || element === void 0 ? void 0 : element.player2) === sender_id[0].userName)), 1);
+                        playersStat.splice(playersStat.indexOf(playersStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === sender_id[0].userName || (element === null || element === void 0 ? void 0 : element.player2) === sender_id[0].userName)), 1);
+                    }
                     playerSocket = sockets.get(player2);
-                    console.log(intervals);
                     for (let ids of playerSocket) {
                         ids.emit("opponentLeft", { user: player2 });
                     }
@@ -138,6 +141,7 @@ let chatGateway = class chatGateway {
         }
     }
     async handleMessage(client, text) {
+        console.log("--------messaging-------------");
         let auth_token = client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
@@ -148,6 +152,7 @@ let chatGateway = class chatGateway {
                 data.senderId = sender_id[0].userName;
                 data.reciverId = text[1];
                 data.time = new Date();
+                console.log(data.time);
                 await this.messageServ.createMessage(data);
                 var conversation = await this.messageServ.getConversation(data.senderId, data.reciverId);
                 var senderSock = [];
@@ -162,6 +167,7 @@ let chatGateway = class chatGateway {
                 }
             }
         }
+        console.log("-------------------------------");
     }
     async matchmaking(client, test) {
         let auth_token = client.handshake.auth.Authorization;
@@ -228,7 +234,7 @@ let chatGateway = class chatGateway {
             let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
             if (Object.keys(userInfo).length !== 0) {
                 let liveGame = await this.liveGameServ.getGame(userInfo[0].userName);
-                if (Object.keys(userInfo).length !== 0 && (userInfo[0].userName == liveGame[0].player1 || userInfo[0].userName == liveGame[0].player2)) {
+                if (Object.keys(liveGame).length !== 0 && (userInfo[0].userName == liveGame[0].player1 || userInfo[0].userName == liveGame[0].player2)) {
                     var player1 = [];
                     var player2 = [];
                     player1 = sockets.get(liveGame[0].player1);
@@ -239,6 +245,7 @@ let chatGateway = class chatGateway {
         }
     }
     async handleChannels(client, text) {
+        console.log("--------startChannels-------------");
         let auth_token = client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
@@ -246,7 +253,7 @@ let chatGateway = class chatGateway {
             if (Object.keys(userInfo).length !== 0) {
                 let test = await this.usersRepository.find({
                     relations: ['chatRooms'],
-                    where: { userName: userInfo.userName }
+                    where: { userName: userInfo[0].userName }
                 });
                 let rooms = test[0].chatRooms;
                 if (rooms.length !== 0) {
@@ -256,6 +263,23 @@ let chatGateway = class chatGateway {
                 }
             }
         }
+        console.log("--------------------------------");
+    }
+    async creatChannel(client, data) {
+        console.log("------creatChannel----------");
+        let auth_token = client.handshake.auth.Authorization;
+        if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            const tokenInfo = this.jwtService.decode(auth_token);
+            let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+            if (Object.keys(userInfo).length !== 0) {
+                let room = await this.chatRoomServ.createRoom(userInfo[0].userName, data);
+                let sock = [];
+                for (let so of sock) {
+                    so.join(`${room.id}`);
+                }
+            }
+        }
+        console.log("--------------------------------");
     }
     async handleRoomMessage(client, data) {
         let auth_token = client.handshake.auth.Authorization;
@@ -267,6 +291,24 @@ let chatGateway = class chatGateway {
             }
         }
     }
+    async handleNotification(client, data) {
+        console.log("------notifications----------");
+        let auth_token = client.handshake.auth.Authorization;
+        if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            const tokenInfo = this.jwtService.decode(auth_token);
+            let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+            if (Object.keys(userInfo).length !== 0) {
+                let recvSockts = sockets.get(data.reciverName);
+                console.log(data);
+                this.notifServ.saveNotification(data, userInfo[0].userName);
+                for (let sock of recvSockts) {
+                    console.log(sock.id);
+                    sock.emit("notification", { senderName: userInfo[0].userName, type: data.type });
+                }
+            }
+        }
+        console.log("--------------------------------");
+    }
 };
 __decorate([
     (0, websockets_1.WebSocketServer)(),
@@ -275,50 +317,59 @@ __decorate([
 __decorate([
     (0, websockets_1.SubscribeMessage)('message'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:paramtypes", [typeof (_a = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _a : Object, Object]),
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "handleMessage", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('matchmaking'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:paramtypes", [typeof (_b = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _b : Object, Object]),
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "matchmaking", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('setInterval'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:paramtypes", [typeof (_c = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _c : Object, Object]),
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "setInterval", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('playing'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [socket_io_1.Socket, moveData]),
+    __metadata("design:paramtypes", [typeof (_d = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _d : Object, moveData]),
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "playing", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('startChannels'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:paramtypes", [typeof (_e = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _e : Object, Object]),
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "handleChannels", null);
 __decorate([
+    (0, websockets_1.SubscribeMessage)('creatChannel'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_f = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _f : Object, Object]),
+    __metadata("design:returntype", Promise)
+], chatGateway.prototype, "creatChannel", null);
+__decorate([
     (0, websockets_1.SubscribeMessage)('roomMessage'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:paramtypes", [typeof (_g = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _g : Object, Object]),
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "handleRoomMessage", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('notification'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_h = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _h : Object, Object]),
+    __metadata("design:returntype", Promise)
+], chatGateway.prototype, "handleNotification", null);
 chatGateway = __decorate([
     (0, websockets_1.WebSocketGateway)(),
     __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [message_service_1.messageService, user_service_1.UserService,
-        typeorm_2.Repository,
-        gamePlay_service_1.gamePlayService,
-        liveGame_service_1.liveGameService,
+    __metadata("design:paramtypes", [message_service_1.messageService, user_service_1.UserService, typeof (_j = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _j : Object, liveGame_service_1.liveGameService,
+        gamePlay_service_1.default,
         roomMessage_service_1.roomMessageService,
-        chatRoom_service_1.chatRoomService,
-        jwt_1.JwtService,
-        game_service_1.GamesService])
+        chatRoom_service_1.chatRoomService, typeof (_k = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _k : Object, game_service_1.GamesService,
+        notification_service_1.notificationService])
 ], chatGateway);
 exports.chatGateway = chatGateway;
 //# sourceMappingURL=chat.gateway.js.map

@@ -10,6 +10,7 @@ const liveGame_entity_1 = require("./entities/liveGame.entity");
 const message_entity_1 = require("./entities/message.entity");
 const chatRoom_entity_1 = require("./entities/chatRoom.entity");
 const roomMessage_entity_1 = require("./entities/roomMessage.entity");
+const notification_entity_1 = require("./entities/notification.entity");
 exports.typeOrmConfig = {
     type: 'postgres',
     host: 'localhost',
@@ -18,6 +19,7 @@ exports.typeOrmConfig = {
     password: 'postgres',
     database: 'trans',
     entities: [
+        notification_entity_1.Notification,
         liveGame_entity_1.liveGame,
         user_entity_1.User,
         game_entity_1.Games,

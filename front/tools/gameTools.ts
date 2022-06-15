@@ -45,7 +45,7 @@ function changeTraject(impact:number, ballY:RootStateOrAny, ballTrajecY:RootStat
     const ballTrajecXChange = canvaWidth / 520
     const ballTrajecYChange = (canvaWidth / 2) / 520
     if(ballY.current && impact < 0){
-        ballY.current = !ballY.current 
+        ballY.current = !ballY.current
     }
     else if (ballY.current == false && impact > 0){
         ballY.current = !ballY.current

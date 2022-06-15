@@ -28,7 +28,7 @@ const ChatZone = (props: any) => {
   useEffect(() => {
     axios
       .post(
-        `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/message/getConnversation`,
+        "http://10.12.10.4:3300/message/getConnversation",
         { userName: router.query.id },
         {
           headers: {
@@ -39,7 +39,13 @@ const ChatZone = (props: any) => {
       .then((res) => {
         setMessages(res.data);
         setAllMessages(res.data);
+      })
+      .catch(function (error) {
+        if (error.response) {
+          router.push({ pathname: `/errorPage/${error.response.status}` });
+        }
       });
+
     dummy.current.scrollIntoView();
   }, [router.query.id]);
   const [userInfo, setuserInfo] = useState<boolean>(false);
@@ -58,7 +64,7 @@ const ChatZone = (props: any) => {
           : messages[0]?.reciverId;
       axios
         .post(
-          `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/users/profile`,
+          "http://10.12.10.5:3000/users/profile",
           { userName: router.query.id },
           {
             headers: {
@@ -68,22 +74,29 @@ const ChatZone = (props: any) => {
         )
         .then((res) => {
           setReciverId(res.data?.userInfo);
+        })
+        .catch(function (error) {
+          if (error.response) {
+            router.push({ pathname: `/errorPage/${error.response.status}` });
+          }
         });
     }
     dummy.current.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
   useEffect(() => {
     axios
-      .get(
-        `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/message/getConntacts`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      )
+      .get("http://10.12.10.4:3300/message/getConntacts", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      })
       .then((res) => {
         setFriends(res.data);
+      })
+      .catch(function (error) {
+        if (error.response) {
+          router.push({ pathname: `/errorPage/${error.response.status}` });
+        }
       });
   }, []);
   const handelSubmit = (e: any) => {

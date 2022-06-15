@@ -10,6 +10,8 @@ export class chatRoomDto{
 
     type : string
 
+	protected : boolean
+
     password : string
 	
 	messageId : roomMessage[]

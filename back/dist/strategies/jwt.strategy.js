@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JwtStrategy = void 0;
 const common_1 = require("@nestjs/common");
@@ -31,7 +32,6 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         this.userRepository = userRepository;
     }
     async validate(payload) {
-        console.log('--------------11----------', payload.userId);
         let token = await this.tokenRepository.findOneBy({ email: payload.userId });
         if (token) {
             let user = await this.userRepository.findOneBy({ email: payload.userId });
@@ -46,8 +46,7 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
 JwtStrategy = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(refresh_token_entity_1.RefreshToken)),
     __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository,
-        typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object])
 ], JwtStrategy);
 exports.JwtStrategy = JwtStrategy;
 //# sourceMappingURL=jwt.strategy.js.map

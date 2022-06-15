@@ -10,13 +10,7 @@ export declare class TwoFactorAuthenticationController {
     private readonly usersService;
     private readonly authenticationService;
     constructor(twoFactorAuthenticationService: TwoFactorAuthenticationService, usersService: UserService, authenticationService: AuthService);
-    turnOnTwoFactorAuthentication(request: RequestWithUser, { twoFactorAuthenticationCode }: TwoFactorAuthenticationCodeDto): Promise<{
-        accessToken: string;
-        refreshToken: string;
-    }>;
-    register(response: Response, request: RequestWithUser): Promise<any>;
-    authenticate(request: RequestWithUser, { twoFactorAuthenticationCode }: TwoFactorAuthenticationCodeDto, data: any, context: ExecutionContext): Promise<{
-        accessToken: string;
-        refreshToken: string;
-    }>;
+    turnOnTwoFactorAuthentication(request: RequestWithUser, { twoFactorAuthenticationCode }: TwoFactorAuthenticationCodeDto): unknown;
+    register(response: Response, request: RequestWithUser): unknown;
+    authenticate(request: RequestWithUser, { twoFactorAuthenticationCode }: TwoFactorAuthenticationCodeDto, data: any, context: ExecutionContext): unknown;
 }

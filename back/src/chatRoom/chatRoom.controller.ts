@@ -10,6 +10,7 @@ import { Repository } from "typeorm";
 import { chatRoom } from "src/entities/chatRoom.entity";
 import { connect } from "http2";
 import { JwtAuthGuard } from "src/guards/jwt-auth.gguard";
+import { chatGateway } from "src/gateways/chat.gateway";
 
 export class gID {
 	gameId : number

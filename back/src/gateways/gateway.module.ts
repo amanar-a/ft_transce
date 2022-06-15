@@ -10,6 +10,7 @@ import { FriendShip } from "src/entities/friendShip.entity";
 import { Games } from "src/entities/game.entity";
 import { liveGame } from "src/entities/liveGame.entity";
 import { messages } from "src/entities/message.entity";
+import { Notification } from "src/entities/notification.entity";
 import { roomMessage } from "src/entities/roomMessage.entity";
 import { User } from "src/entities/user.entity";
 import { gameModule } from "src/games/game.module";
@@ -18,18 +19,22 @@ import { liveGameService } from "src/liveGame/liveGame.service";
 import { messageController } from "src/messages/message.controller";
 import { MessageModule } from "src/messages/message.module";
 import { messageService } from "src/messages/message.service";
+import { NotificationModule } from "src/notification/notification.module";
+import { notificationService } from "src/notification/notification.service";
 import { UserService } from "src/user/user.service";
 import { chatGateway } from "./chat.gateway";
-import { gamePlayService } from "./gamePlay.service";
+import  gamePlayService  from "./gamePlay.service";
 
 
 
 
 @Module({
-    imports: [TypeOrmModule.forFeature([User,messages,roomMessage,Games,liveGame,chatRoom]), 
-    JwtModule.register({ secret: 'bda1843e3fa6f42e528dd2ec9f088a1d4b181d525faa9caaf65c9b3ca978ef54' }),MessageModule,chatRoomModule,gameModule],
+    imports: [TypeOrmModule.forFeature([User,messages,roomMessage,Games,liveGame, chatRoom,Notification]), 
+    JwtModule.register({ secret: 'bda1843e3fa6f42e528dd2ec9f088a1d4b181d525faa9caaf65c9b3ca978ef54' }),MessageModule,chatRoomModule,gameModule,NotificationModule],
+    // JwtModule.register({ secret: 'bda1843e3fa6f42e528dd2ec9f088a1d4b181d525faa9caaf65c9b3ca978ef54' }),MessageModule,chatRoomModule,gameModule],
     controllers: [messageController], 
-    providers: [chatGateway, UserService,messageService ,liveGameService,roomMessageService,GamesService,chatRoomService,gamePlayService] 
+    providers: [chatGateway, UserService,messageService ,liveGameService,roomMessageService,GamesService, chatRoomService,notificationService,gamePlayService]
+    // providers: [chatGateway, UserService,messageService ,liveGameService,roomMessageService,GamesService, chatRoomService]
 })
 
 

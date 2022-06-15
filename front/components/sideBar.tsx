@@ -10,17 +10,19 @@ import Notification from "./../public/images/imgeSidBar/bell.png";
 import setting from "./../public/images/imgeSidBar/profileSetting.png";
 import friends from "./../public/images/imgeSidBar/group.png";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { AiOutlineBars } from "react-icons/ai";
 import { useSelector } from "react-redux";
 import { update_test } from "../redux/sizes";
 import { useDispatch } from "react-redux";
 import axios from "axios";
+import ErrorType from "./AllError/ErrorType";
 
 function SidePar(props: any) {
   const [isNavBar, setNavBar] = useState<boolean>(false);
   const [UsersInterface, setUsersInterface] = useState<boolean>(false);
-
+  const router = useRouter();
   const test = useSelector<object>((state) => state);
   // console.log(test);
   const dispatch = useDispatch<any>();
@@ -111,6 +113,28 @@ function SidePar(props: any) {
                 }}
               ></img>
             </Link>
+            <div className={Style.userInterface}>
+              <ul className={Style.usersInterfaceUl}>
+                <Link href={`/messages`}>
+                  <li
+                    onClick={(e: any) => {
+                      setNavBar(!isNavBar);
+                    }}
+                  >
+                    Users
+                  </li>
+                </Link>
+                <Link href={`/messages/g`}>
+                  <li
+                    onClick={(e: any) => {
+                      setNavBar(!isNavBar);
+                    }}
+                  >
+                    Groups
+                  </li>
+                </Link>
+              </ul>
+            </div>
           </div>
           <div className={Style.child}>
             <Link href="/notification">
@@ -154,18 +178,22 @@ function SidePar(props: any) {
               refreshToken: `${localStorage.getItem("refreshToken")}`,
             };
             axios
-              .delete(
-                `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/auth/42/logout`,
-                {
-                  headers,
-                  data,
-                }
-              )
+              .delete("http://10.12.10.5:3000/auth/42/logout", {
+                headers,
+                data,
+              })
               .then(() => {
                 localStorage.removeItem("accessToken");
                 localStorage.removeItem("refreshToken");
                 console.log("Delete successful");
                 props.setUpdate(!props.update);
+              })
+              .catch(function (error) {
+                if (error.response) {
+                  router.push({
+                    pathname: `/errorPage/${error.response.status}`,
+                  });
+                }
               });
           }}
         >

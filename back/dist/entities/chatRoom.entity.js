@@ -34,6 +34,10 @@ __decorate([
     __metadata("design:type", String)
 ], chatRoom.prototype, "type", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], chatRoom.prototype, "protected", void 0);
+__decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], chatRoom.prototype, "password", void 0);

@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.liveGameService = void 0;
 const common_1 = require("@nestjs/common");
@@ -39,11 +40,15 @@ let liveGameService = class liveGameService {
     async deleteGame(player) {
         await this.liveGameRepository.query(`DELETE FROM public."liveGame" WHERE public."liveGame"."player1" = '${player}' or public."liveGame"."player2" = '${player}'`);
     }
+    async getgames() {
+        const games = await this.liveGameRepository.query('SELECT "player1", "player2", "time" FROM public."liveGame"');
+        return games;
+    }
 };
 liveGameService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(liveGame_entity_1.liveGame)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object])
 ], liveGameService);
 exports.liveGameService = liveGameService;
 //# sourceMappingURL=liveGame.service.js.map

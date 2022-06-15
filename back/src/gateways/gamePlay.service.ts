@@ -16,7 +16,7 @@ var gameStat ={
 }
 let oneTime = 0
 @Injectable()
-export class gamePlayService
+export default class gamePlayService
 {
     constructor(
     private gameServ : GamesService,
@@ -50,6 +50,7 @@ export class gamePlayService
 
     movingPaddles(playersStat:any, player:string, movement:any, player1:Socket[], player2:Socket[],liveGame:LiveGameDto){
         let playersPlaying = playersStat.find(element=> element?.player1 === player || element?.player2 === player)
+        console.log(playersPlaying)
         if (movement === "up"){
             if (playersPlaying.player1 === player){
                 if (playersPlaying.player1Y < 6 && playersPlaying.player1Y > 0)

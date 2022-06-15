@@ -11,11 +11,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FriendsController = exports.frienduser = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const typeorm_1 = require("@nestjs/typeorm");
+const express_1 = require("express");
 const typeorm_2 = require("typeorm");
 const friends_service_1 = require("./friends.service");
 const user_entity_1 = require("../entities/user.entity");
@@ -98,14 +100,12 @@ let FriendsController = class FriendsController {
         const tokenInfo = this.jwtService.decode(jwt);
         const userName = await this.userRepo.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
         const id = await this.userRepo.query(`select "id" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-        console.log(userName[0].userName, data.sender_id);
         return this.friendService.acceptFriend(userName[0].userName, data.sender_id, id[0].id);
     }
     async sendInv(data, request) {
         const jwt = request.headers.authorization.replace('Bearer ', '');
         const tokenInfo = this.jwtService.decode(jwt);
         const user = await this.userRepo.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-        console.log('tokenInfo.userId : ', request);
         return this.friendService.sendInv(user[0].userName, data.recipent_id);
     }
     async cancellInv(data, request) {
@@ -115,7 +115,6 @@ let FriendsController = class FriendsController {
         this.friendService.cancellInv(user[0].userName, data.recipent_id);
     }
     async rejectInv(data, request) {
-        console.log('here');
         const jwt = request.headers.authorization.replace('Bearer ', '');
         const tokenInfo = this.jwtService.decode(jwt);
         const userName = await this.userRepo.query(`select public."Users"."userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
@@ -131,7 +130,6 @@ let FriendsController = class FriendsController {
 		WHERE  public."Users"."userName" IN 
 		(select "Blocked" FROM public."FriendBlocked" WHERE public."FriendBlocked"."userId" = '${userId[0].id}')
 		`);
-        console.log(user_blocked);
         return user_blocked;
     }
     async BlockFriend(data, request) {
@@ -151,7 +149,6 @@ let FriendsController = class FriendsController {
         const ifUserBlocked = await this.userRepo.query(`SELECT  "Blocker" \
     FROM public."FriendBlocked" WHERE "Blocker" = '${data.userName}' AND "Blocked" = '${FriendUserName}'`);
         if (ifUserBlocked.length == 0 && CurrentUserName != FriendUserName) {
-            console.log(CurrentUserName, FriendUserID);
             await this.userRepo.query(`DELETE FROM public."FriendLsit"
         WHERE public."FriendLsit"."userName" = '${CurrentUserName}' AND  public."FriendLsit"."userId" = '${FriendUserID}'`);
             await this.userRepo.query(`DELETE FROM public."FriendLsit"
@@ -175,7 +172,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Frinends_dto_1.FriendsInviteDto, Object]),
+    __metadata("design:paramtypes", [Frinends_dto_1.FriendsInviteDto, typeof (_a = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _a : Object]),
     __metadata("design:returntype", Promise)
 ], FriendsController.prototype, "findall", null);
 __decorate([
@@ -190,7 +187,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Frinends_dto_1.FriendsInviteDto, Object]),
+    __metadata("design:paramtypes", [Frinends_dto_1.FriendsInviteDto, typeof (_b = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _b : Object]),
     __metadata("design:returntype", Promise)
 ], FriendsController.prototype, "findFriends", null);
 __decorate([
@@ -198,7 +195,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Frinends_dto_1.FriendsInviteDto, Object]),
+    __metadata("design:paramtypes", [Frinends_dto_1.FriendsInviteDto, typeof (_c = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _c : Object]),
     __metadata("design:returntype", Promise)
 ], FriendsController.prototype, "acceptFriend", null);
 __decorate([
@@ -206,7 +203,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Frinends_dto_1.FriendsInviteDto, Object]),
+    __metadata("design:paramtypes", [Frinends_dto_1.FriendsInviteDto, typeof (_d = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _d : Object]),
     __metadata("design:returntype", Promise)
 ], FriendsController.prototype, "sendInv", null);
 __decorate([
@@ -214,7 +211,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Frinends_dto_1.FriendsInviteDto, Object]),
+    __metadata("design:paramtypes", [Frinends_dto_1.FriendsInviteDto, typeof (_e = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _e : Object]),
     __metadata("design:returntype", Promise)
 ], FriendsController.prototype, "cancellInv", null);
 __decorate([
@@ -222,14 +219,14 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Frinends_dto_1.FriendsInviteDto, Object]),
+    __metadata("design:paramtypes", [Frinends_dto_1.FriendsInviteDto, typeof (_f = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _f : Object]),
     __metadata("design:returntype", Promise)
 ], FriendsController.prototype, "rejectInv", null);
 __decorate([
     (0, common_1.Get)('block'),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [typeof (_g = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _g : Object]),
     __metadata("design:returntype", Promise)
 ], FriendsController.prototype, "BlockedFriends", null);
 __decorate([
@@ -237,7 +234,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [frienduser, Object]),
+    __metadata("design:paramtypes", [frienduser, typeof (_h = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _h : Object]),
     __metadata("design:returntype", Promise)
 ], FriendsController.prototype, "BlockFriend", null);
 __decorate([
@@ -245,7 +242,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [frienduser, Object]),
+    __metadata("design:paramtypes", [frienduser, typeof (_j = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _j : Object]),
     __metadata("design:returntype", Promise)
 ], FriendsController.prototype, "unBlockFriend", null);
 __decorate([
@@ -258,10 +255,7 @@ FriendsController = __decorate([
     (0, common_1.Controller)('friends'),
     (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
     __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [friends_service_1.friendsService,
-        typeorm_2.Repository,
-        user_service_1.UserService,
-        jwt_1.JwtService])
+    __metadata("design:paramtypes", [friends_service_1.friendsService, typeof (_k = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _k : Object, user_service_1.UserService, typeof (_l = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _l : Object])
 ], FriendsController);
 exports.FriendsController = FriendsController;
 //# sourceMappingURL=friends.controller.js.map

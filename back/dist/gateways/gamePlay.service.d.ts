@@ -2,7 +2,7 @@ import { Socket } from "socket.io";
 import { LiveGameDto } from "src/dto-classes/liveGame.dto";
 import { GamesService } from "src/games/game.service";
 import { liveGameService } from "src/liveGame/liveGame.service";
-export declare class gamePlayService {
+export default class gamePlayService {
     private gameServ;
     private liveGameServ;
     constructor(gameServ: GamesService, liveGameServ: liveGameService);

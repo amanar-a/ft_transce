@@ -9,6 +9,6 @@ export declare class roomMessageController {
     private usersRepository;
     private readonly jwtService;
     constructor(RoomService: roomMessageService, roomMessageRep: Repository<roomMessage>, usersRepository: Repository<User>, jwtService: JwtService);
-    createRoomMessage(data: any): Promise<any>;
-    getRoomMessages(data: any): Promise<roomMessage[]>;
+    createRoomMessage(data: any): unknown;
+    getRoomMessages(data: any): unknown;
 }

@@ -11,12 +11,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageController = exports.uDto = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const message_dtp_1 = require("../dto-classes/message.dtp");
 const message_service_1 = require("./message.service");
+const express_1 = require("express");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("../entities/user.entity");
 const jwt_1 = require("@nestjs/jwt");
@@ -64,7 +66,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object, typeof (_a = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _a : Object]),
     __metadata("design:returntype", Promise)
 ], messageController.prototype, "getAllMessagesById", null);
 __decorate([
@@ -74,15 +76,13 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [uDto, Object]),
+    __metadata("design:paramtypes", [uDto, typeof (_b = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _b : Object]),
     __metadata("design:returntype", Promise)
 ], messageController.prototype, "getConv", null);
 messageController = __decorate([
     (0, common_1.Controller)('message'),
     __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [message_service_1.messageService,
-        typeorm_2.Repository,
-        jwt_1.JwtService])
+    __metadata("design:paramtypes", [message_service_1.messageService, typeof (_c = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _c : Object, typeof (_d = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _d : Object])
 ], messageController);
 exports.messageController = messageController;
 //# sourceMappingURL=message.controller.js.map

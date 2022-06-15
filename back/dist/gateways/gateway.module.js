@@ -17,6 +17,7 @@ const chatRoom_entity_1 = require("../entities/chatRoom.entity");
 const game_entity_1 = require("../entities/game.entity");
 const liveGame_entity_1 = require("../entities/liveGame.entity");
 const message_entity_1 = require("../entities/message.entity");
+const notification_entity_1 = require("../entities/notification.entity");
 const roomMessage_entity_1 = require("../entities/roomMessage.entity");
 const user_entity_1 = require("../entities/user.entity");
 const game_module_1 = require("../games/game.module");
@@ -25,6 +26,8 @@ const liveGame_service_1 = require("../liveGame/liveGame.service");
 const message_controller_1 = require("../messages/message.controller");
 const message_module_1 = require("../messages/message.module");
 const message_service_1 = require("../messages/message.service");
+const notification_module_1 = require("../notification/notification.module");
+const notification_service_1 = require("../notification/notification.service");
 const user_service_1 = require("../user/user.service");
 const chat_gateway_1 = require("./chat.gateway");
 const gamePlay_service_1 = require("./gamePlay.service");
@@ -32,10 +35,10 @@ let GateWayModule = class GateWayModule {
 };
 GateWayModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, message_entity_1.messages, roomMessage_entity_1.roomMessage, game_entity_1.Games, liveGame_entity_1.liveGame, chatRoom_entity_1.chatRoom]),
-            jwt_1.JwtModule.register({ secret: 'bda1843e3fa6f42e528dd2ec9f088a1d4b181d525faa9caaf65c9b3ca978ef54' }), message_module_1.MessageModule, chatRoom_module_1.chatRoomModule, game_module_1.gameModule],
+        imports: [typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, message_entity_1.messages, roomMessage_entity_1.roomMessage, game_entity_1.Games, liveGame_entity_1.liveGame, chatRoom_entity_1.chatRoom, notification_entity_1.Notification]),
+            jwt_1.JwtModule.register({ secret: 'bda1843e3fa6f42e528dd2ec9f088a1d4b181d525faa9caaf65c9b3ca978ef54' }), message_module_1.MessageModule, chatRoom_module_1.chatRoomModule, game_module_1.gameModule, notification_module_1.NotificationModule],
         controllers: [message_controller_1.messageController],
-        providers: [chat_gateway_1.chatGateway, user_service_1.UserService, message_service_1.messageService, liveGame_service_1.liveGameService, roomMessage_service_1.roomMessageService, game_service_1.GamesService, chatRoom_service_1.chatRoomService, gamePlay_service_1.gamePlayService]
+        providers: [chat_gateway_1.chatGateway, user_service_1.UserService, message_service_1.messageService, liveGame_service_1.liveGameService, roomMessage_service_1.roomMessageService, game_service_1.GamesService, chatRoom_service_1.chatRoomService, notification_service_1.notificationService, gamePlay_service_1.default]
     })
 ], GateWayModule);
 exports.GateWayModule = GateWayModule;

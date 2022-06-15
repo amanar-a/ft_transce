@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a, _b, _c, _d, _e, _f, _g;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = exports.User_profile = exports.ExampleDto = void 0;
 const common_1 = require("@nestjs/common");
@@ -19,6 +20,7 @@ const user_dto_1 = require("../dto-classes/user.dto");
 const user_entity_1 = require("../entities/user.entity");
 const typeorm_2 = require("typeorm");
 const user_service_1 = require("./user.service");
+const express_1 = require("express");
 const jwt_1 = require("@nestjs/jwt");
 const class_validator_1 = require("class-validator");
 const jwt_auth_gguard_1 = require("../guards/jwt-auth.gguard");
@@ -147,7 +149,7 @@ __decorate([
     (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [typeof (_a = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _a : Object]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "findAllUsers", null);
 __decorate([
@@ -156,7 +158,7 @@ __decorate([
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, User_profile]),
+    __metadata("design:paramtypes", [typeof (_b = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _b : Object, User_profile]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "userProfile", null);
 __decorate([
@@ -174,7 +176,7 @@ __decorate([
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, ExampleDto]),
+    __metadata("design:paramtypes", [typeof (_c = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _c : Object, ExampleDto]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "chekUsername", null);
 __decorate([
@@ -184,7 +186,7 @@ __decorate([
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [typeof (_d = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _d : Object, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getPicByuserName", null);
 __decorate([
@@ -192,15 +194,13 @@ __decorate([
     (0, common_1.Get)('CheckUserName'),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [typeof (_e = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _e : Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getUsername", null);
 UserController = __decorate([
     (0, common_1.Controller)('users'),
     __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [user_service_1.UserService,
-        typeorm_2.Repository,
-        jwt_1.JwtService])
+    __metadata("design:paramtypes", [user_service_1.UserService, typeof (_f = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _f : Object, typeof (_g = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _g : Object])
 ], UserController);
 exports.UserController = UserController;
 //# sourceMappingURL=user.controller.js.map
