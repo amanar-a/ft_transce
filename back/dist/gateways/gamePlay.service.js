@@ -144,7 +144,7 @@ let gamePlayService = class gamePlayService {
         }
         let ballStats = ballStat.find(element => element.player1 === player || element.player2 === player);
         let playerStat = playersStat.find(element => element.player1 === player || element.player2 === player);
-        if (playerStat.player1score >= 5 || playerStat.player2score >= 5) {
+        if (playerStat.player1score >= 2 || playerStat.player2score >= 2) {
             let player1_ = playerStat.player1score > playerStat.player2score ? "Winner" : "Loser";
             let player2_ = playerStat.player1score < playerStat.player2score ? "Winner" : "Loser";
             var game = new (game_dto_1.GamesDto);
@@ -154,9 +154,10 @@ let gamePlayService = class gamePlayService {
             game.played_at = new Date();
             this.gameServ.InsertGame(game);
             this.liveGameServ.deleteGame(player);
-            ballStat = ballStat.filter(element => element.player1 != player && element.player2 != player);
-            playersStat = playersStat.filter(element => element.player1 != player && element.player2 != player);
+            ballStat.splice(ballStat.indexOf(ballStat.find(element => element.player1 === player || element.player2 === player)), 1);
+            playersStat.splice(playersStat.indexOf(playersStat.find(element => element.player1 === player || element.player2 === player)), 1);
             clearInterval(intervals.find(element => element.player1 == player || element.player2 == player).id);
+            intervals.splice(intervals.indexOf(intervals.find(element => element.player1 === player || element.player2 === player)), 1);
             for (let ids of player1) {
                 ids.emit("gameOver", {
                     ballStats,

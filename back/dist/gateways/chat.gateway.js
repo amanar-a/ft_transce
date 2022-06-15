@@ -56,6 +56,7 @@ let chatGateway = class chatGateway {
             const tokenInfo = this.jwtService.decode(auth_token);
             let sender_id = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
             console.log("------ desconnection -----");
+            console.log("Inter =", intervals, "Ball =", ballStat, "Player =", playersStat);
             if (sender_id.length > 0) {
                 if (matchMakingarray.indexOf(sender_id[0].userName) != -1) {
                     matchMakingarray.splice(matchMakingarray.indexOf(sender_id[0].userName), 1);
@@ -227,11 +228,13 @@ let chatGateway = class chatGateway {
             let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
             if (Object.keys(userInfo).length !== 0) {
                 let liveGame = await this.liveGameServ.getGame(userInfo[0].userName);
-                var player1 = [];
-                var player2 = [];
-                player1 = sockets.get(liveGame[0].player1);
-                player2 = sockets.get(liveGame[0].player2);
-                this.gamePlaysServ.movingPaddles(playersStat, userInfo[0].userName, body, player1, player2, liveGame);
+                if (Object.keys(userInfo).length !== 0 && (userInfo[0].userName == liveGame[0].player1 || userInfo[0].userName == liveGame[0].player2)) {
+                    var player1 = [];
+                    var player2 = [];
+                    player1 = sockets.get(liveGame[0].player1);
+                    player2 = sockets.get(liveGame[0].player2);
+                    this.gamePlaysServ.movingPaddles(playersStat, userInfo[0].userName, body, player1, player2, liveGame);
+                }
             }
         }
     }

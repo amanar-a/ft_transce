@@ -59,6 +59,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 			let sender_id = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
 
 			console.log("------ desconnection -----");
+			console.log("Inter =" ,intervals, "Ball =" ,ballStat, "Player =" ,playersStat)
 			if(sender_id.length > 0)
 			{
 				if(matchMakingarray.indexOf(sender_id[0].userName) != -1)
@@ -76,6 +77,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 					this.gameServ.InsertGame(game)
 					this.liveGameServ.deleteGame(sender_id[0].userName)
 					var playerSocket : Socket[] = [];
+				
 					playersStat = playersStat.filter(element => element.player1 != sender_id[0].userName && element.player2 != sender_id[0].userName)
 					if (intervals.length > 0 &&  typeof intervals.find(element => element?.player1 === sender_id[0].userName || element?.player2 === sender_id[0].userName).id != "undefined")
 						clearInterval(intervals.find(element => element?.player1 === sender_id[0].userName || element?.player2 === sender_id[0].userName).id)	
@@ -269,11 +271,13 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 			if(Object.keys(userInfo).length !== 0)
 			{
 				let liveGame : LiveGameDto = await this.liveGameServ.getGame(userInfo[0].userName)
-				var player1 : Socket[] = [];
-				var player2 : Socket[] = [];
-				player1 = sockets.get(liveGame[0].player1);
-				player2 = sockets.get(liveGame[0].player2);
-				this.gamePlaysServ.movingPaddles(playersStat,userInfo[0].userName,body, player1, player2, liveGame)
+				if (Object.keys(userInfo).length !== 0 && (userInfo[0].userName == liveGame[0].player1 || userInfo[0].userName == liveGame[0].player2)){
+					var player1 : Socket[] = [];
+					var player2 : Socket[] = [];
+					player1 = sockets.get(liveGame[0].player1);
+					player2 = sockets.get(liveGame[0].player2);
+					this.gamePlaysServ.movingPaddles(playersStat,userInfo[0].userName,body, player1, player2, liveGame)
+				}
 			}
 		
 		}
