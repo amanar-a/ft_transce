@@ -12,7 +12,7 @@ export declare class messageController {
     private usersRepository;
     private readonly jwtService;
     constructor(messageServ: messageService, usersRepository: Repository<User>, jwtService: JwtService);
-    saveMessage(message: messageDto): unknown;
-    getAllMessagesById(token: any, request: Request): unknown;
-    getConv(reciver: uDto, request: Request): unknown;
+    saveMessage(message: messageDto): Promise<messageDto & import("../entities/message.entity").messages>;
+    getAllMessagesById(token: any, request: Request): Promise<any>;
+    getConv(reciver: uDto, request: Request): Promise<any>;
 }

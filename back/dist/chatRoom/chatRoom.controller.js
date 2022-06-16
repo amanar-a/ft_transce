@@ -11,13 +11,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chatRoomController = exports.gID = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const chatRoom_service_1 = require("./chatRoom.service");
-const express_1 = require("express");
 const jwt_1 = require("@nestjs/jwt");
 const user_entity_1 = require("../entities/user.entity");
 const typeorm_2 = require("typeorm");
@@ -57,7 +55,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, typeof (_a = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _a : Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], chatRoomController.prototype, "createRoom", null);
 __decorate([
@@ -66,14 +64,17 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, typeof (_b = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _b : Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], chatRoomController.prototype, "addUser", null);
 chatRoomController = __decorate([
     (0, common_1.Controller)('chatRoom'),
     __param(1, (0, typeorm_1.InjectRepository)(chatRoom_entity_1.chatRoom)),
     __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [chatRoom_service_1.chatRoomService, typeof (_c = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _c : Object, typeof (_d = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _d : Object, typeof (_e = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _e : Object])
+    __metadata("design:paramtypes", [chatRoom_service_1.chatRoomService,
+        typeorm_2.Repository,
+        typeorm_2.Repository,
+        jwt_1.JwtService])
 ], chatRoomController);
 exports.chatRoomController = chatRoomController;
 //# sourceMappingURL=chatRoom.controller.js.map

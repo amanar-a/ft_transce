@@ -21,7 +21,6 @@ var gameStat = {
     ballSize: 1000 / 80,
     ballMovmentX: 1000 / 520
 };
-let oneTime = 0;
 let gamePlayService = class gamePlayService {
     constructor(gameServ, liveGameServ) {
         this.gameServ = gameServ;
@@ -44,12 +43,12 @@ let gamePlayService = class gamePlayService {
             ballMovmentX: 2,
             ballMovmentY: 2,
             trajectX: false,
-            trajectY: true
+            trajectY: true,
+            oneTime: 0
         });
     }
     movingPaddles(playersStat, player, movement, player1, player2, liveGame) {
         let playersPlaying = playersStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === player || (element === null || element === void 0 ? void 0 : element.player2) === player);
-        console.log(playersPlaying);
         if (movement === "up") {
             if (playersPlaying.player1 === player) {
                 if (playersPlaying.player1Y < 6 && playersPlaying.player1Y > 0)
@@ -79,27 +78,17 @@ let gamePlayService = class gamePlayService {
             }
         }
         let players = playersStat.find(element => element.player1 === liveGame[0].player1 || element.player2 === liveGame[0].player2);
-        if (liveGame[0].player1 == player) {
-            for (let ids of player1) {
-                ids.emit("movements", { player: "player1", players });
-            }
-            for (let ids of player2) {
-                ids.emit("movements", { player: "player1", players });
-            }
+        for (let ids of player1) {
+            ids.emit("movements", { player: "player1", players });
         }
-        else {
-            for (let ids of player1) {
-                ids.emit("movements", { player: "player2", players });
-            }
-            for (let ids of player2) {
-                ids.emit("movements", { player: "player2", players });
-            }
+        for (let ids of player2) {
+            ids.emit("movements", { player: "player1", players });
         }
     }
     movingBall(player, ballStat, playersStat, player1, player2, intervals) {
         let stats_Ball = ballStat.find(element => element.player1 === player || element.player2 === player);
         let stats_player = playersStat.find(element => element.player1 === player || element.player2 === player);
-        if (oneTime != 1 && stats_Ball.ballX + gameStat.ballSize >= gameStat.with - gameStat.rectWidth + 5 && stats_Ball.ballX + gameStat.ballSize <= gameStat.with && stats_Ball.ballY + gameStat.ballSize > stats_player.player2Y && stats_Ball.ballY < stats_player.player2Y + gameStat.rectHeigth + gameStat.ballSize) {
+        if (stats_Ball.oneTime != 1 && stats_Ball.ballX + gameStat.ballSize >= gameStat.with - gameStat.rectWidth + 5 && stats_Ball.ballX + gameStat.ballSize <= gameStat.with && stats_Ball.ballY + gameStat.ballSize > stats_player.player2Y && stats_Ball.ballY < stats_player.player2Y + gameStat.rectHeigth + gameStat.ballSize) {
             let impact = stats_Ball.ballY - (stats_player.player2Y + gameStat.rectHeigth / 2);
             if (stats_Ball.trajectY === true && impact < 0)
                 ballStat.find(element => element.player1 === player || element.player2 === player).trajectY = !stats_Ball.trajectY;
@@ -109,9 +98,9 @@ let gamePlayService = class gamePlayService {
             let xy = this.changeTraject(impact);
             ballStat.find(element => element.player1 === player || element.player2 === player).ballMovmentX = xy.x;
             ballStat.find(element => element.player1 === player || element.player2 === player).ballMovmentY = xy.y;
-            oneTime = 1;
+            ballStat.find(element => element.player1 === player || element.player2 === player).oneTime = 1;
         }
-        else if (oneTime != 2 && stats_Ball.ballX - gameStat.ballSize <= gameStat.rectWidth + 5 && stats_Ball.ballX - gameStat.ballSize >= 0 && stats_Ball.ballY + gameStat.ballSize > stats_player.player1Y && stats_Ball.ballY < stats_player.player1Y + gameStat.rectHeigth + gameStat.ballSize) {
+        else if (stats_Ball.oneTime != 2 && stats_Ball.ballX - gameStat.ballSize <= gameStat.rectWidth + 5 && stats_Ball.ballX - gameStat.ballSize >= 0 && stats_Ball.ballY + gameStat.ballSize > stats_player.player1Y && stats_Ball.ballY < stats_player.player1Y + gameStat.rectHeigth + gameStat.ballSize) {
             let impact = stats_Ball.ballY - (stats_player.player1Y + gameStat.rectHeigth / 2);
             if (stats_Ball.trajectY === true && impact < 0)
                 ballStat.find(element => element.player1 === player || element.player2 === player).trajectY = !stats_Ball.trajectY;
@@ -121,7 +110,7 @@ let gamePlayService = class gamePlayService {
             let xy = this.changeTraject(impact);
             ballStat.find(element => element.player1 === player || element.player2 === player).ballMovmentX = xy.x;
             ballStat.find(element => element.player1 === player || element.player2 === player).ballMovmentY = xy.y;
-            oneTime = 2;
+            ballStat.find(element => element.player1 === player || element.player2 === player).oneTime = 2;
         }
         if (stats_Ball.ballY + gameStat.ballSize >= gameStat.height)
             ballStat.find(element => element.player1 === player || element.player2 === player).trajectY = false;
@@ -144,7 +133,7 @@ let gamePlayService = class gamePlayService {
         }
         let ballStats = ballStat.find(element => element.player1 === player || element.player2 === player);
         let playerStat = playersStat.find(element => element.player1 === player || element.player2 === player);
-        if (playerStat.player1score >= 2 || playerStat.player2score >= 2) {
+        if (playerStat.player1score >= 40000 || playerStat.player2score >= 40000) {
             let player1_ = playerStat.player1score > playerStat.player2score ? "Winner" : "Loser";
             let player2_ = playerStat.player1score < playerStat.player2score ? "Winner" : "Loser";
             var game = new (game_dto_1.GamesDto);
@@ -154,10 +143,6 @@ let gamePlayService = class gamePlayService {
             game.played_at = new Date();
             this.gameServ.InsertGame(game);
             this.liveGameServ.deleteGame(player);
-            ballStat.splice(ballStat.indexOf(ballStat.find(element => element.player1 === player || element.player2 === player)), 1);
-            playersStat.splice(playersStat.indexOf(playersStat.find(element => element.player1 === player || element.player2 === player)), 1);
-            clearInterval(intervals.find(element => element.player1 == player || element.player2 == player).id);
-            intervals.splice(intervals.indexOf(intervals.find(element => element.player1 === player || element.player2 === player)), 1);
             for (let ids of player1) {
                 ids.emit("gameOver", {
                     ballStats,
@@ -174,6 +159,10 @@ let gamePlayService = class gamePlayService {
                     player: playerStat.player2
                 });
             }
+            ballStat.splice(ballStat.indexOf(ballStat.find(element => element.player1 === player || element.player2 === player)), 1);
+            playersStat.splice(playersStat.indexOf(playersStat.find(element => element.player1 === player || element.player2 === player)), 1);
+            clearInterval(intervals.find(element => element.player1 == player || element.player2 == player).id);
+            intervals.splice(intervals.indexOf(intervals.find(element => element.player1 === player || element.player2 === player)), 1);
         }
         else {
             for (let ids of player1) {

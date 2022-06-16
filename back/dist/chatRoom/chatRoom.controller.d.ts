@@ -13,6 +13,6 @@ export declare class chatRoomController {
     private usersRepository;
     private readonly jwtService;
     constructor(RoomService: chatRoomService, roomRep: Repository<chatRoom>, usersRepository: Repository<User>, jwtService: JwtService);
-    createRoom(body: any, request: Request): any;
-    addUser(gameId: any, request: Request): any;
+    createRoom(body: any, request: Request): Promise<void>;
+    addUser(gameId: any, request: Request): Promise<void>;
 }

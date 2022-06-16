@@ -58,18 +58,26 @@ const HomeGame = (props: any) => {
             });
           },6000)
         }
-        props.socket?.on("opponentLeft",(data:any) =>{
-          changeOpp("Winner")
-          changeGameOver(data.user)
-        })
-        props.socket?.on("gameOver",(data:any) =>{
-          console.log(data)
-          changeOpp(data.status)
-          changeScore({player1:data.playerStat.player1score,player2:data.playerStat.player2score})
-          changeGameOver(data.player)
-        })
-    });
-  }, []);
+      });
+      return () => props.socket?.off("matchmaking")
+      
+    }, []);
+  useEffect(()=>{
+    props.socket?.on("gameOver",(data:any) =>{
+      console.log(data)
+      changeOpp(data.status)
+      changeScore({player1:data.playerStat.player1score,player2:data.playerStat.player2score})
+      changeGameOver(data.player)
+    })
+    return () => props.socket?.off("gameOver")
+  },[])
+  useEffect(()=>{
+    props.socket?.on("opponentLeft",(data:any) =>{
+      changeOpp("Winner")
+      changeGameOver(data.user)
+    })
+    return () => props.socket?.off("opponentLeft")
+  },[])
   return (
     <>
       <div className={style.Container}>

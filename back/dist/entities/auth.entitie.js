@@ -8,7 +8,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RefreshToken2 = void 0;
 const typeorm_1 = require("typeorm");
@@ -39,7 +38,7 @@ __decorate([
 ], RefreshToken2.prototype, "ipAddress", void 0);
 RefreshToken2 = __decorate([
     (0, typeorm_1.Entity)('RefreshToken'),
-    __metadata("design:paramtypes", [typeof (_a = typeof Partial !== "undefined" && Partial) === "function" ? _a : Object])
+    __metadata("design:paramtypes", [Object])
 ], RefreshToken2);
 exports.RefreshToken2 = RefreshToken2;
 //# sourceMappingURL=auth.entitie.js.map

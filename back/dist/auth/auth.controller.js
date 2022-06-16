@@ -11,12 +11,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const express_1 = require("express");
 const user_entity_1 = require("../entities/user.entity");
 const typeorm_2 = require("typeorm");
 const auth_service_1 = require("./auth.service");
@@ -41,11 +39,11 @@ let AuthController = class AuthController {
             console.log(info);
             let ret = await this.authService.cheskUser(req);
             if (ret == 1)
-                response.redirect(`http://10.13.3.11:3000/authentication?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
+                response.redirect(`http://10.13.1.13:3000/authentication?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
             else if (ret == 2)
-                response.redirect(`http://10.13.3.11:3000/home?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
+                response.redirect(`http://10.13.1.13:3000/home?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
             else
-                response.redirect(`http://10.13.3.11:3000`);
+                response.redirect(`http://10.13.1.13:3000`);
         }
         catch (e) {
             console.log(e);
@@ -73,7 +71,7 @@ __decorate([
     __param(1, (0, common_1.Res)()),
     __param(2, (0, common_1.Ip)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, typeof (_a = typeof express_1.Response !== "undefined" && express_1.Response) === "function" ? _a : Object, Object]),
+    __metadata("design:paramtypes", [Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "asyncgoogleAuthRedirect", null);
 __decorate([
@@ -95,7 +93,8 @@ __decorate([
 AuthController = __decorate([
     (0, common_1.Controller)('auth/42'),
     __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [auth_service_1.AuthService, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object])
+    __metadata("design:paramtypes", [auth_service_1.AuthService,
+        typeorm_2.Repository])
 ], AuthController);
 exports.AuthController = AuthController;
 //# sourceMappingURL=auth.controller.js.map

@@ -168,6 +168,7 @@ export default function Game(props: any) {
       changePlayer1(oldvalue =>({...oldvalue, y:newPosition1}))
       changePlayer2(oldvalue =>({...oldvalue, y:newPosition2}))
     })
+    return () => props.socket?.off("movements")
   }, []);
 
   useEffect(() => {
@@ -204,6 +205,7 @@ export default function Game(props: any) {
       props.changeScore({player1:data.playerStat.player1score,player2:data.playerStat.player2score})
     }
     })
+    return () => props.socket?.off("ballMovement")
   },[])
   return (
     <>

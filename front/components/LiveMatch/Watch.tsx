@@ -25,7 +25,7 @@ function Watch (props:any) {
           });
         })
       },[])
-
+      console.log(props)
     return (
         <>
             <div className={style.container}>
@@ -36,7 +36,7 @@ function Watch (props:any) {
                     </div>
                     <div className={style.childSclor}>
                         {liveGame.map((data, index) =>(
-                            <LiveListMatch key ={index} data={data}/>
+                            <LiveListMatch key ={index} data={data} socket={props.socket}/>
                         ))}
                     </div>
                 </div>

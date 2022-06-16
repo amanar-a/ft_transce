@@ -28,15 +28,16 @@ export declare class chatGateway implements OnGatewayConnection, OnGatewayDiscon
     private gameServ;
     private notifServ;
     constructor(messageServ: messageService, userServ: UserService, usersRepository: Repository<User>, liveGameServ: liveGameService, gamePlaysServ: gamePlayService, roomMessageServ: roomMessageService, chatRoomServ: chatRoomService, jwtService: JwtService, gameServ: GamesService, notifServ: notificationService);
-    server: {};
-    handleDisconnect(client: Socket): any;
-    handleConnection(client: Socket, ...args: any): any;
-    handleMessage(client: Socket, text: any): any;
-    matchmaking(client: Socket, test: any): any;
-    setInterval(client: Socket, test: any): any;
-    playing(client: Socket, body: moveData): any;
-    handleChannels(client: Socket, text: any): any;
-    creatChannel(client: Socket, data: any): any;
-    handleRoomMessage(client: Socket, data: any): any;
-    handleNotification(client: Socket, data: any): any;
+    server: any[];
+    handleDisconnect(client: Socket): Promise<void>;
+    handleConnection(client: Socket, ...args: any): Promise<void>;
+    handleMessage(client: Socket, text: any): Promise<void>;
+    matchmaking(client: Socket, test: any): Promise<void>;
+    setInterval(client: Socket, test: any): Promise<void>;
+    addWatcher(client: Socket, body: any): Promise<void>;
+    playing(client: Socket, body: moveData): Promise<void>;
+    handleChannels(client: Socket, text: any): Promise<void>;
+    creatChannel(client: Socket, data: any): Promise<void>;
+    handleRoomMessage(client: Socket, data: any): Promise<void>;
+    handleNotification(client: Socket, data: any): Promise<void>;
 }

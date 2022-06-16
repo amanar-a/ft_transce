@@ -9,6 +9,6 @@ export declare class chatRoomService {
     private usersRepository;
     private readonly jwtService;
     constructor(userServ: UserService, RoomRepository: Repository<chatRoom>, usersRepository: Repository<User>, jwtService: JwtService);
-    createRoom(owner: string, data: any): unknown;
-    getRoomById(gameId: number): unknown;
+    createRoom(owner: string, data: any): Promise<chatRoom>;
+    getRoomById(gameId: number): Promise<chatRoom>;
 }

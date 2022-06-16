@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.gamesController = void 0;
 const common_1 = require("@nestjs/common");
@@ -20,7 +19,6 @@ const game_dto_1 = require("../dto-classes/game.dto");
 const game_entity_1 = require("../entities/game.entity");
 const typeorm_2 = require("typeorm");
 const game_service_1 = require("./game.service");
-const express_1 = require("express");
 const jwt_auth_gguard_1 = require("../guards/jwt-auth.gguard");
 let gamesController = class gamesController {
     constructor(gamesService, gameService) {
@@ -39,7 +37,7 @@ __decorate([
     (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_a = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _a : Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], gamesController.prototype, "finGames", null);
 __decorate([
@@ -53,7 +51,8 @@ __decorate([
 gamesController = __decorate([
     (0, common_1.Controller)('games'),
     __param(1, (0, typeorm_1.InjectRepository)(game_entity_1.Games)),
-    __metadata("design:paramtypes", [game_service_1.GamesService, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object])
+    __metadata("design:paramtypes", [game_service_1.GamesService,
+        typeorm_2.Repository])
 ], gamesController);
 exports.gamesController = gamesController;
 //# sourceMappingURL=game.controller.js.map

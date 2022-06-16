@@ -7,6 +7,6 @@ export declare class gamesController {
     private readonly gamesService;
     private gameService;
     constructor(gamesService: GamesService, gameService: Repository<Games>);
-    finGames(request: Request): Promise<{}>;
+    finGames(request: Request): Promise<Games[]>;
     getGames(gamesData: GamesDto): void;
 }

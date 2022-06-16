@@ -7,8 +7,8 @@ export declare class AuthController {
     private readonly authService;
     private usersRepository;
     constructor(authService: AuthService, usersRepository: Repository<User>);
-    auth42(): any;
-    asyncgoogleAuthRedirect(req: any, response: Response, ip: any): any;
-    refreshToken(body: RefreshTokenDto): unknown;
-    logout(req: any, body: RefreshTokenDto): unknown;
+    auth42(): Promise<void>;
+    asyncgoogleAuthRedirect(req: any, response: Response, ip: any): Promise<void>;
+    refreshToken(body: RefreshTokenDto): Promise<string>;
+    logout(req: any, body: RefreshTokenDto): Promise<void>;
 }

@@ -16,10 +16,14 @@ export declare class UserController {
     private usersRepository;
     private readonly jwtService;
     constructor(userService: UserService, usersRepository: Repository<User>, jwtService: JwtService);
-    findAllUsers(request1: Request): unknown;
-    userProfile(request1: Request, user_profile: User_profile): unknown;
+    findAllUsers(request1: Request): Promise<any>;
+    userProfile(request1: Request, user_profile: User_profile): Promise<{}>;
     userUser(userData: UserDto): void;
-    chekUsername(request1: Request, request: ExampleDto): unknown;
-    getPicByuserName(request1: Request, body: any): unknown;
-    getUsername(request1: Request): unknown;
+    chekUsername(request1: Request, request: ExampleDto): Promise<{
+        message: string;
+    }>;
+    getPicByuserName(request1: Request, body: any): Promise<{}>;
+    getUsername(request1: Request): Promise<{
+        exist: boolean;
+    }>;
 }

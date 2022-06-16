@@ -47,7 +47,7 @@ function SidePar(props: any) {
             onClick={(e: any) => {
               setUsersInterface(!UsersInterface);
             }}
-          >
+           >
             <img src={friends.src} className={Style.iconimg} />
             <div className={Style.userInterface}>
               <ul className={Style.usersInterfaceUl}>

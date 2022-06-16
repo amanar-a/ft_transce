@@ -3,6 +3,7 @@ import Image from 'next/image'
 import imge from '../../public/images/profile.jpg'
 
 const LiveListMatch = (props:any) =>{
+    console.log(props.data)
     return (
         <div className={style.listeMtch}>
             <div className={style.player1}>
@@ -14,7 +15,10 @@ const LiveListMatch = (props:any) =>{
                 <div className={style.imagediv}><img  src={props.data.playerpic2} className={style.img}/></div>
                 <p className={style.userName}>{props.data.player2}</p>
             </div>
-            <button className={style.watch}>Watch</button>
+            <button id={props.data.player1} className={style.watch} onClick={(e:any)=>{
+               props.socket.emit("addWatcher",e.target.id)
+            }}
+            >Watch</button>
         </div>
     )
 };

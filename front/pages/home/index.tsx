@@ -8,15 +8,15 @@ import { useEffect } from "react";
 import Router, { useRouter } from "next/router";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import finalPropsSelectorFactory from "react-redux/es/connect/selectorFactory";
 
-const home = () => {
+const home = (props:any) => {
   const [update, setUpdate] = useState<boolean>(false);
   const [userName, setUsername] = useState<boolean>(false);
   const route = useRouter();
   const test: any = useSelector<any>((state) => state);
 
-
-
+  console.log(props)
   useEffect(() => {
     if (typeof window !== "undefined") {
       if (route.query.token && route.query.refreshToken) {
@@ -78,7 +78,7 @@ const home = () => {
   return (
     <>
       <div className={styles.globaleHomeContainer}>
-        <Watch />
+        <Watch socket={props.socket}/>
       </div>
       {/* <div className={userName ? styles.none : update ? styles.none : styles.userInfoContainerBlure}></div> */}
       {/* <div className={userName ? styles.none : update ? styles.none : styles.userInfoContainer}> */}

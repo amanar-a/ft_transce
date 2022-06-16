@@ -4,9 +4,9 @@ import { Repository } from "typeorm";
 export declare class liveGameService {
     private liveGameRepository;
     constructor(liveGameRepository: Repository<liveGame>);
-    saveGame(game: LiveGameDto): any;
-    getGame(player: string): unknown;
-    getGameByPlayer(player: string): unknown;
-    deleteGame(player: string): any;
-    getgames(): unknown;
+    saveGame(game: LiveGameDto): Promise<void>;
+    getGame(player: string): Promise<any>;
+    getGameByPlayer(player: string): Promise<string>;
+    deleteGame(player: string): Promise<void>;
+    getgames(): Promise<any>;
 }
