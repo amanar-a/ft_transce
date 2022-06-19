@@ -27,7 +27,7 @@ let AppModule = class AppModule {
 AppModule = __decorate([
     (0, common_1.Module)({
         imports: [user_module_1.UserModule, chatRoom_module_1.chatRoomModule, message_module_1.MessageModule, twoFactorAuthentication_module_1.TwoFaModule, game_module_1.gameModule, auth_module_1.AuthModule, file_upload_module_1.UploadModule, friends_module_1.FriendsModule, gateway_module_1.GateWayModule, typeorm_1.TypeOrmModule.forRoot(typeormcofig_1.typeOrmConfig),
-            live_game_module_1.livegamemodule],
+            live_game_module_1.default],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
     })

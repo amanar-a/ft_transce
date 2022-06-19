@@ -30,10 +30,10 @@
       "static/chunks/main.js",
       "static/chunks/pages/game.js"
     ],
-    "/home": [
+    "/login": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/home.js"
+      "static/chunks/pages/login.js"
     ],
     "/profile": [
       "static/chunks/webpack.js",

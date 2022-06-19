@@ -28,7 +28,6 @@ const HomeGame = (props: any) => {
     props.socket?.emit("matchmaking");
     props.socket?.on("matchmaking", (data: any) => {
       if (typeof data != "string") {
-
         if (typeof window != "undefined")
         changeOpp("counter")
         window.setTimeout(()=>{
@@ -58,7 +57,11 @@ const HomeGame = (props: any) => {
             });
           },6000)
         }
+        else if (data == "Watcher"){
+          changeOpp("Watcher");
+        }
       });
+      console.log("daa")
       return () => props.socket?.off("matchmaking")
       
     }, []);
@@ -94,7 +97,7 @@ const HomeGame = (props: any) => {
         ):
         oppenent === "Loser" ? (
           <CartLose userName={gameOver} score={gameOver == players.player1 ? score.player1 : score.player2} img={gameOver == players.player1 ? players.pic1: players.pic2}/>
-        ):(
+        ): oppenent == "Found" || oppenent == "Watcher" ? (
           <>
             <img className={style.imgImoji} src={leagend.src} />
             <div className={style.cartPlayer}>
@@ -113,7 +116,7 @@ const HomeGame = (props: any) => {
               />
             </div>
           </>
-        )}
+        ):""}
       </div>
 
       {/* {test.sizes_.zak_test && <UserInfoPopup />} */}

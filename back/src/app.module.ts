@@ -11,7 +11,7 @@ import { FriendsModule } from './friends/friends.module';
 import { gameModule } from './games/game.module';
 import { chatGateway } from './gateways/chat.gateway';
 import { GateWayModule } from './gateways/gateway.module';
-import { livegamemodule } from './liveGame/live.game.module';
+import livegamemodule from './liveGame/live.game.module';
 import { liveGameService } from './liveGame/liveGame.service';
 import { MessageModule } from './messages/message.module';
 import { messageService } from './messages/message.service';

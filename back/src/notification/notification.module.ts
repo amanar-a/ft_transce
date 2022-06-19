@@ -3,7 +3,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { config } from "dotenv";
 import { liveGame } from "src/entities/liveGame.entity";
-import { Notification } from "src/entities/notification.entity";
+import  Notification  from "src/entities/notification.entity";
 import { User } from "src/entities/user.entity";
 import { chatGateway } from "src/gateways/chat.gateway";
 import { MessageModule } from "src/messages/message.module";

@@ -200,7 +200,6 @@ export default function Game(props: any) {
     let newPositionX = data.ballStats.ballX / changePercWidth;
     let newPositionY = data.ballStats.ballY / changePercHeight;
     changeBall({x:newPositionX,y:newPositionY})
-    console.log(data.playerStat)
     if (data.playerStat.player1score != props.score.player1 || data.playerStat.player2score != props.score.player2){
       props.changeScore({player1:data.playerStat.player1score,player2:data.playerStat.player2score})
     }

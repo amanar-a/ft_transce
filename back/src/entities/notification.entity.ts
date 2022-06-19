@@ -3,7 +3,7 @@ import { BaseEntity, Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany
 
 @Entity('notification')
 
-export class Notification extends BaseEntity
+export default class Notification extends BaseEntity
 {
     @PrimaryGeneratedColumn({
         comment : 'the quiz unique indentifier',

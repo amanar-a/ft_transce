@@ -1,14 +1,14 @@
 import { JwtService } from "@nestjs/jwt";
 import { OnGatewayConnection, OnGatewayDisconnect } from "@nestjs/websockets";
 import { Socket } from "socket.io";
-import { chatRoomService } from "src/chatRoom/chatRoom.service";
+import { chatRoomService } from "../chatRoom/chatRoom.service";
 import { roomMessageService } from "src/chatRoom/roomMessage.service";
-import { User } from "src/entities/user.entity";
-import { GamesService } from "src/games/game.service";
-import { liveGameService } from "src/liveGame/liveGame.service";
-import { messageService } from "src/messages/message.service";
-import { notificationService } from "src/notification/notification.service";
-import { UserService } from "src/user/user.service";
+import { User } from "../entities/user.entity";
+import { GamesService } from "../games/game.service";
+import { liveGameService } from "../liveGame/liveGame.service";
+import { messageService } from "../messages/message.service";
+import { notificationService } from "../notification/notification.service";
+import { UserService } from "../user/user.service";
 import { Repository } from "typeorm";
 import gamePlayService from "./gamePlay.service";
 export declare class moveData {

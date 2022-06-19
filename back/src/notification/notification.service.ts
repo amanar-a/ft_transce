@@ -4,7 +4,7 @@ import { Repository } from "typeorm";
 import { JwtService } from "@nestjs/jwt";
 import { User } from "src/entities/user.entity";
 import { UserService } from "src/user/user.service";
-import { Notification } from "src/entities/notification.entity";
+import  Notification  from "src/entities/notification.entity";
 import { notificationDto } from "src/dto-classes/notification.dto";
 
 @Injectable()

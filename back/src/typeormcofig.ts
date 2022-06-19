@@ -8,7 +8,7 @@ import { liveGame } from './entities/liveGame.entity';
 import { messages } from './entities/message.entity';
 import { chatRoom } from './entities/chatRoom.entity';
 import { roomMessage } from './entities/roomMessage.entity';
-import { Notification } from './entities/notification.entity';
+import  Notification  from './entities/notification.entity';
 
 // ['**/*.entity{.ts,.js}']
 

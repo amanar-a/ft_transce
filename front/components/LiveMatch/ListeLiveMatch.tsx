@@ -1,9 +1,15 @@
 import style from '../../styles/watchMatch/livelisteMatch.module.css'
 import Image from 'next/image'
 import imge from '../../public/images/profile.jpg'
+import { useEffect } from 'react';
 
 const LiveListMatch = (props:any) =>{
     console.log(props.data)
+    useEffect(()=>{
+        props.socket?.on("addWatcher",(data:any) =>{
+            window.location.href = "/game"
+        })
+    },)
     return (
         <div className={style.listeMtch}>
             <div className={style.player1}>

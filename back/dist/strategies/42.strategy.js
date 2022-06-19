@@ -20,7 +20,7 @@ let FtAuthStrategy = class FtAuthStrategy extends (0, passport_1.PassportStrateg
         super({
             clientID: process.env.CLIENTID,
             clientSecret: process.env.CLIENTSECRET,
-            callbackURL: 'http://10.13.1.13:3001/auth/42/callback',
+            callbackURL: 'http://10.13.3.11:3001/auth/42/callback',
             profileFields: {
                 id: function (obj) {
                     return String(obj.id);

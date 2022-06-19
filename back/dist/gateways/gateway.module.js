@@ -35,7 +35,7 @@ let GateWayModule = class GateWayModule {
 };
 GateWayModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, message_entity_1.messages, roomMessage_entity_1.roomMessage, game_entity_1.Games, liveGame_entity_1.liveGame, chatRoom_entity_1.chatRoom, notification_entity_1.Notification]),
+        imports: [typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, message_entity_1.messages, roomMessage_entity_1.roomMessage, game_entity_1.Games, liveGame_entity_1.liveGame, chatRoom_entity_1.chatRoom, notification_entity_1.default]),
             jwt_1.JwtModule.register({ secret: 'bda1843e3fa6f42e528dd2ec9f088a1d4b181d525faa9caaf65c9b3ca978ef54' }), message_module_1.MessageModule, chatRoom_module_1.chatRoomModule, game_module_1.gameModule, notification_module_1.NotificationModule],
         controllers: [message_controller_1.messageController],
         providers: [chat_gateway_1.chatGateway, user_service_1.UserService, message_service_1.messageService, liveGame_service_1.liveGameService, roomMessage_service_1.roomMessageService, game_service_1.GamesService, chatRoom_service_1.chatRoomService, notification_service_1.notificationService, gamePlay_service_1.default]

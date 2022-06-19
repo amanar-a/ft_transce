@@ -84,6 +84,7 @@ let chatGateway = class chatGateway {
                     }
                     ballStat.splice(ballStat.indexOf(ballStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === sender_id[0].userName || (element === null || element === void 0 ? void 0 : element.player2) === sender_id[0].userName)), 1);
                     playersStat.splice(playersStat.indexOf(playersStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === sender_id[0].userName || (element === null || element === void 0 ? void 0 : element.player2) === sender_id[0].userName)), 1);
+                    this.gamePlaysServ.checkWatchers(watchers, sender_id[0].userName);
                 }
                 let array = sockets.get(sender_id[0].userName);
                 let i = 0;
@@ -174,33 +175,48 @@ let chatGateway = class chatGateway {
         let auth_token = await client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
+            let legal = "legal";
             let user_id = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
             var player = [];
             var player2 = [];
             console.log("----------matchMaking-------------");
-            if (matchMakingarray.indexOf(user_id[0].userName) == -1) {
-                matchMakingarray.push(user_id[0].userName);
-            }
-            if (matchMakingarray.length > 1) {
-                let game = new (liveGame_dto_1.LiveGameDto);
-                player = sockets.get(user_id[0].userName);
-                player2 = sockets.get(matchMakingarray[0]);
-                game.player1 = matchMakingarray[0];
-                game.player2 = matchMakingarray[1];
-                game.time = new Date();
-                await this.liveGameServ.saveGame(game);
-                this.gamePlaysServ.init(game.player1, game.player2, playersStat, ballStat);
-                for (let ids of player) {
-                    ids.emit("matchmaking", [matchMakingarray[0], matchMakingarray[1]]);
+            watchers.forEach(element => {
+                if (element.watchers.indexOf(user_id[0].userName) != -1) {
+                    legal = "illegal";
+                    return 0;
                 }
-                for (let ids of player2) {
-                    ids.emit("matchmaking", [matchMakingarray[0], matchMakingarray[1]]);
+            });
+            if (legal == "legal") {
+                if (matchMakingarray.indexOf(user_id[0].userName) == -1) {
+                    matchMakingarray.push(user_id[0].userName);
                 }
-                matchMakingarray.splice(0, 2);
+                if (matchMakingarray.length > 1) {
+                    let game = new (liveGame_dto_1.LiveGameDto);
+                    player = sockets.get(user_id[0].userName);
+                    player2 = sockets.get(matchMakingarray[0]);
+                    game.player1 = matchMakingarray[0];
+                    game.player2 = matchMakingarray[1];
+                    game.time = new Date();
+                    await this.liveGameServ.saveGame(game);
+                    this.gamePlaysServ.init(game.player1, game.player2, playersStat, ballStat, watchers);
+                    for (let ids of player) {
+                        ids.emit("matchmaking", [matchMakingarray[0], matchMakingarray[1]]);
+                    }
+                    for (let ids of player2) {
+                        ids.emit("matchmaking", [matchMakingarray[0], matchMakingarray[1]]);
+                    }
+                    matchMakingarray.splice(0, 2);
+                }
+                else {
+                    for (let ids of player) {
+                        ids.emit("matchmaking", "still waiting");
+                    }
+                }
             }
             else {
+                player = sockets.get(user_id[0].userName);
                 for (let ids of player) {
-                    ids.emit("matchmaking", "still waiting");
+                    ids.emit("matchmaking", "Watcher");
                 }
             }
         }
@@ -210,15 +226,11 @@ let chatGateway = class chatGateway {
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
             let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-            var player = [];
-            var player2 = [];
             if (Object.keys(userInfo).length > 0) {
                 let game = await this.liveGameServ.getGame(userInfo[0].userName);
                 if (Object.keys(game).length !== 0) {
-                    player = sockets.get(game[0].player1);
-                    player2 = sockets.get(game[0].player2);
                     if (userInfo[0].userName == game[0].player1) {
-                        const interval = setInterval(() => this.gamePlaysServ.movingBall(userInfo[0].userName, ballStat, playersStat, player, player2, intervals), 10);
+                        const interval = setInterval(() => this.gamePlaysServ.movingBall(userInfo[0].userName, ballStat, playersStat, socket_io_1.Socket, sockets, intervals, watchers), 10);
                         intervals.push({ id: interval, player1: game[0].player1, player2: game[0].player2 });
                     }
                 }
@@ -228,10 +240,22 @@ let chatGateway = class chatGateway {
     async addWatcher(client, body) {
         let auth_token = await client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            var player = [];
+            let lega = "";
             const tokenInfo = this.jwtService.decode(auth_token);
             let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
             if (Object.keys(userInfo).length > 0) {
-                console.log(body);
+                player = sockets.get(userInfo[0].userName);
+                if (watchers.find(element => element.player1 == body || element.player2 == body).watchers.indexOf(userInfo[0].userName) == -1) {
+                    watchers.find(element => element.player1 == body || element.player2 == body).watchers.push(userInfo[0].userName);
+                    lega = "added";
+                }
+                else {
+                    lega = "notAdded";
+                }
+                for (let ids of player) {
+                    ids.emit("addWatcher", lega);
+                }
             }
         }
     }

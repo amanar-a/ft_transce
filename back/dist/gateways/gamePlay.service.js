@@ -26,7 +26,7 @@ let gamePlayService = class gamePlayService {
         this.gameServ = gameServ;
         this.liveGameServ = liveGameServ;
     }
-    init(player1, player2, playersStat, ballStat) {
+    init(player1, player2, playersStat, ballStat, watchers) {
         playersStat.push({
             player1: player1,
             player1Y: (gameStat.height / 2) - (gameStat.rectHeigth / 2),
@@ -45,6 +45,11 @@ let gamePlayService = class gamePlayService {
             trajectX: false,
             trajectY: true,
             oneTime: 0
+        });
+        watchers.push({
+            player1: player1,
+            player2: player2,
+            watchers: []
         });
     }
     movingPaddles(playersStat, player, movement, player1, player2, liveGame) {
@@ -85,9 +90,12 @@ let gamePlayService = class gamePlayService {
             ids.emit("movements", { player: "player1", players });
         }
     }
-    movingBall(player, ballStat, playersStat, player1, player2, intervals) {
+    movingBall(player, ballStat, playersStat, Socket, sockets, intervals, watchers) {
         let stats_Ball = ballStat.find(element => element.player1 === player || element.player2 === player);
         let stats_player = playersStat.find(element => element.player1 === player || element.player2 === player);
+        let watchers_ = watchers.find(element => element.player1 == player || element.player2 == player).watchers;
+        var player1 = [];
+        var player2 = [];
         if (stats_Ball.oneTime != 1 && stats_Ball.ballX + gameStat.ballSize >= gameStat.with - gameStat.rectWidth + 5 && stats_Ball.ballX + gameStat.ballSize <= gameStat.with && stats_Ball.ballY + gameStat.ballSize > stats_player.player2Y && stats_Ball.ballY < stats_player.player2Y + gameStat.rectHeigth + gameStat.ballSize) {
             let impact = stats_Ball.ballY - (stats_player.player2Y + gameStat.rectHeigth / 2);
             if (stats_Ball.trajectY === true && impact < 0)
@@ -133,6 +141,8 @@ let gamePlayService = class gamePlayService {
         }
         let ballStats = ballStat.find(element => element.player1 === player || element.player2 === player);
         let playerStat = playersStat.find(element => element.player1 === player || element.player2 === player);
+        player1 = sockets.get(ballStat.find(element => element.player1 === player || element.player2 === player).player1);
+        player2 = sockets.get(ballStat.find(element => element.player1 === player || element.player2 === player).player2);
         if (playerStat.player1score >= 40000 || playerStat.player2score >= 40000) {
             let player1_ = playerStat.player1score > playerStat.player2score ? "Winner" : "Loser";
             let player2_ = playerStat.player1score < playerStat.player2score ? "Winner" : "Loser";
@@ -159,8 +169,21 @@ let gamePlayService = class gamePlayService {
                     player: playerStat.player2
                 });
             }
+            for (let index = 0; index < watchers_.length; index++) {
+                let player = [];
+                player = sockets.get(watchers_[index]);
+                for (let ids of player) {
+                    ids.emit("gameOver", {
+                        ballStats,
+                        playerStat,
+                        status: player1_,
+                        player: playerStat.player1
+                    });
+                }
+            }
             ballStat.splice(ballStat.indexOf(ballStat.find(element => element.player1 === player || element.player2 === player)), 1);
             playersStat.splice(playersStat.indexOf(playersStat.find(element => element.player1 === player || element.player2 === player)), 1);
+            watchers.splice(watchers.indexOf(watchers.find(element => element.player1 === player || element.player2 === player)), 1);
             clearInterval(intervals.find(element => element.player1 == player || element.player2 == player).id);
             intervals.splice(intervals.indexOf(intervals.find(element => element.player1 === player || element.player2 === player)), 1);
         }
@@ -177,7 +200,28 @@ let gamePlayService = class gamePlayService {
                     playerStat,
                 });
             }
+            for (let index = 0; index < watchers_.length; index++) {
+                let player = [];
+                player = sockets.get(watchers_[index]);
+                for (let ids of player) {
+                    ids.emit("ballMovement", {
+                        ballStats,
+                        playerStat,
+                    });
+                }
+            }
         }
+    }
+    checkWatchers(watchers, userName) {
+        let legal = "illegal";
+        watchers.forEach(element => {
+            if (element.watchers.indexOf(userName) != -1) {
+                legal = "legal";
+                return 0;
+            }
+        });
+        if (legal = "legal")
+            watchers.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName).watchers.splice(watchers.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName).watchers.indexOf(userName), 1);
     }
     changeTraject(impact) {
         if (impact < 0)

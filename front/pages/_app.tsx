@@ -11,9 +11,10 @@ import io from "socket.io-client";
 import axios from "axios";
 
 
-let socket: any;
+
 function MyApp({ Component, pageProps }: AppProps) {
   const [isConnect, changeStatus] = useState(true);
+  const [socket, changeSocket] = useState<any>()
   const [showSidBar, setShowSidBar] = useState<boolean>(false);
   const [update, setUpdate] = useState<boolean>(false);
   const [userInfo, setUserInfo] = useState<any>();
@@ -38,11 +39,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         Authorization: `${localStorage.getItem("accessToken") as string}`,
       },
     };
-    socket = io(
+    changeSocket(io(
       `${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}`,
       socketOptions
-    );
-    socket.emit("startChannels");
+    ));
+    socket?.emit("startChannels");
   }, []);
   useEffect(() => {
     console.log(router.pathname);

@@ -19,7 +19,7 @@ exports.typeOrmConfig = {
     password: 'postgres',
     database: 'trans',
     entities: [
-        notification_entity_1.Notification,
+        notification_entity_1.default,
         liveGame_entity_1.liveGame,
         user_entity_1.User,
         game_entity_1.Games,
