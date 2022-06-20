@@ -29,42 +29,43 @@ const HomeGame = (props: any) => {
     props.socket?.on("matchmaking", (data: any) => {
       if (typeof data != "string") {
         if (typeof window != "undefined")
-        changeOpp("counter")
-        window.setTimeout(()=>{
-          props.socket?.emit("setInterval");
-          changeName((oldvalues) => ({
-            ...oldvalues,
-            player1: data[0],
-            player2: data[1],
-          }));
-          changeOpp("Found");
-          axios
-            .post(
-              `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/users/getPicture`,
-              { userName1: data[0], userName2: data[1] },
-              {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                },
-              }
-            )
-            .then((res) => {
-              changeName((oldvalues) => ({
-                ...oldvalues,
-                pic1: res.data.user1,
-                pic2: res.data.user2,
-              }));
-            });
-          },6000)
+        axios
+          .post(
+            `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/users/getPicture`,
+            { userName1: data[0], userName2: data[1] },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          )
+          .then((res) => {
+            changeName((oldvalues) => ({
+              ...oldvalues,
+              pic1: res.data.user1,
+              pic2: res.data.user2,
+            }));
+          });
+        if (data[2] === "Found"){
+          changeOpp("counter")
+          window.setTimeout(()=>{
+            props.socket?.emit("setInterval");
+            changeName((oldvalues) => ({
+              ...oldvalues,
+              player1: data[0],
+              player2: data[1],
+            }));
+            console.log(data)
+            changeOpp(data[2]);
+            },6000)  
+        } else if (data[2] === "Watcher" ||data[2] === "playing"){
+          changeOpp(data[2])
         }
-        else if (data == "Watcher"){
-          changeOpp("Watcher");
         }
       });
-      console.log("daa")
       return () => props.socket?.off("matchmaking")
       
-    }, []);
+    }, [props.socket]);
   useEffect(()=>{
     props.socket?.on("gameOver",(data:any) =>{
       console.log(data)
@@ -78,6 +79,7 @@ const HomeGame = (props: any) => {
     props.socket?.on("opponentLeft",(data:any) =>{
       changeOpp("Winner")
       changeGameOver(data.user)
+      console.log(data.user)
     })
     return () => props.socket?.off("opponentLeft")
   },[])
@@ -97,7 +99,7 @@ const HomeGame = (props: any) => {
         ):
         oppenent === "Loser" ? (
           <CartLose userName={gameOver} score={gameOver == players.player1 ? score.player1 : score.player2} img={gameOver == players.player1 ? players.pic1: players.pic2}/>
-        ): oppenent == "Found" || oppenent == "Watcher" ? (
+        ): oppenent == "Found" || oppenent == "Watcher" || oppenent == "playing"? (
           <>
             <img className={style.imgImoji} src={leagend.src} />
             <div className={style.cartPlayer}>

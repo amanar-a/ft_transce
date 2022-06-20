@@ -75,17 +75,24 @@ let chatGateway = class chatGateway {
                     this.liveGameServ.deleteGame(sender_id[0].userName);
                     var playerSocket = [];
                     playerSocket = sockets.get(player2);
-                    for (let ids of playerSocket) {
-                        ids.emit("opponentLeft", { user: player2 });
+                    if (typeof playersStat.find(element => element.player1 == sender_id[0].userName || element.player2 == sender_id[0].userName) != "undefined") {
+                        for (let ids of playerSocket) {
+                            ids.emit("opponentLeft", { user: player2 });
+                        }
+                        let watchers_ = watchers.find(element => element.player1 == sender_id[0].userName || element.player2 == sender_id[0].userName).watchers;
+                        for (let index = 0; index < watchers_.length; index++) {
+                            let player = [];
+                            player = sockets.get(watchers_[index]);
+                            for (let ids of player) {
+                                ids.emit("opponentLeft", { user: player2 });
+                            }
+                        }
+                        this.gamePlaysServ.clearGames(intervals, ballStat, playersStat, sender_id[0].userName);
                     }
-                    if (intervals.length > 0 && typeof intervals.find(element => (element === null || element === void 0 ? void 0 : element.player1) === sender_id[0].userName || (element === null || element === void 0 ? void 0 : element.player2) === sender_id[0].userName).id != "undefined") {
-                        clearInterval(intervals.find(element => (element === null || element === void 0 ? void 0 : element.player1) === sender_id[0].userName || (element === null || element === void 0 ? void 0 : element.player2) === sender_id[0].userName).id);
-                        intervals.splice(intervals.indexOf(intervals.find(element => (element === null || element === void 0 ? void 0 : element.player1) === sender_id[0].userName || (element === null || element === void 0 ? void 0 : element.player2) === sender_id[0].userName)), 1);
-                    }
-                    ballStat.splice(ballStat.indexOf(ballStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === sender_id[0].userName || (element === null || element === void 0 ? void 0 : element.player2) === sender_id[0].userName)), 1);
-                    playersStat.splice(playersStat.indexOf(playersStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === sender_id[0].userName || (element === null || element === void 0 ? void 0 : element.player2) === sender_id[0].userName)), 1);
                     this.gamePlaysServ.checkWatchers(watchers, sender_id[0].userName);
                 }
+                else
+                    this.gamePlaysServ.checkWatchers(watchers, sender_id[0].userName);
                 let array = sockets.get(sender_id[0].userName);
                 let i = 0;
                 if (array != undefined) {
@@ -176,6 +183,7 @@ let chatGateway = class chatGateway {
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
             let legal = "legal";
+            let i = 0;
             let user_id = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
             var player = [];
             var player2 = [];
@@ -185,38 +193,48 @@ let chatGateway = class chatGateway {
                     legal = "illegal";
                     return 0;
                 }
+                i++;
             });
             if (legal == "legal") {
-                if (matchMakingarray.indexOf(user_id[0].userName) == -1) {
-                    matchMakingarray.push(user_id[0].userName);
-                }
-                if (matchMakingarray.length > 1) {
-                    let game = new (liveGame_dto_1.LiveGameDto);
-                    player = sockets.get(user_id[0].userName);
-                    player2 = sockets.get(matchMakingarray[0]);
-                    game.player1 = matchMakingarray[0];
-                    game.player2 = matchMakingarray[1];
-                    game.time = new Date();
-                    await this.liveGameServ.saveGame(game);
-                    this.gamePlaysServ.init(game.player1, game.player2, playersStat, ballStat, watchers);
-                    for (let ids of player) {
-                        ids.emit("matchmaking", [matchMakingarray[0], matchMakingarray[1]]);
+                if (typeof playersStat.find(element => element.player1 == user_id[0].userName || element.player2 == user_id[0].userName) == "undefined") {
+                    if (matchMakingarray.indexOf(user_id[0].userName) == -1) {
+                        matchMakingarray.push(user_id[0].userName);
                     }
-                    for (let ids of player2) {
-                        ids.emit("matchmaking", [matchMakingarray[0], matchMakingarray[1]]);
+                    if (matchMakingarray.length > 1) {
+                        let game = new (liveGame_dto_1.LiveGameDto);
+                        player = sockets.get(user_id[0].userName);
+                        player2 = sockets.get(matchMakingarray[0]);
+                        game.player1 = matchMakingarray[0];
+                        game.player2 = matchMakingarray[1];
+                        game.time = new Date();
+                        await this.liveGameServ.saveGame(game);
+                        this.gamePlaysServ.init(game.player1, game.player2, playersStat, ballStat, watchers);
+                        for (let ids of player) {
+                            ids.emit("matchmaking", [matchMakingarray[0], matchMakingarray[1], "Found"]);
+                        }
+                        for (let ids of player2) {
+                            ids.emit("matchmaking", [matchMakingarray[0], matchMakingarray[1], "Found"]);
+                        }
+                        matchMakingarray.splice(0, 2);
                     }
-                    matchMakingarray.splice(0, 2);
+                    else {
+                        for (let ids of player) {
+                            ids.emit("matchmaking", "still waiting");
+                        }
+                    }
                 }
                 else {
+                    let players = playersStat.find(element => element.player1 == user_id[0].userName || element.player2 == user_id[0].userName);
+                    player = sockets.get(user_id[0].userName);
                     for (let ids of player) {
-                        ids.emit("matchmaking", "still waiting");
+                        ids.emit("matchmaking", [players.player1, players.player2, "playing"]);
                     }
                 }
             }
             else {
                 player = sockets.get(user_id[0].userName);
                 for (let ids of player) {
-                    ids.emit("matchmaking", "Watcher");
+                    ids.emit("matchmaking", [watchers[i].player1, watchers[i].player2, "Watcher"]);
                 }
             }
         }
@@ -230,7 +248,7 @@ let chatGateway = class chatGateway {
                 let game = await this.liveGameServ.getGame(userInfo[0].userName);
                 if (Object.keys(game).length !== 0) {
                     if (userInfo[0].userName == game[0].player1) {
-                        const interval = setInterval(() => this.gamePlaysServ.movingBall(userInfo[0].userName, ballStat, playersStat, socket_io_1.Socket, sockets, intervals, watchers), 10);
+                        const interval = setInterval(() => this.gamePlaysServ.movingBall(userInfo[0].userName, ballStat, playersStat, sockets, intervals, watchers), 10);
                         intervals.push({ id: interval, player1: game[0].player1, player2: game[0].player2 });
                     }
                 }
@@ -244,6 +262,7 @@ let chatGateway = class chatGateway {
             let lega = "";
             const tokenInfo = this.jwtService.decode(auth_token);
             let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+            console.log("add Watchers =>", watchers);
             if (Object.keys(userInfo).length > 0) {
                 player = sockets.get(userInfo[0].userName);
                 if (watchers.find(element => element.player1 == body || element.player2 == body).watchers.indexOf(userInfo[0].userName) == -1) {
@@ -256,6 +275,7 @@ let chatGateway = class chatGateway {
                 for (let ids of player) {
                     ids.emit("addWatcher", lega);
                 }
+                console.log(watchers);
             }
         }
     }
@@ -268,12 +288,8 @@ let chatGateway = class chatGateway {
             if (Object.keys(userInfo).length !== 0) {
                 let liveGame = await this.liveGameServ.getGame(userInfo[0].userName);
                 if (Object.keys(liveGame).length !== 0 && (userInfo[0].userName == liveGame[0].player1 || userInfo[0].userName == liveGame[0].player2)) {
-                    var player1 = [];
-                    var player2 = [];
-                    player1 = sockets.get(liveGame[0].player1);
-                    player2 = sockets.get(liveGame[0].player2);
                     console.log("herre");
-                    this.gamePlaysServ.movingPaddles(playersStat, userInfo[0].userName, body, player1, player2, liveGame);
+                    this.gamePlaysServ.movingPaddles(playersStat, userInfo[0].userName, body, sockets, liveGame, watchers);
                 }
             }
         }

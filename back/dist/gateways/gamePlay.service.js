@@ -52,8 +52,11 @@ let gamePlayService = class gamePlayService {
             watchers: []
         });
     }
-    movingPaddles(playersStat, player, movement, player1, player2, liveGame) {
+    movingPaddles(playersStat, player, movement, sockets, liveGame, watchers) {
         let playersPlaying = playersStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === player || (element === null || element === void 0 ? void 0 : element.player2) === player);
+        var player1 = [];
+        var player2 = [];
+        let watchers_ = watchers.find(element => element.player1 == player || element.player2 == player).watchers;
         if (movement === "up") {
             if (playersPlaying.player1 === player) {
                 if (playersPlaying.player1Y < 6 && playersPlaying.player1Y > 0)
@@ -82,18 +85,31 @@ let gamePlayService = class gamePlayService {
                     playersStat.find(element => element.player2 === player).player2Y = playersPlaying.player2Y + 6;
             }
         }
-        let players = playersStat.find(element => element.player1 === liveGame[0].player1 || element.player2 === liveGame[0].player2);
-        for (let ids of player1) {
-            ids.emit("movements", { player: "player1", players });
-        }
-        for (let ids of player2) {
-            ids.emit("movements", { player: "player1", players });
+        if (movement === "up" || movement === "down") {
+            let players = playersStat.find(element => element.player1 === liveGame[0].player1 || element.player2 === liveGame[0].player2);
+            player1 = sockets.get(players.player1);
+            player2 = sockets.get(players.player2);
+            for (let ids of player1) {
+                ids.emit("movements", { player: "player1", players });
+            }
+            for (let ids of player2) {
+                ids.emit("movements", { player: "player1", players });
+            }
+            for (let index = 0; index < watchers_.length; index++) {
+                let player = [];
+                player = sockets.get(watchers_[index]);
+                for (let ids of player) {
+                    ids.emit("movements", { player: "player1", players });
+                }
+            }
         }
     }
-    movingBall(player, ballStat, playersStat, Socket, sockets, intervals, watchers) {
+    movingBall(player, ballStat, playersStat, sockets, intervals, watchers) {
         let stats_Ball = ballStat.find(element => element.player1 === player || element.player2 === player);
         let stats_player = playersStat.find(element => element.player1 === player || element.player2 === player);
-        let watchers_ = watchers.find(element => element.player1 == player || element.player2 == player).watchers;
+        let watchers_;
+        if (typeof watchers.find(element => element.player1 == player || element.player2 == player) != "undefined")
+            watchers_ = watchers.find(element => element.player1 == player || element.player2 == player).watchers;
         var player1 = [];
         var player2 = [];
         if (stats_Ball.oneTime != 1 && stats_Ball.ballX + gameStat.ballSize >= gameStat.with - gameStat.rectWidth + 5 && stats_Ball.ballX + gameStat.ballSize <= gameStat.with && stats_Ball.ballY + gameStat.ballSize > stats_player.player2Y && stats_Ball.ballY < stats_player.player2Y + gameStat.rectHeigth + gameStat.ballSize) {
@@ -200,28 +216,51 @@ let gamePlayService = class gamePlayService {
                     playerStat,
                 });
             }
-            for (let index = 0; index < watchers_.length; index++) {
-                let player = [];
-                player = sockets.get(watchers_[index]);
-                for (let ids of player) {
-                    ids.emit("ballMovement", {
-                        ballStats,
-                        playerStat,
-                    });
+            if (typeof watchers_ != "undefined")
+                for (let index = 0; index < watchers_.length; index++) {
+                    let player = [];
+                    player = sockets.get(watchers_[index]);
+                    for (let ids of player) {
+                        ids.emit("ballMovement", {
+                            ballStats,
+                            playerStat,
+                        });
+                    }
                 }
-            }
         }
     }
     checkWatchers(watchers, userName) {
         let legal = "illegal";
-        watchers.forEach(element => {
-            if (element.watchers.indexOf(userName) != -1) {
-                legal = "legal";
-                return 0;
+        let i = 0;
+        if (Object.keys(watchers).length > 0) {
+            if (typeof watchers.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName) != "undefined") {
+                watchers.forEach(element => {
+                    if (element.watchers.indexOf(userName) != -1) {
+                        legal = "legal";
+                        return 0;
+                    }
+                    i++;
+                });
+                if (legal == "legal")
+                    watchers[i].watchers.splice(watchers[i].watchers.indexOf(userName), 1);
+                console.log(watchers);
             }
-        });
-        if (legal = "legal")
-            watchers.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName).watchers.splice(watchers.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName).watchers.indexOf(userName), 1);
+            else {
+                if (watchers.indexOf(watchers.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName)) != -1)
+                    watchers.splice(watchers.indexOf(watchers.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName)), 1);
+            }
+        }
+    }
+    clearGames(intervals, ballStat, playersStat, userName) {
+        if (intervals.length > 0 && intervals.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName).id != undefined) {
+            clearInterval(intervals.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName).id);
+            intervals.splice(intervals.indexOf(intervals.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName)), 1);
+        }
+        if (ballStat.indexOf(ballStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName)) != -1)
+            ballStat.splice(ballStat.indexOf(ballStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName)), 1);
+        if (playersStat.indexOf(playersStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName)) != -1)
+            playersStat.splice(playersStat.indexOf(playersStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName)), 1);
+        console.log(intervals);
     }
     changeTraject(impact) {
         if (impact < 0)
