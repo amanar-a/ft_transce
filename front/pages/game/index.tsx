@@ -77,6 +77,7 @@ const HomeGame = (props: any) => {
   },[])
   useEffect(()=>{
     props.socket?.on("opponentLeft",(data:any) =>{
+      console.log(data)
       changeOpp("Winner")
       changeGameOver(data.user)
       console.log(data.user)

@@ -8,6 +8,7 @@ import {
   switch_,
 } from "../tools/gameTools";
 
+let oneTime:Boolean= false
 export default function Game(props: any) {
   const canvasRef = useRef(null);
   const {
@@ -197,12 +198,21 @@ export default function Game(props: any) {
       (1000 /2) / size.current.canvaHeight
       var changePercWidth =
       1000 / size.current.canvaWidth
-    let newPositionX = data.ballStats.ballX / changePercWidth;
-    let newPositionY = data.ballStats.ballY / changePercHeight;
-    changeBall({x:newPositionX,y:newPositionY})
-    if (data.playerStat.player1score != props.score.player1 || data.playerStat.player2score != props.score.player2){
-      props.changeScore({player1:data.playerStat.player1score,player2:data.playerStat.player2score})
-    }
+      let newPositionX = data.ballStats.ballX / changePercWidth;
+      let newPositionY = data.ballStats.ballY / changePercHeight;
+      changeBall({x:newPositionX,y:newPositionY})
+      if (data.playerStat.player1score != props.score.player1 || data.playerStat.player2score != props.score.player2){
+        props.changeScore({player1:data.playerStat.player1score,player2:data.playerStat.player2score})
+      }
+      if (oneTime == false){
+        var changePerc =
+        (1000 /2) / size.current.canvaHeight
+        let newPosition1 = data.playerStat.player1Y / changePerc;
+        let newPosition2 = data.playerStat.player2Y / changePerc;
+        changePlayer1(oldvalue =>({...oldvalue, y:newPosition1}))
+        changePlayer2(oldvalue =>({...oldvalue, y:newPosition2}))
+        oneTime = true
+      }
     })
     return () => props.socket?.off("ballMovement")
   },[])

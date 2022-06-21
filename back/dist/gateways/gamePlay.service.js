@@ -107,9 +107,7 @@ let gamePlayService = class gamePlayService {
     movingBall(player, ballStat, playersStat, sockets, intervals, watchers) {
         let stats_Ball = ballStat.find(element => element.player1 === player || element.player2 === player);
         let stats_player = playersStat.find(element => element.player1 === player || element.player2 === player);
-        let watchers_;
-        if (typeof watchers.find(element => element.player1 == player || element.player2 == player) != "undefined")
-            watchers_ = watchers.find(element => element.player1 == player || element.player2 == player).watchers;
+        let watchers_ = watchers.find(element => element.player1 == player || element.player2 == player).watchers;
         var player1 = [];
         var player2 = [];
         if (stats_Ball.oneTime != 1 && stats_Ball.ballX + gameStat.ballSize >= gameStat.with - gameStat.rectWidth + 5 && stats_Ball.ballX + gameStat.ballSize <= gameStat.with && stats_Ball.ballY + gameStat.ballSize > stats_player.player2Y && stats_Ball.ballY < stats_player.player2Y + gameStat.rectHeigth + gameStat.ballSize) {
@@ -159,7 +157,7 @@ let gamePlayService = class gamePlayService {
         let playerStat = playersStat.find(element => element.player1 === player || element.player2 === player);
         player1 = sockets.get(ballStat.find(element => element.player1 === player || element.player2 === player).player1);
         player2 = sockets.get(ballStat.find(element => element.player1 === player || element.player2 === player).player2);
-        if (playerStat.player1score >= 40000 || playerStat.player2score >= 40000) {
+        if (playerStat.player1score >= 8 || playerStat.player2score >= 8) {
             let player1_ = playerStat.player1score > playerStat.player2score ? "Winner" : "Loser";
             let player2_ = playerStat.player1score < playerStat.player2score ? "Winner" : "Loser";
             var game = new (game_dto_1.GamesDto);
@@ -189,11 +187,12 @@ let gamePlayService = class gamePlayService {
                 let player = [];
                 player = sockets.get(watchers_[index]);
                 for (let ids of player) {
+                    console.log(watchers_);
                     ids.emit("gameOver", {
                         ballStats,
                         playerStat,
-                        status: player1_,
-                        player: playerStat.player1
+                        status: "Winner",
+                        player: playerStat.player1score > playerStat.player2score ? playerStat.player1 : playerStat.player2
                     });
                 }
             }
@@ -233,7 +232,8 @@ let gamePlayService = class gamePlayService {
         let legal = "illegal";
         let i = 0;
         if (Object.keys(watchers).length > 0) {
-            if (typeof watchers.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName) != "undefined") {
+            console.log(typeof watchers.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName));
+            if (typeof watchers.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName) == "undefined") {
                 watchers.forEach(element => {
                     if (element.watchers.indexOf(userName) != -1) {
                         legal = "legal";
@@ -243,7 +243,6 @@ let gamePlayService = class gamePlayService {
                 });
                 if (legal == "legal")
                     watchers[i].watchers.splice(watchers[i].watchers.indexOf(userName), 1);
-                console.log(watchers);
             }
             else {
                 if (watchers.indexOf(watchers.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName)) != -1)
@@ -260,7 +259,6 @@ let gamePlayService = class gamePlayService {
             ballStat.splice(ballStat.indexOf(ballStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName)), 1);
         if (playersStat.indexOf(playersStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName)) != -1)
             playersStat.splice(playersStat.indexOf(playersStat.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName)), 1);
-        console.log(intervals);
     }
     changeTraject(impact) {
         if (impact < 0)

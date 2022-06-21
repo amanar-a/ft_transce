@@ -2,12 +2,13 @@ import style from '../../styles/watchMatch/livelisteMatch.module.css'
 import Image from 'next/image'
 import imge from '../../public/images/profile.jpg'
 import { useEffect } from 'react';
+import Router from 'next/router';
 
 const LiveListMatch = (props:any) =>{
     console.log(props.data)
     useEffect(()=>{
         props.socket?.on("addWatcher",(data:any) =>{
-            window.location.href = "/game"
+            Router.push({pathname:"/game"})
         })
     },)
     return (

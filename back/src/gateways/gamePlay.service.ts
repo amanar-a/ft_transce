@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import e from "express";
 import { Socket } from "socket.io";
 import { GamesDto } from "src/dto-classes/game.dto";
 import { LiveGameDto } from "src/dto-classes/liveGame.dto";
@@ -111,11 +110,10 @@ export default class gamePlayService
     movingBall(player:string,ballStat:any, playersStat:any,sockets:any,intervals:any,watchers:any){
         let stats_Ball =  ballStat.find(element => element.player1 === player || element.player2 === player)
         let stats_player = playersStat.find(element => element.player1 === player || element.player2 === player)
-        let watchers_
-        if(typeof watchers.find(element => element.player1 == player || element.player2 == player) != "undefined")
-            watchers_ = watchers.find(element => element.player1 == player || element.player2 == player).watchers
+        let watchers_ = watchers.find(element => element.player1 == player || element.player2 == player).watchers
         var player1 : Socket[] = [];
 		var player2 : Socket[] = [];
+        //hitting player 2 paddle
         if (stats_Ball.oneTime != 1 && stats_Ball.ballX + gameStat.ballSize>=gameStat.with- gameStat.rectWidth + 5 && stats_Ball.ballX + gameStat.ballSize <= gameStat.with && stats_Ball.ballY + gameStat.ballSize > stats_player.player2Y && stats_Ball.ballY < stats_player.player2Y + gameStat.rectHeigth + gameStat.ballSize) 
         {
             let impact = stats_Ball.ballY - (stats_player.player2Y + gameStat.rectHeigth / 2);
@@ -128,7 +126,7 @@ export default class gamePlayService
             ballStat.find(element => element.player1 === player || element.player2 === player).ballMovmentX = xy.x
             ballStat.find(element => element.player1 === player || element.player2 === player).ballMovmentY = xy.y
             ballStat.find(element => element.player1 === player || element.player2 === player).oneTime = 1
-        }
+        }//hitting player 1 paddle
         else if (stats_Ball.oneTime != 2 && stats_Ball.ballX -gameStat.ballSize <= gameStat.rectWidth + 5 &&stats_Ball.ballX - gameStat.ballSize >= 0 && stats_Ball.ballY + gameStat.ballSize > stats_player.player1Y &&stats_Ball.ballY <stats_player.player1Y + gameStat.rectHeigth + gameStat.ballSize)
         {
             let impact = stats_Ball.ballY - (stats_player.player1Y + gameStat.rectHeigth / 2);
@@ -142,20 +140,23 @@ export default class gamePlayService
             ballStat.find(element => element.player1 === player || element.player2 === player).ballMovmentY = xy.y
             ballStat.find(element => element.player1 === player || element.player2 === player).oneTime = 2
         }
+        //hitting edge of frame (down)
         if (stats_Ball.ballY + gameStat.ballSize >= gameStat.height)
             ballStat.find(element => element.player1 === player || element.player2 === player).trajectY=false
+        //hitting edge of frame (up)
         if (stats_Ball.ballY - gameStat.ballSize <= 0)
             ballStat.find(element => element.player1 === player || element.player2 === player).trajectY=true
+        //player2 score a goal
         if (stats_Ball.ballX <= 0) {
             playersStat.find(element => element.player1 === player || element.player2 === player).player2score = stats_player.player2score + 1
             ballStat.find(element => element.player1 === player || element.player2 === player).ballX = gameStat.with / 2
             ballStat.find(element => element.player1 === player || element.player2 === player).ballY = gameStat.height / 2
-        }
+        }//player1 score a goal
         else if (stats_Ball.ballX >= gameStat.with){
             playersStat.find(element => element.player1 === player || element.player2 === player).player1score = stats_player.player1score + 1
             ballStat.find(element => element.player1 === player || element.player2 === player).ballX = gameStat.with / 2
             ballStat.find(element => element.player1 === player || element.player2 === player).ballY = gameStat.height / 2
-        }else{
+        }else{//ball in middle of frame
             let newStats_ball = ballStat.find(element => element.player1 === player || element.player2 === player)
             ballStat.find(element => element.player1 === player || element.player2 === player).ballX = newStats_ball.trajectX ? newStats_ball.ballX + newStats_ball.ballMovmentX : newStats_ball.ballX - newStats_ball.ballMovmentX
             ballStat.find(element => element.player1 === player || element.player2 === player).ballY = newStats_ball.trajectY ? newStats_ball.ballY + newStats_ball.ballMovmentY : newStats_ball.ballY - newStats_ball.ballMovmentY
@@ -165,7 +166,8 @@ export default class gamePlayService
         let playerStat = playersStat.find(element => element.player1 === player || element.player2 === player)
         player1 = sockets.get(ballStat.find(element => element.player1 === player || element.player2 === player).player1)
 		player2 = sockets.get(ballStat.find(element => element.player1 === player || element.player2 === player).player2)
-        if (playerStat.player1score >= 40000 || playerStat.player2score >= 40000){
+        //Game Over
+        if (playerStat.player1score >= 8|| playerStat.player2score >= 8){
             let player1_ = playerStat.player1score > playerStat.player2score ? "Winner" : "Loser"
             let player2_ = playerStat.player1score < playerStat.player2score ? "Winner" : "Loser"
             var game : GamesDto = new(GamesDto)
@@ -198,11 +200,12 @@ export default class gamePlayService
                 player = sockets.get(watchers_[index])
                 for(let ids of player)
                 {
+                    console.log(watchers_)
                     ids.emit("gameOver",{
                         ballStats, 
                         playerStat,
-                        status:player1_,
-                        player:playerStat.player1
+                        status:"Winner",
+                        player:playerStat.player1score > playerStat.player2score ? playerStat.player1 :playerStat.player2
                     })
                 }
             }
@@ -211,7 +214,7 @@ export default class gamePlayService
             watchers.splice(watchers.indexOf(watchers.find(element => element.player1 === player || element.player2 === player)),1)
             clearInterval(intervals.find(element => element.player1 == player || element.player2 == player).id)
             intervals.splice(intervals.indexOf(intervals.find(element => element.player1 === player || element.player2 === player)),1)
-        }
+        }//game still running
         else {
             for(let ids of player1)
             {
@@ -246,7 +249,8 @@ export default class gamePlayService
         let legal = "illegal"
         let i = 0
         if (Object.keys(watchers).length > 0){
-            if (typeof watchers.find(element => element?.player1 === userName || element?.player2 === userName) != "undefined"){    
+            console.log(typeof watchers.find(element => element?.player1 === userName || element?.player2 === userName))
+            if (typeof watchers.find(element => element?.player1 === userName || element?.player2 === userName) == "undefined"){    
                 watchers.forEach(element => {
                     if (element.watchers.indexOf(userName) != -1){
                         legal = "legal"
@@ -256,7 +260,6 @@ export default class gamePlayService
                 });
                 if (legal == "legal")
                     watchers[i].watchers.splice(watchers[i].watchers.indexOf(userName),1)
-                console.log(watchers)
             }else{
                 if (watchers.indexOf(watchers.find(element => element?.player1 === userName || element?.player2 === userName)) != -1)
                     watchers.splice(watchers.indexOf(watchers.find(element => element?.player1 === userName || element?.player2 === userName)),1)
@@ -274,7 +277,6 @@ export default class gamePlayService
             ballStat.splice(ballStat.indexOf(ballStat.find(element => element?.player1 === userName || element?.player2 === userName)),1)
         if (playersStat.indexOf(playersStat.find(element => element?.player1 === userName || element?.player2 === userName)) != -1)
             playersStat.splice(playersStat.indexOf(playersStat.find(element => element?.player1 === userName || element?.player2 === userName)),1)
-        console.log(intervals)
     }
 
     changeTraject(impact:number){
