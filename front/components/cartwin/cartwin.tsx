@@ -2,6 +2,7 @@ import style from "../../styles/CartWin/cartwin.module.css";
 import win from "../../public/images/one-removebg-preview.png";
 import imgme from "../../public/images/profile.jpg";
 import circleimg from "../../public/images/cercle1-removebg-preview.png";
+import Link from "next/link";
 const Cartwin = (props:any) => {
   return (
     <div className={style.container}>
@@ -31,6 +32,7 @@ const Cartwin = (props:any) => {
             </p>
           </div>
           <p className={style.youwin}>YOU WIN</p>
+          <Link href={'/home'}><button className={style.btn}>Exit</button></Link>
         </div>
       </div>
     </div>

@@ -290,7 +290,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 				let game : LiveGameDto = await this.liveGameServ.getGame(userInfo[0].userName)
 				if (Object.keys(game).length !== 0){
 					if (userInfo[0].userName == game[0].player1){
-						const interval = setInterval(() => this.gamePlaysServ.movingBall(userInfo[0].userName,ballStat,playersStat,sockets,intervals,watchers) , 10)
+						const interval = setInterval(() => this.gamePlaysServ.movingBall(userInfo[0].userName,ballStat,playersStat,sockets,intervals,watchers) , 3.5)
 						intervals.push({id:interval,player1:game[0].player1,player2:game[0].player2})
 					}
 				}

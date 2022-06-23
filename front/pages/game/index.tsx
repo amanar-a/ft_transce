@@ -29,38 +29,33 @@ const HomeGame = (props: any) => {
     props.socket?.on("matchmaking", (data: any) => {
       if (typeof data != "string") {
         if (typeof window != "undefined")
-        axios
-          .post(
-            `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/users/getPicture`,
-            { userName1: data[0], userName2: data[1] },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
+        if (oppenent != "Winner" && oppenent != "Loser"){
+          axios.post(`http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/users/getPicture`,
+              { userName1: data[0], userName2: data[1] },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+              }
+            )
+            .then((res) => {
+              changeName({
+                player1: data[0],
+                player2: data[1],
+                pic1: res.data.user1,
+                pic2: res.data.user2,
+              });
+            });
+            if (data[2] === "Found"){
+              changeOpp("counter")
+              window.setTimeout(()=>{
+                props.socket?.emit("setInterval");
+                changeOpp(data[2]);
+                },6000)  
+            } else if (data[2] === "Watcher" ||data[2] === "playing"){
+              changeOpp(data[2])
             }
-          )
-          .then((res) => {
-            changeName((oldvalues) => ({
-              ...oldvalues,
-              pic1: res.data.user1,
-              pic2: res.data.user2,
-            }));
-          });
-        if (data[2] === "Found"){
-          changeOpp("counter")
-          window.setTimeout(()=>{
-            props.socket?.emit("setInterval");
-            changeName((oldvalues) => ({
-              ...oldvalues,
-              player1: data[0],
-              player2: data[1],
-            }));
-            console.log(data)
-            changeOpp(data[2]);
-            },6000)  
-        } else if (data[2] === "Watcher" ||data[2] === "playing"){
-          changeOpp(data[2])
-        }
+          }
         }
       });
       return () => props.socket?.off("matchmaking")
@@ -74,16 +69,16 @@ const HomeGame = (props: any) => {
       changeGameOver(data.player)
     })
     return () => props.socket?.off("gameOver")
-  },[])
+  },[props.socket])
   useEffect(()=>{
     props.socket?.on("opponentLeft",(data:any) =>{
-      console.log(data)
+      console.log(data.user)
       changeOpp("Winner")
       changeGameOver(data.user)
-      console.log(data.user)
+      // console.log(data.user == players.player1 ? players.pic1: players.pic2)
     })
     return () => props.socket?.off("opponentLeft")
-  },[])
+  },[props.socket])
   return (
     <>
       <div className={style.Container}>

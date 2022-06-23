@@ -1,6 +1,7 @@
 import style from "../../styles/CartLose/cartlose.module.css";
 import lose from "../../public/images/two-removebg-preview.png";
 import imgme from "../../public/images/profile.jpg";
+import Link from "next/link";
 const CartLose = (props:any) => {
   return (
     <div className={style.container}>
@@ -28,6 +29,7 @@ const CartLose = (props:any) => {
             </p>
           </div>
           <p className={style.youLose}>YOU LOSE</p>
+          <Link href={'/home'}><button className={style.btn}>Exit</button></Link>
         </div>
       </div>
     </div>

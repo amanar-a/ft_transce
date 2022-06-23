@@ -64,24 +64,24 @@ export default class gamePlayService
                 if (playersPlaying.player1Y < 6 && playersPlaying.player1Y > 0)
                     playersStat.find(element => element.player1 === player).player1Y = 5
                 else if (playersPlaying.player1Y >= 6)
-                    playersStat.find(element => element.player1 === player).player1Y = playersPlaying.player1Y - 6
+                    playersStat.find(element => element.player1 === player).player1Y = playersPlaying.player1Y - 10
             }else if (playersPlaying.player2 === player){
                 if (playersPlaying.player2Y < 6 && playersPlaying.player2Y > 0) 
                     playersStat.find(element => element.player2 === player).player2Y = 5
                 else if (playersPlaying.player2Y >= 6)
-                    playersStat.find(element => element.player2 === player).player2Y = playersPlaying.player2Y - 6
+                    playersStat.find(element => element.player2 === player).player2Y = playersPlaying.player2Y - 10
             }
         }else if (movement === "down"){
             if (playersPlaying.player1 === player){
                 if (playersPlaying.player1Y > gameStat.height - gameStat.rectHeigth - 6 && playersPlaying.player1Y < gameStat.height - gameStat.rectHeigth)
                     playersStat.find(element => element.player1 === player).player1Y = gameStat.height - gameStat.rectHeigth - 5
                 else if (playersPlaying.player1Y < gameStat.height - gameStat.rectHeigth)
-                    playersStat.find(element => element.player1 === player).player1Y = playersPlaying.player1Y + 6
+                    playersStat.find(element => element.player1 === player).player1Y = playersPlaying.player1Y + 10
             }else if (playersPlaying.player2 === player){
                 if (playersPlaying.player2Y > gameStat.height - gameStat.rectHeigth - 6 && playersPlaying.player2Y < gameStat.height - gameStat.rectHeigth)
                     playersStat.find(element => element.player2 === player).player2Y = gameStat.height - gameStat.rectHeigth - 5
                 else if (playersPlaying.player2Y < gameStat.height - gameStat.rectHeigth)
-                    playersStat.find(element => element.player2 === player).player2Y = playersPlaying.player2Y + 6
+                    playersStat.find(element => element.player2 === player).player2Y = playersPlaying.player2Y + 10
             }
         }
         if (movement === "up" || movement === "down"){
@@ -114,7 +114,7 @@ export default class gamePlayService
         var player1 : Socket[] = [];
 		var player2 : Socket[] = [];
         //hitting player 2 paddle
-        if (stats_Ball.oneTime != 1 && stats_Ball.ballX + gameStat.ballSize>=gameStat.with- gameStat.rectWidth + 5 && stats_Ball.ballX + gameStat.ballSize <= gameStat.with && stats_Ball.ballY + gameStat.ballSize > stats_player.player2Y && stats_Ball.ballY < stats_player.player2Y + gameStat.rectHeigth + gameStat.ballSize) 
+        if (stats_Ball.oneTime != 1 && stats_Ball.ballX + gameStat.ballSize>=gameStat.with- gameStat.rectWidth - 5 && stats_Ball.ballX + gameStat.ballSize <= gameStat.with && stats_Ball.ballY + gameStat.ballSize > stats_player.player2Y && stats_Ball.ballY < stats_player.player2Y + gameStat.rectHeigth + gameStat.ballSize) 
         {
             let impact = stats_Ball.ballY - (stats_player.player2Y + gameStat.rectHeigth / 2);
             if(stats_Ball.trajectY === true && impact < 0)
@@ -283,6 +283,6 @@ export default class gamePlayService
 
         if(impact < 0)
             impact *= -1
-        return {y:impact / 20 ,x:4 - (impact / 20)}
+        return {y:impact / 30 ,x:4 - (impact / 30)}
     }
 }

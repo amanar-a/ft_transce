@@ -39,11 +39,11 @@ let AuthController = class AuthController {
             console.log(info);
             let ret = await this.authService.cheskUser(req);
             if (ret == 1)
-                response.redirect(`http://10.13.3.11:3000/authentication?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
+                response.redirect(`http://10.30.181.93:3000/authentication?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
             else if (ret == 2)
-                response.redirect(`http://10.13.3.11:3000/home?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
+                response.redirect(`http://10.30.181.93:3000/home?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
             else
-                response.redirect(`http://10.13.3.11:3000`);
+                response.redirect(`http://10.30.181.93:3000`);
         }
         catch (e) {
             console.log(e);
