@@ -37,6 +37,7 @@ var playersStat = new Array;
 var ballStat = new Array;
 var intervals = new Array;
 var watchers = new Array;
+var mods = new Array;
 var sockets = new Map();
 var matchMakingarray = new Array;
 let chatGateway = class chatGateway {
@@ -178,7 +179,7 @@ let chatGateway = class chatGateway {
         }
         console.log("-------------------------------");
     }
-    async matchmaking(client, test) {
+    async matchmaking(client, body) {
         let auth_token = await client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
@@ -199,6 +200,8 @@ let chatGateway = class chatGateway {
                 if (typeof playersStat.find(element => element.player1 == user_id[0].userName || element.player2 == user_id[0].userName) == "undefined") {
                     if (matchMakingarray.indexOf(user_id[0].userName) == -1) {
                         matchMakingarray.push(user_id[0].userName);
+                        mods.push({ userName: user_id[0].userName, speed: body.speed, ballSize: body.ballSize });
+                        console.log(mods);
                     }
                     if (matchMakingarray.length > 1) {
                         let game = new (liveGame_dto_1.LiveGameDto);
@@ -208,7 +211,7 @@ let chatGateway = class chatGateway {
                         game.player2 = matchMakingarray[1];
                         game.time = new Date();
                         await this.liveGameServ.saveGame(game);
-                        this.gamePlaysServ.init(game.player1, game.player2, playersStat, ballStat, watchers);
+                        this.gamePlaysServ.init(game.player1, game.player2, playersStat, ballStat, watchers, mods);
                         for (let ids of player) {
                             ids.emit("matchmaking", [matchMakingarray[0], matchMakingarray[1], "Found"]);
                         }

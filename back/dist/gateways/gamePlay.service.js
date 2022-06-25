@@ -26,7 +26,7 @@ let gamePlayService = class gamePlayService {
         this.gameServ = gameServ;
         this.liveGameServ = liveGameServ;
     }
-    init(player1, player2, playersStat, ballStat, watchers) {
+    init(player1, player2, playersStat, ballStat, watchers, mods) {
         playersStat.push({
             player1: player1,
             player1Y: (gameStat.height / 2) - (gameStat.rectHeigth / 2),

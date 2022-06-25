@@ -25,7 +25,11 @@ const HomeGame = (props: any) => {
     player2: 0,
   });
   useEffect(() => {
-    props.socket?.emit("matchmaking");
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const ballSize = urlParams.get('ballSize')
+    const speed = urlParams.get('speed')
+    props.socket?.emit("matchmaking",{ballSize, speed});
     props.socket?.on("matchmaking", (data: any) => {
       if (typeof data != "string") {
         if (typeof window != "undefined")
@@ -63,7 +67,6 @@ const HomeGame = (props: any) => {
     }, [props.socket]);
   useEffect(()=>{
     props.socket?.on("gameOver",(data:any) =>{
-      console.log(data)
       changeOpp(data.status)
       changeScore({player1:data.playerStat.player1score,player2:data.playerStat.player2score})
       changeGameOver(data.player)
@@ -75,7 +78,6 @@ const HomeGame = (props: any) => {
       console.log(data.user)
       changeOpp("Winner")
       changeGameOver(data.user)
-      // console.log(data.user == players.player1 ? players.pic1: players.pic2)
     })
     return () => props.socket?.off("opponentLeft")
   },[props.socket])

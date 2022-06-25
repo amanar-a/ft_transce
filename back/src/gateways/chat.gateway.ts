@@ -35,6 +35,7 @@ var playersStat = new Array
 var ballStat = new Array
 var intervals = new Array
 var watchers = new Array
+var mods = new Array
 var sockets = new Map<string,Array<Socket>>()
 
 var matchMakingarray = new Array
@@ -209,7 +210,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 	}
 
 	@SubscribeMessage('matchmaking')
-	async matchmaking(client: Socket, test: any)
+	async matchmaking(client: Socket, body: any)
 	{
 		let auth_token = await client.handshake.auth.Authorization;
 		if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
@@ -232,6 +233,8 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 				if (typeof playersStat.find(element => element.player1 == user_id[0].userName || element.player2 == user_id[0].userName) == "undefined"){
 					if (matchMakingarray.indexOf(user_id[0].userName) == -1){
 						matchMakingarray.push(user_id[0].userName)
+						mods.push({userName:user_id[0].userName,speed:body.speed,ballSize:body.ballSize})
+						console.log(mods)
 					}
 		
 					if (matchMakingarray.length > 1)
@@ -243,7 +246,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 						game.player2 =  matchMakingarray[1]
 						game.time = new Date()
 						await this.liveGameServ.saveGame(game)
-						this.gamePlaysServ.init(game.player1,game.player2,playersStat,ballStat,watchers)
+						this.gamePlaysServ.init(game.player1,game.player2,playersStat,ballStat,watchers,mods)
 						for(let ids of player)
 						{
 							ids.emit("matchmaking", [matchMakingarray[0], matchMakingarray[1],"Found"])

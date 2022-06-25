@@ -94,12 +94,12 @@ export default function Game(props: any) {
       if (ballPerc.changePercX < 0) ballPerc.changePercX *= -1;
       if (ballPerc.changePercY < 0) ballPerc.changePercY *= -1;
       if (resizeOneTime.current != 1 && window.innerWidth < 600) {
-        dispatch(change(300));
-        let newPosition1 = 300 / 2 - ((300 / 2) * changePerc1) / 100;
-        let newPosition2 = 300 / 2 - ((300 / 2) * changePerc2) / 100;
+        dispatch(change(200));
+        let newPosition1 = 200 / 2 - ((200 / 2) * changePerc1) / 100;
+        let newPosition2 = 200 / 2 - ((200 / 2) * changePerc2) / 100;
         let newPosition = {
-          x: 300 - (300 * ballPerc.changePercX) / 100,
-          y: 300 / 2 - ((300 / 2) * ballPerc.changePercY) / 100,
+          x: 200 - (200 * ballPerc.changePercX) / 100,
+          y: 200 / 2 - ((200 / 2) * ballPerc.changePercY) / 100,
         };
         changePlayer2((oldValue) => ({
           ...oldValue,
@@ -115,12 +115,12 @@ export default function Game(props: any) {
         window.innerWidth > 600 &&
         window.innerWidth < 1300
       ) {
-        dispatch(change(520));
-        let newPosition1 = 520 / 2 - ((520 / 2) * changePerc1) / 100;
-        let newPosition2 = 520 / 2 - ((520 / 2) * changePerc2) / 100;
+        dispatch(change(500));
+        let newPosition1 = 500 / 2 - ((500 / 2) * changePerc1) / 100;
+        let newPosition2 = 500 / 2 - ((500 / 2) * changePerc2) / 100;
         let newPosition = {
-          x: 520 - (520 * ballPerc.changePercX) / 100,
-          y: 520 / 2 - ((520 / 2) * ballPerc.changePercY) / 100,
+          x: 500 - (500 * ballPerc.changePercX) / 100,
+          y: 500 / 2 - ((500 / 2) * ballPerc.changePercY) / 100,
         };
         changePlayer2((oldValue) => ({
           ...oldValue,

@@ -5,7 +5,7 @@ export default class gamePlayService {
     private gameServ;
     private liveGameServ;
     constructor(gameServ: GamesService, liveGameServ: liveGameService);
-    init(player1: string, player2: string, playersStat: any, ballStat: any, watchers: any): void;
+    init(player1: string, player2: string, playersStat: any, ballStat: any, watchers: any, mods: any): void;
     movingPaddles(playersStat: any, player: string, movement: any, sockets: any, liveGame: LiveGameDto, watchers: any): void;
     movingBall(player: string, ballStat: any, playersStat: any, sockets: any, intervals: any, watchers: any): void;
     checkWatchers(watchers: any, userName: string): void;

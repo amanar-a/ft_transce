@@ -32,7 +32,7 @@ export declare class chatGateway implements OnGatewayConnection, OnGatewayDiscon
     handleDisconnect(client: Socket): Promise<void>;
     handleConnection(client: Socket, ...args: any): Promise<void>;
     handleMessage(client: Socket, text: any): Promise<void>;
-    matchmaking(client: Socket, test: any): Promise<void>;
+    matchmaking(client: Socket, body: any): Promise<void>;
     setInterval(client: Socket, test: any): Promise<void>;
     addWatcher(client: Socket, body: any): Promise<void>;
     playing(client: Socket, body: moveData): Promise<void>;

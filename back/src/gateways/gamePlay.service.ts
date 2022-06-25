@@ -27,7 +27,7 @@ export default class gamePlayService
 
     }
 
-    init(player1:string,player2:string,playersStat:any,ballStat:any,watchers:any) {
+    init(player1:string,player2:string,playersStat:any,ballStat:any,watchers:any,mods:any) {
         playersStat.push({
             player1:player1, 
             player1Y:(gameStat.height / 2) - (gameStat.rectHeigth / 2),
@@ -39,7 +39,7 @@ export default class gamePlayService
         ballStat.push({
             player1:player1, 
             player2:player2, 
-            ballX: gameStat.with / 2, 
+            ballX:gameStat.with / 2, 
             ballY:gameStat.height / 2, 
             ballMovmentX:2,
             ballMovmentY:2,
