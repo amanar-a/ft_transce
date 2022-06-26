@@ -29,7 +29,11 @@ export default function Game(props: any) {
     keyUp: false,
     keyDown: false,
   });
-  const ballSpeed = useRef(10);
+  const [Settings,changeSetting] = useState({
+    ballSize:12.5,
+    speed:5,
+    userName:""
+  });
   const [player1, changePlayer1] = useState({
     x: 5,
     y: (canvaHeight / 2) - (rectHeigth / 2),
@@ -79,76 +83,78 @@ export default function Game(props: any) {
 
   if (typeof window != "undefined")
     useEffect(() => {
-      var changePerc1 =
-        (position.current.y2 * 100) / size.current.canvaHeight - 100;
-      var changePerc2 =
-        (position.current.y1 * 100) / size.current.canvaHeight - 100;
-      var ballPerc = {
-        changePercX:
-          (position.current.ballX * 100) / size.current.canvaWidth - 100,
-        changePercY:
-          (position.current.ballY * 100) / size.current.canvaHeight - 100,
-      };
-      if (changePerc1 < 0) changePerc1 *= -1;
-      if (changePerc2 < 0) changePerc2 *= -1;
-      if (ballPerc.changePercX < 0) ballPerc.changePercX *= -1;
-      if (ballPerc.changePercY < 0) ballPerc.changePercY *= -1;
-      if (resizeOneTime.current != 1 && window.innerWidth < 600) {
-        dispatch(change(200));
-        let newPosition1 = 200 / 2 - ((200 / 2) * changePerc1) / 100;
-        let newPosition2 = 200 / 2 - ((200 / 2) * changePerc2) / 100;
-        let newPosition = {
-          x: 200 - (200 * ballPerc.changePercX) / 100,
-          y: 200 / 2 - ((200 / 2) * ballPerc.changePercY) / 100,
-        };
-        changePlayer2((oldValue) => ({
-          ...oldValue,
-          y: newPosition1,
-          x: size.current.canvaWidth - size.current.rectWidth - 5,
-        }));
-        changePlayer1((oldValue) => ({ ...oldValue, y: newPosition2 }));
-        changeBall({ x: newPosition.x, y: newPosition.y });
-        console.log(newPosition.x, newPosition.y);
-        resizeOneTime.current = 1;
-      } else if (
-        resizeOneTime.current != 2 &&
-        window.innerWidth > 600 &&
-        window.innerWidth < 1300
-      ) {
-        dispatch(change(500));
-        let newPosition1 = 500 / 2 - ((500 / 2) * changePerc1) / 100;
-        let newPosition2 = 500 / 2 - ((500 / 2) * changePerc2) / 100;
-        let newPosition = {
-          x: 500 - (500 * ballPerc.changePercX) / 100,
-          y: 500 / 2 - ((500 / 2) * ballPerc.changePercY) / 100,
-        };
-        changePlayer2((oldValue) => ({
-          ...oldValue,
-          y: newPosition1,
-          x: size.current.canvaWidth - size.current.rectWidth - 5,
-        }));
-        changePlayer1((oldValue) => ({ ...oldValue, y: newPosition2 }));
-        changeBall({ x: newPosition.x, y: newPosition.y });
-        console.log(newPosition.x, newPosition.y);
-        resizeOneTime.current = 2;
-      } else if (resizeOneTime.current != 3 && window.innerWidth > 1300) {
-        dispatch(change(1000));
-        let newPosition1 = 1000 / 2 - ((1000 / 2) * changePerc1) / 100;
-        let newPosition2 = 1000 / 2 - ((1000 / 2) * changePerc2) / 100;
-        let newPosition = {
-          x: 1000 - (1000 * ballPerc.changePercX) / 100,
-          y: 1000 / 2 - ((1000 / 2) * ballPerc.changePercY) / 100,
-        };
-        changePlayer2((oldValue) => ({
-          ...oldValue,
-          y: newPosition1,
-          x: size.current.canvaWidth - size.current.rectWidth - 5,
-        }));
-        changePlayer1((oldValue) => ({ ...oldValue, y: newPosition2 }));
-        changeBall({ x: newPosition.x, y: newPosition.y });
-        resizeOneTime.current = 3;
-      }
-    }, [window.innerWidth]);
+          console.log(Settings.ballSize)
+            var changePerc1 =
+            (position.current.y2 * 100) / size.current.canvaHeight - 100;
+          var changePerc2 =
+            (position.current.y1 * 100) / size.current.canvaHeight - 100;
+          var ballPerc = {
+            changePercX:
+              (position.current.ballX * 100) / size.current.canvaWidth - 100,
+            changePercY:
+              (position.current.ballY * 100) / size.current.canvaHeight - 100,
+          };
+          if (changePerc1 < 0) changePerc1 *= -1;
+          if (changePerc2 < 0) changePerc2 *= -1;
+          if (ballPerc.changePercX < 0) ballPerc.changePercX *= -1;
+          if (ballPerc.changePercY < 0) ballPerc.changePercY *= -1;
+          if (resizeOneTime.current != 1 && window.innerWidth < 600) {
+            dispatch(change({width:360,ballSize:Settings.ballSize}));
+            let newPosition1 = 360 / 2 - ((360 / 2) * changePerc1) / 100;
+            let newPosition2 = 360 / 2 - ((360 / 2) * changePerc2) / 100;
+            let newPosition = {
+              x: 360 - (360 * ballPerc.changePercX) / 100,
+              y: 360 / 2 - ((360 / 2) * ballPerc.changePercY) / 100,
+            };
+            changePlayer2((oldValue) => ({
+              ...oldValue,
+              y: newPosition1,
+              x: size.current.canvaWidth - size.current.rectWidth - 5,
+            }));
+            changePlayer1((oldValue) => ({ ...oldValue, y: newPosition2 }));
+            changeBall({ x: newPosition.x, y: newPosition.y });
+            console.log(newPosition.x, newPosition.y);
+            resizeOneTime.current = 1;
+          } else if (
+            resizeOneTime.current != 2 &&
+            window.innerWidth > 600 &&
+            window.innerWidth < 1300
+          ) {
+            dispatch(change({width:720,ballSize:Settings.ballSize}));
+            let newPosition1 = 720 / 2 - ((720 / 2) * changePerc1) / 100;
+            let newPosition2 = 720 / 2 - ((720 / 2) * changePerc2) / 100;
+            let newPosition = {
+              x: 720 - (720 * ballPerc.changePercX) / 100,
+              y: 720 / 2 - ((720 / 2) * ballPerc.changePercY) / 100,
+            };
+            changePlayer2((oldValue) => ({
+              ...oldValue,
+              y: newPosition1,
+              x: size.current.canvaWidth - size.current.rectWidth - 5,
+            }));
+            changePlayer1((oldValue) => ({ ...oldValue, y: newPosition2 }));
+            changeBall({ x: newPosition.x, y: newPosition.y });
+            console.log(newPosition.x, newPosition.y);
+            resizeOneTime.current = 2;
+          } else if (resizeOneTime.current != 3 && window.innerWidth > 1300) {
+            dispatch(change({width:1000,ballSize:Settings.ballSize}));
+            let newPosition1 = 1000 / 2 - ((1000 / 2) * changePerc1) / 100;
+            let newPosition2 = 1000 / 2 - ((1000 / 2) * changePerc2) / 100;
+            let newPosition = {
+              x: 1000 - (1000 * ballPerc.changePercX) / 100,
+              y: 1000 / 2 - ((1000 / 2) * ballPerc.changePercY) / 100,
+            };
+            changePlayer2((oldValue) => ({
+              ...oldValue,
+              y: newPosition1,
+              x: size.current.canvaWidth - size.current.rectWidth - 5,
+            }));
+            changePlayer1((oldValue) => ({ ...oldValue, y: newPosition2 }));
+            changeBall({ x: newPosition.x, y: newPosition.y });
+            resizeOneTime.current = 3;
+          }
+          console.log("test")
+      }, [window.innerWidth]);
 
   useEffect(() => {
     function loop() {
@@ -170,7 +176,7 @@ export default function Game(props: any) {
       changePlayer2(oldvalue =>({...oldvalue, y:newPosition2}))
     })
     return () => props.socket?.off("movements")
-  }, []);
+  }, [props.socket]);
 
   useEffect(() => {
     window.onkeydown = function (e) {
@@ -211,13 +217,15 @@ export default function Game(props: any) {
         let newPosition2 = data.playerStat.player2Y / changePerc;
         changePlayer1(oldvalue =>({...oldvalue, y:newPosition1}))
         changePlayer2(oldvalue =>({...oldvalue, y:newPosition2}))
+        changeSetting(data.ballStats.Settings)
+        dispatch(change({width:size.current.canvaWidth,ballSize:data.ballStats.Settings.ballSize}));
         oneTime = true
       }
     })
     return () => props.socket?.off("ballMovement")
-  },[])
+  },[props.socket])
   return (
-    <>
+    <div style={{display:"flex",flexFlow:"column",alignItems:"center"}}>
       <canvas
         style={{ border: "1px solid #d3d3d3", borderRadius: "10px" }}
         id="canvas"
@@ -226,6 +234,11 @@ export default function Game(props: any) {
         ref={canvasRef}
         moz-opaque="true"
       ></canvas>
-    </>
+      <div style={{width:"fit-content"}}>
+        <p>Setting -{'>'} {Settings.userName}</p>
+        <p>Speed -{'>'} {Settings.speed}</p>
+        <p>BallSize -{'>'} {Settings.ballSize}</p>
+      </div>
+    </div>
   );
 }

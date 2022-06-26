@@ -200,7 +200,17 @@ let chatGateway = class chatGateway {
                 if (typeof playersStat.find(element => element.player1 == user_id[0].userName || element.player2 == user_id[0].userName) == "undefined") {
                     if (matchMakingarray.indexOf(user_id[0].userName) == -1) {
                         matchMakingarray.push(user_id[0].userName);
-                        mods.push({ userName: user_id[0].userName, speed: body.speed, ballSize: body.ballSize });
+                        let speed = isNaN(body.speed) ? 5 : parseInt(body.speed);
+                        let ballSize = isNaN(body.ballSize) ? 12.5 : 1000 / (1000 / parseInt(body.ballSize));
+                        if (body.speed == null || speed > 10 || speed < 1)
+                            speed = 5;
+                        if (body.ballSize == null || ballSize < 4 || ballSize > 40)
+                            ballSize = 12.5;
+                        mods.push({
+                            userName: user_id[0].userName,
+                            speed: speed,
+                            ballSize: ballSize
+                        });
                         console.log(mods);
                     }
                     if (matchMakingarray.length > 1) {
@@ -219,6 +229,7 @@ let chatGateway = class chatGateway {
                             ids.emit("matchmaking", [matchMakingarray[0], matchMakingarray[1], "Found"]);
                         }
                         matchMakingarray.splice(0, 2);
+                        mods.splice(0, 2);
                     }
                     else {
                         for (let ids of player) {
@@ -251,7 +262,8 @@ let chatGateway = class chatGateway {
                 let game = await this.liveGameServ.getGame(userInfo[0].userName);
                 if (Object.keys(game).length !== 0) {
                     if (userInfo[0].userName == game[0].player1) {
-                        const interval = setInterval(() => this.gamePlaysServ.movingBall(userInfo[0].userName, ballStat, playersStat, sockets, intervals, watchers), 3.5);
+                        let speed = ballStat.find(element => element.player1 == userInfo[0].userName || element.player2 == userInfo[0].userName).Settings.speed;
+                        const interval = setInterval(() => this.gamePlaysServ.movingBall(userInfo[0].userName, ballStat, playersStat, sockets, intervals, watchers), speed);
                         intervals.push({ id: interval, player1: game[0].player1, player2: game[0].player2 });
                     }
                 }
