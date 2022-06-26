@@ -159,7 +159,7 @@ let gamePlayService = class gamePlayService {
         let playerStat = playersStat.find(element => element.player1 === player || element.player2 === player);
         player1 = sockets.get(ballStat.find(element => element.player1 === player || element.player2 === player).player1);
         player2 = sockets.get(ballStat.find(element => element.player1 === player || element.player2 === player).player2);
-        if (playerStat.player1score >= 8 || playerStat.player2score >= 8) {
+        if (playerStat.player1score >= 800 || playerStat.player2score >= 800) {
             let player1_ = playerStat.player1score > playerStat.player2score ? "Winner" : "Loser";
             let player2_ = playerStat.player1score < playerStat.player2score ? "Winner" : "Loser";
             var game = new (game_dto_1.GamesDto);

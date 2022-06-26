@@ -3,6 +3,7 @@ import LiveListMatch from './ListeLiveMatch'
 import data from '../../achievement.json'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import Link from 'next/link'
 
 function Watch (props:any) {
     const [liveGame, changeLiveGame] = useState([])
@@ -31,12 +32,12 @@ function Watch (props:any) {
             <div className={style.container}>
                 <div className={style.content}>
                     <div className={style.child1}>
-                        <button className={style.Btn}> Quick Match</button>
+                        <Link href={'/game'}><button className={style.Btn}> Quick Match</button></Link>
                         <button className={style.Btn}> Setting</button>
                     </div>
                     <div className={style.childSclor}>
                         {liveGame.map((data, index) =>(
-                            <LiveListMatch key ={index} data={data} socket={props.socket}/>
+                            <LiveListMatch key ={index} data={data} socket={props.socket} LiveM={false}/>
                         ))}
                     </div>
                 </div>

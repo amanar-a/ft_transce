@@ -1,4 +1,3 @@
-import CartPlayer from "../../components/game/cartPlayer";
 import style from "../../styles/game/HomeGame.module.css";
 import Game from "../../components/game";
 import UserInfoPopup from "../../components/UserInfoPopup/UserInfoPopup";
@@ -10,6 +9,8 @@ import axios from "axios";
 import CountDown from "../../components/conterDown/conterDown";
 import Cartwin from "../../components/cartwin/cartwin";
 import CartLose from "../../components/cartlose/cartlose";
+import Link from "next/link";
+import {Player, Player2} from "../../components/game/cartPlayer";
 
 const HomeGame = (props: any) => {
   const [oppenent, changeOpp] = useState("Waiting");
@@ -99,17 +100,17 @@ const HomeGame = (props: any) => {
           <CartLose userName={gameOver} score={gameOver == players.player1 ? score.player1 : score.player2} img={gameOver == players.player1 ? players.pic1: players.pic2}/>
         ): oppenent == "Found" || oppenent == "Watcher" || oppenent == "playing"? (
           <>
-            <img className={style.imgImoji} src={leagend.src} />
-            <div className={style.cartPlayer}>
-              <CartPlayer
+           <Link href={'/home'}><button className={style.btn}>Go back</button></Link>
+            <div className={style.cartPlayer1}>
+              <Player
                 score={score.player1}
                 name={players.player1}
                 img={players.pic1}
               />
             </div>
             <Game changeScore={changeScore} socket={props.socket} score={score}/>
-            <div className={style.cartPlayer}>
-              <CartPlayer
+            <div className={style.cartPlayer2}>
+              <Player2
                 score={score.player2}
                 name={players.player2}
                 img={players.pic2}
