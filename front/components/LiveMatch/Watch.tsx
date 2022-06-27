@@ -4,9 +4,18 @@ import data from '../../achievement.json'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Link from 'next/link'
+import Settings from './modal'
 
 function Watch (props:any) {
     const [liveGame, changeLiveGame] = useState([])
+
+    const [visible, setVisible] = useState(false);
+    const handler = () => setVisible(true);
+
+  const closeHandler = () => {
+    setVisible(false);
+    console.log("closed");
+  };
 
     useEffect(()=>{
         axios.get(`http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/livegames`).then((res) =>{
@@ -33,8 +42,9 @@ function Watch (props:any) {
                 <div className={style.content}>
                     <div className={style.child1}>
                         <Link href={'/game'}><button className={style.Btn}> Quick Match</button></Link>
-                        <button className={style.Btn}> Setting</button>
+                        <button className={style.Btn} onClick={handler}> Setting</button>
                     </div>
+                    <Settings visible={visible} closeHandler={closeHandler} />
                     <div className={style.childSclor}>
                         {liveGame.map((data, index) =>(
                             <LiveListMatch key ={index} data={data} socket={props.socket} LiveM={false}/>

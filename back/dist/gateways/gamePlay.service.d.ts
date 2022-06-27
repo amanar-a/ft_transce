@@ -9,7 +9,7 @@ export default class gamePlayService {
     movingPaddles(playersStat: any, player: string, movement: any, sockets: any, liveGame: LiveGameDto, watchers: any): void;
     movingBall(player: string, ballStat: any, playersStat: any, sockets: any, intervals: any, watchers: any): void;
     checkWatchers(watchers: any, userName: string): void;
-    clearGames(intervals: any, ballStat: any, playersStat: any, userName: string): void;
+    clearGames(intervals: any, ballStat: any, playersStat: any, userName: string, mods: any): void;
     changeTraject(impact: number): {
         y: number;
         x: number;

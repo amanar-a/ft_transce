@@ -1,6 +1,6 @@
 import Style from "../../styles/profile/Profile.module.css";
-import CartProfile from "../../components/profile/cartProfile";
-import MatchHestory from "../../components/profile/matchHestory";
+import CartProfile from "../../components/profile/CartProfile";
+import MatchHestory from "../../components/profile/MatchHestory";
 import Achevment from "../../components/profile/Achevment";
 import axios from "axios";
 import Router, { useRouter } from "next/router";
@@ -50,7 +50,7 @@ function Profile() {
         <div className={Style.container}>
           <div className={Style.header}>
             <CartProfile data={userInfo} Myprofile={true} />
-            <Achevment Myprofile={false} />
+            <Achevment Myprofile={true} />
           </div>
 
           <MatchHestory userData={userInfo} gameHistory={MatchHistory} />

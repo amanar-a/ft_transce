@@ -270,7 +270,7 @@ export default class gamePlayService
 
     }
 
-    clearGames(intervals:any, ballStat:any,playersStat:any,userName:string){
+    clearGames(intervals:any, ballStat:any,playersStat:any,userName:string, mods:any){
         if (intervals.length > 0 && intervals.find(element => element?.player1 === userName || element?.player2 === userName).id != undefined){
             clearInterval(intervals.find(element => element?.player1 === userName || element?.player2 === userName).id)	
             intervals.splice(intervals.indexOf(intervals.find(element => element?.player1 === userName || element?.player2 === userName)),1)
@@ -279,6 +279,7 @@ export default class gamePlayService
             ballStat.splice(ballStat.indexOf(ballStat.find(element => element?.player1 === userName || element?.player2 === userName)),1)
         if (playersStat.indexOf(playersStat.find(element => element?.player1 === userName || element?.player2 === userName)) != -1)
             playersStat.splice(playersStat.indexOf(playersStat.find(element => element?.player1 === userName || element?.player2 === userName)),1)
+        
     }
 
     changeTraject(impact:number){

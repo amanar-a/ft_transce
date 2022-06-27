@@ -252,7 +252,7 @@ let gamePlayService = class gamePlayService {
             }
         }
     }
-    clearGames(intervals, ballStat, playersStat, userName) {
+    clearGames(intervals, ballStat, playersStat, userName, mods) {
         if (intervals.length > 0 && intervals.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName).id != undefined) {
             clearInterval(intervals.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName).id);
             intervals.splice(intervals.indexOf(intervals.find(element => (element === null || element === void 0 ? void 0 : element.player1) === userName || (element === null || element === void 0 ? void 0 : element.player2) === userName)), 1);

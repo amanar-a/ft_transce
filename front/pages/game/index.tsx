@@ -100,7 +100,7 @@ const HomeGame = (props: any) => {
           <CartLose userName={gameOver} score={gameOver == players.player1 ? score.player1 : score.player2} img={gameOver == players.player1 ? players.pic1: players.pic2}/>
         ): oppenent == "Found" || oppenent == "Watcher" || oppenent == "playing"? (
           <>
-           <Link href={'/home'}><button className={style.btn}>Go back</button></Link>
+           <Link href={'/home'} ><button className={style.btn} onClick={() => props.socket.emit("leaving")}>Go back</button></Link>
             <div className={style.cartPlayer1}>
               <Player
                 score={score.player1}

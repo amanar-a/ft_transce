@@ -25,17 +25,60 @@ import { Repository } from "typeorm";
 import  gamePlayService  from "./gamePlay.service";
 
 
+/*---------------------For Game ---------------------*/
+
 export class moveData {
 	player1 : number
 	player2 : number
 	movement : string
 }
-
 var playersStat = new Array
 var ballStat = new Array
 var intervals = new Array
 var watchers = new Array
 var mods = new Array
+var opponentLeft = async (this_:any, sender_id:any) =>{
+	if(matchMakingarray.indexOf(sender_id[0].userName) != -1)
+		matchMakingarray.splice(matchMakingarray.indexOf(sender_id[0].userName),1)
+	if (mods.indexOf(mods.find(element => element?.userName === sender_id[0].userName)) != -1)
+		mods.splice(mods.indexOf(mods.find(element => element?.userName === sender_id[0].userName)),1)
+	let player2 = await this_.liveGameServ.getGameByPlayer(sender_id[0].userName)
+	if (typeof player2 != "undefined" && Object.keys(player2).length > 0)
+	{
+		console.log("test")
+		var game : GamesDto = new(GamesDto)
+		game.winner_user = player2
+		game.loser_user = sender_id[0].userName
+		game.Score = `D.N.F-D.N.F`
+		game.played_at = new Date()
+		this_.gameServ.InsertGame(game)
+		this_.liveGameServ.deleteGame(sender_id[0].userName)
+		var playerSocket : Socket[] = [];
+		playerSocket = sockets.get(player2);
+		if (typeof playersStat.find(element => element.player1 == sender_id[0].userName || element.player2 == sender_id[0].userName) != "undefined"){
+			for(let ids of playerSocket)
+			{
+				ids.emit("opponentLeft",{user : player2})
+			}
+			let watchers_ = watchers.find(element => element.player1 == sender_id[0].userName || element.player2 == sender_id[0].userName).watchers
+			for (let index = 0; index <  watchers_.length; index++) {
+				let player : Socket[] = []
+				player = sockets.get(watchers_[index])
+				for(let ids of player)
+				{
+					ids.emit("opponentLeft",{user : player2})
+				}
+			}
+			this_.gamePlaysServ.clearGames(intervals,ballStat, playersStat, sender_id[0].userName,mods)
+		}
+		this_.gamePlaysServ.checkWatchers(watchers, sender_id[0].userName)
+	}
+	else
+		this_.gamePlaysServ.checkWatchers(watchers, sender_id[0].userName)
+}
+
+/*-----------------------------------------------------*/
+
 var sockets = new Map<string,Array<Socket>>()
 
 var matchMakingarray = new Array
@@ -67,43 +110,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 			console.log("------ desconnection -----");
 			if(Object.keys(sender_id).length !== 0)
 			{
-				if(matchMakingarray.indexOf(sender_id[0].userName) != -1)
-				{
-					matchMakingarray.splice(matchMakingarray.indexOf(sender_id[0].userName),1)
-				}
-				let player2 = await this.liveGameServ.getGameByPlayer(sender_id[0].userName)
-				if (typeof player2 != "undefined" && Object.keys(player2).length > 0)
-				{
-					console.log("test")
-					var game : GamesDto = new(GamesDto)
-					game.winner_user = player2
-					game.loser_user = sender_id[0].userName
-					game.Score = `D.N.F-D.N.F`
-					game.played_at = new Date()
-					this.gameServ.InsertGame(game)
-					this.liveGameServ.deleteGame(sender_id[0].userName)
-					var playerSocket : Socket[] = [];
-					playerSocket = sockets.get(player2);
-					if (typeof playersStat.find(element => element.player1 == sender_id[0].userName || element.player2 == sender_id[0].userName) != "undefined"){
-						for(let ids of playerSocket)
-						{
-							ids.emit("opponentLeft",{user : player2})
-						}
-						let watchers_ = watchers.find(element => element.player1 == sender_id[0].userName || element.player2 == sender_id[0].userName).watchers
-						for (let index = 0; index <  watchers_.length; index++) {
-							let player : Socket[] = []
-							player = sockets.get(watchers_[index])
-							for(let ids of player)
-							{
-								ids.emit("opponentLeft",{user : player2})
-							}
-						}
-						this.gamePlaysServ.clearGames(intervals,ballStat, playersStat, sender_id[0].userName)
-					}
-					this.gamePlaysServ.checkWatchers(watchers, sender_id[0].userName)
-				}
-				else
-					this.gamePlaysServ.checkWatchers(watchers, sender_id[0].userName)
+				opponentLeft(this,sender_id)
 				let array  = sockets.get(sender_id[0].userName)	
 				let i = 0
 				if(array != undefined)
@@ -289,6 +296,19 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 				{
 					ids.emit("matchmaking",  [watchers[i].player1, watchers[i].player2,"Watcher"])
 				}
+			}
+		}
+	}
+	@SubscribeMessage('leaving')
+	async leaving(client: Socket, test: any)
+	{
+		let auth_token = await client.handshake.auth.Authorization;
+		if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
+		{
+			const tokenInfo : any = this.jwtService.decode(auth_token);
+			let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+			if (Object.keys(userInfo).length != 0){
+				opponentLeft(this,userInfo)
 			}
 		}
 	}

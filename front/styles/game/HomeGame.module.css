@@ -38,6 +38,32 @@
     cursor: pointer;
 }
 
+.ModeGame{
+    height: 140px;
+    background-color: rgba(183, 183, 183, 0.382);
+    display: flex;
+    align-items: center;
+    gap: 70px;
+    padding: 15px;
+    position: relative;
+    margin-top: 10px;
+    border: 1px solid gray;
+    border-radius: 5px;
+}
+
+.PMode{
+    font-size: 17px;
+    font-family: monospace;
+    font-weight: bold;
+}
+.spanMode{
+    font-size: 17px;
+    font-family: monospace;
+    font-weight: bold;
+    background-color: rgba(128, 128, 128, 0.332);
+    width: 50px;
+    border: 1px solid gray;
+}
 @media screen and (max-width: 1902px)
 {
     .Container{
@@ -68,6 +94,7 @@
         border-right: none;
         background-color: unset;
         border: none;
+        left: 2%;
     }
     .cartPlayer2{
         position: absolute;
@@ -82,28 +109,37 @@
         border-left: none;
         background-color: unset;
         border: none;
-    }
-}
-
-@media screen and (max-width: 1597px){
-    .cartPlayer1{
-        left: 2%;
-    }
-    .cartPlayer2{
         right: 0%;
-    } 
+    }
+    .ModeGame{
+       top: 75%;
+    }
 }
 
 @media screen and (max-width: 1009px)
 {
-    .cartPlayer1{
-        left: 2%;
+    .ModeGame{
+        width: 100px;
+        gap: 20px;
     }
-    .cartPlayer2{
-        right: 0%;
+    .PMode{
+        font-size: 17px;
+
+    }
+    .spanMode{
+        font-size: 17px;
     }
 }
 
+@media screen and (max-width: 873px){
+    .ModeGame{
+        flex-direction: column;
+        gap: 0px;
+        height: 150px;
+        top: 64%;
+        padding: 10px;
+    }
+}
 @media screen and (max-width: 828px)
 {
     .cartPlayer1{
@@ -116,6 +152,7 @@
         top: 15%;
         width: 320px;
     }
+
 }
 @media screen and (max-width: 570px){
     .cartPlayer1{

@@ -1,6 +1,8 @@
+import { styled } from "@nextui-org/react";
 import React, { useState, useEffect, useRef } from "react";
 import { RootStateOrAny, useDispatch, useSelector } from "react-redux";
 import { change } from "../redux/sizes";
+import style from "../styles/game/HomeGame.module.css"
 import {
   drawRect,
   drawBall,
@@ -8,7 +10,7 @@ import {
   switch_,
 } from "../tools/gameTools";
 
-let oneTime:Boolean= false
+let oneTime:Boolean
 export default function Game(props: any) {
   const canvasRef = useRef(null);
   const {
@@ -184,7 +186,7 @@ export default function Game(props: any) {
           window.innerWidth > 540 &&
           window.innerWidth < 600
         ) {
-          dispatch(change({width:270,ballSize:Settings.ballSize}));
+          dispatch(change({width:470,ballSize:Settings.ballSize}));
           let newPosition1 = 470 / 2 - ((470 / 2) * changePerc1) / 100;
           let newPosition2 = 470 / 2 - ((470 / 2) * changePerc2) / 100;
           let newPosition = {
@@ -245,6 +247,7 @@ export default function Game(props: any) {
   }, [props.socket]);
 
   useEffect(() => {
+    oneTime=false
     window.onkeydown = function (e) {
       switch_(e.keyCode, "onKeyDown", movementPlayer1, movementPlayer2);
     };
@@ -284,6 +287,7 @@ export default function Game(props: any) {
         changePlayer1(oldvalue =>({...oldvalue, y:newPosition1}))
         changePlayer2(oldvalue =>({...oldvalue, y:newPosition2}))
         changeSetting(data.ballStats.Settings)
+        console.log(data.ballStats)
         dispatch(change({width:size.current.canvaWidth,ballSize:data.ballStats.Settings.ballSize}));
         oneTime = true
       }
@@ -300,10 +304,10 @@ export default function Game(props: any) {
         ref={canvasRef}
         moz-opaque="true"
       ></canvas>
-      <div style={{width:"fit-content"}}>
-        <p>Setting -{'>'} {Settings.userName}</p>
-        <p>Speed -{'>'} {Settings.speed}</p>
-        <p>BallSize -{'>'} {Settings.ballSize}</p>
+      <div style={{width:"fit-content"}} className={style.ModeGame}>
+        <p className={style.PMode}>Setting -{'>'} <span className={style.spanMode}>{Settings.userName}</span></p>
+        <p className={style.PMode}>Speed -{'>'} <span className={style.spanMode}>{Settings.speed}</span></p>
+        <p className={style.PMode}>BallSize -{'>'} <span className={style.spanMode}>{Settings.ballSize}</span></p>
       </div>
     </div>
   );
