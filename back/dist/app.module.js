@@ -19,6 +19,7 @@ const game_module_1 = require("./games/game.module");
 const gateway_module_1 = require("./gateways/gateway.module");
 const live_game_module_1 = require("./liveGame/live.game.module");
 const message_module_1 = require("./messages/message.module");
+const notification_module_1 = require("./notification/notification.module");
 const twoFactorAuthentication_module_1 = require("./twofactor/twoFactorAuthentication.module");
 const typeormcofig_1 = require("./typeormcofig");
 const user_module_1 = require("./user/user.module");
@@ -26,8 +27,8 @@ let AppModule = class AppModule {
 };
 AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [user_module_1.UserModule, chatRoom_module_1.chatRoomModule, message_module_1.MessageModule, twoFactorAuthentication_module_1.TwoFaModule, game_module_1.gameModule, auth_module_1.AuthModule, file_upload_module_1.UploadModule, friends_module_1.FriendsModule, gateway_module_1.GateWayModule, typeorm_1.TypeOrmModule.forRoot(typeormcofig_1.typeOrmConfig),
-            live_game_module_1.default],
+        imports: [user_module_1.UserModule, notification_module_1.NotificationModule, chatRoom_module_1.chatRoomModule, message_module_1.MessageModule, twoFactorAuthentication_module_1.TwoFaModule, game_module_1.gameModule, auth_module_1.AuthModule, file_upload_module_1.UploadModule, friends_module_1.FriendsModule, gateway_module_1.GateWayModule, typeorm_1.TypeOrmModule.forRoot(typeormcofig_1.typeOrmConfig),
+            live_game_module_1.livegamemodule],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
     })

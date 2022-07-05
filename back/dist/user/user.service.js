@@ -57,25 +57,16 @@ let UserService = class UserService {
     async findAll() {
         return await this.usersRepository.query(`select * from Users`);
     }
-    async findUser(request, email) {
+    async findUser(oldUserName, newUserName, email) {
         const user = await this.usersRepository
             .createQueryBuilder()
             .select('user')
             .from(user_entity_1.User, 'user')
-            .where('user.userName = :name', { name: request.userName })
+            .where('user.userName = :name', { name: newUserName })
             .getOne();
-        if (user == null) {
-            await this.usersRepository
-                .createQueryBuilder()
-                .update(user_entity_1.User)
-                .set({ userName: request.userName })
-                .where('email = :email', { email: email })
-                .execute();
-        }
-        if (user == null) {
-            return true;
-        }
-        return false;
+        await this.updateUsername(newUserName, oldUserName);
+        await this.usersRepository.query(`UPDATE public."Users" SET "userName"= '${newUserName}' WHERE  "userName"= '${oldUserName}'`);
+        return true;
     }
     async updateActive(stats, userName) {
         var get = await this.usersRepository.query(`UPDATE public."Users" SET "isActive"= '${stats}' WHERE  "userName"= '${userName}'`);
@@ -85,16 +76,22 @@ let UserService = class UserService {
     }
     async getUserJwt(token) {
         const tokenInfo = this.jwtService.decode(token);
-        let user = await this.usersRepository
-            .createQueryBuilder('Users')
-            .select(['Users.userName'])
-            .where('Users.email = :email', { email: tokenInfo.userId })
-            .getOne();
+        let user = await this.usersRepository.findOneBy({ email: tokenInfo.userId });
+        console.log("mail : ", user);
         if (user)
             return user;
     }
     async findByUserName(userName) {
         return await this.usersRepository.findOneBy({ userName: userName });
+    }
+    async updateUsername(newName, oldName) {
+        await this.usersRepository.query(`UPDATE public."FriendBlocked" SET "Blocker"='${newName}' WHERE "Blocker"='${oldName}'`);
+        await this.usersRepository.query(`UPDATE public."FriendBlocked" SET "Blocked"='${newName}' WHERE "Blocked"='${oldName}'`);
+        await this.usersRepository.query(`UPDATE public."FriendLsit" SET "userName"='${newName}' WHERE "userName"='${oldName}'`);
+        await this.usersRepository.query(`UPDATE public."FriendShip" SET "sender_id"='${newName}' WHERE "sender_id"='${oldName}'`);
+        await this.usersRepository.query(`UPDATE public."FriendShip" SET "recipent_id"='${newName}' WHERE "recipent_id"='${oldName}'`);
+        await this.usersRepository.query(`UPDATE public."Games" SET "winner_user"='${newName}' WHERE "winner_user"='${oldName}'`);
+        await this.usersRepository.query(`UPDATE public."Games" SET "loser_user"='${newName}' WHERE "loser_user"='${oldName}'`);
     }
 };
 UserService = __decorate([

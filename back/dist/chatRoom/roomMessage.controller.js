@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.roomMessageController = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
+const jwt_auth_gguard_1 = require("../guards/jwt-auth.gguard");
 const jwt_1 = require("@nestjs/jwt");
 const user_entity_1 = require("../entities/user.entity");
 const typeorm_2 = require("typeorm");
@@ -31,11 +32,23 @@ let roomMessageController = class roomMessageController {
         let rMessage = await this.roomMessageRep.save(data);
         return rMessage;
     }
-    async getRoomMessages(data) {
-        let rMessages = await this.roomMessageRep.findBy({ roomId: data });
-        return (rMessages);
+    async getConv(roomId, request) {
+        const jwt = request.headers.authorization.replace('Bearer ', '');
+        const tokenInfo = this.jwtService.decode(jwt);
+        console.log("RoomId=", roomId.roomId);
+        let conv = await this.RoomService.getRoomMessages(roomId.roomId);
+        return conv;
     }
 };
+__decorate([
+    (0, common_1.Post)('getConnversation'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], roomMessageController.prototype, "getConv", null);
 roomMessageController = __decorate([
     (0, common_1.Controller)('roomMessage'),
     __param(1, (0, typeorm_1.InjectRepository)(roomMessage_entity_1.roomMessage)),

@@ -8,7 +8,7 @@ const FinalGame = () =>{
         <div className={style.container}>
             <Cartwin />
             {/* <CartLose /> */}
-            {/* <CountDown /> */}
+            {/* <CountDown />  */}
         </div>
     )
 }

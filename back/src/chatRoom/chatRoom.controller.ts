@@ -1,4 +1,4 @@
-import { Body, Controller, Post,Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post,Req, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { InjectRepository } from "@nestjs/typeorm";
 import { chatRoomService } from "./chatRoom.service";
@@ -60,11 +60,108 @@ export class chatRoomController {
 		// game.members  = [user]
 	}
 
+	@Post('getPublicRooms')
+	@UseGuards(JwtAuthGuard)
+	async getPublicRooms(@Body() body :any)
+	{
+		return await this.RoomService.getPublicRooms();
+	}
 
+	@Get('getAllRooms')
+	@UseGuards(JwtAuthGuard)
+	async getAllRooms(@Body() body :any)
+	{
+		return await this.RoomService.getAllRooms()
+	}
+	@Post('addAdministrator')
+	@UseGuards(JwtAuthGuard)
+	async addAdministrator(@Body() body :any)
+	{
+		console.log(body)
+		return await this.RoomService.addAdministrator(body.roomId ,body.userName)
+	}
+	@Post('getRoomMemebers')
+	@UseGuards(JwtAuthGuard)
+	async getRoomMembers(@Body() body :any)
+	{
+		let room : any = (await this.RoomService.getRoomById(body.roomId))
+		if(room !== "undefined" && room !== null)
+		{
+			let members : any =room.members
+			return  members
+		}
+		else
+		 return null
+	}
+
+	@Post('getRoomAdministrators')
+	@UseGuards(JwtAuthGuard)
+	async getRoomAdministrators(@Body() body :any)
+	{
+		let room : any = (await this.RoomService.getRoomById(body.roomId))
+		if(room !== "undefined" && room !== null)
+		{
+			let Administrators : any =room.Administrators
+			console.log(Administrators)
+			return  Administrators
+		}
+		else
+		 return null
+	}
+	@Post('changeOwner')
+	@UseGuards(JwtAuthGuard)
+	async changeOwner(@Body() body :any)
+	{
+		this.RoomService.changeOwner(body.roomId , body.newOwner)
+	}
+	@Post('getOwner')
+	@UseGuards(JwtAuthGuard)
+	async getOwner(@Body() body :any)
+	{
+		let room : any = await this.RoomService.getRoomById(body.roomId)
+		if(room !== "undefined" && room !== null)
+		{
+			return  room.RoomOwner
+		}
+		else
+		 return null
+	}
+
+	@Post('deleteUser')
+	@UseGuards(JwtAuthGuard)
+	async deleteUser(@Body() body :any)
+	{
+		await this.RoomService.deleteUser(body.roomId , body.user)
+	}
+
+	@Post('getRoomById')
+	@UseGuards(JwtAuthGuard)
+	async getRoomById(@Body() body :any)
+	{
+		return await this.RoomService.getRoomById(body.roomId)
+	}
+	@Post('changeRoomPassword')
+	@UseGuards(JwtAuthGuard)
+	async changeRoomPassword(@Body() body :any)
+	{
+		return await this.RoomService.changeRoomPassword(body.roomId,body.newPassword)
+	}
+	@Post('changeRoomName')
+	@UseGuards(JwtAuthGuard)
+	async changeRoomName(@Body() body :any)
+	{
+		return await this.RoomService.changeRoomName(body.roomId,body.newName)
+	}
+	@Post('checkPassword')
+	@UseGuards(JwtAuthGuard)
+	async checkPassword(@Body() body :any)
+	{
+		return await this.RoomService.checkPassword(body.roomId,body.password)
+	}
 }
 /* 
 SELECT *
 FROM subject
 JOIN subject_note AS jt on jt.subject_id = subject.id
 WHERE jt.note_id = :id 
-*/
+*/	

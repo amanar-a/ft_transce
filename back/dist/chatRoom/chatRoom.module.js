@@ -12,19 +12,22 @@ const jwt_1 = require("@nestjs/jwt");
 const typeorm_1 = require("@nestjs/typeorm");
 const chatRoom_entity_1 = require("../entities/chatRoom.entity");
 const roomMessage_entity_1 = require("../entities/roomMessage.entity");
+const roomsBannedUser_entity_1 = require("../entities/roomsBannedUser.entity");
 const user_entity_1 = require("../entities/user.entity");
 const user_service_1 = require("../user/user.service");
 const chatRoom_controller_1 = require("./chatRoom.controller");
 const chatRoom_service_1 = require("./chatRoom.service");
 const roomMessage_controller_1 = require("./roomMessage.controller");
 const roomMessage_service_1 = require("./roomMessage.service");
+const roomsBannedUser_controller_1 = require("./roomsBannedUser.controller");
+const roomsBannedUser_service_1 = require("./roomsBannedUser.service");
 let chatRoomModule = class chatRoomModule {
 };
 chatRoomModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([chatRoom_entity_1.chatRoom, user_entity_1.User, roomMessage_entity_1.roomMessage]), jwt_1.JwtModule.register({ secret: process.env.CLIENTSECRET })],
-        controllers: [chatRoom_controller_1.chatRoomController, roomMessage_controller_1.roomMessageController],
-        providers: [chatRoom_service_1.chatRoomService, roomMessage_service_1.roomMessageService, user_service_1.UserService],
+        imports: [typeorm_1.TypeOrmModule.forFeature([chatRoom_entity_1.chatRoom, user_entity_1.User, roomMessage_entity_1.roomMessage, roomsBannedUser_entity_1.roomBannedUser]), jwt_1.JwtModule.register({ secret: process.env.CLIENTSECRET })],
+        controllers: [chatRoom_controller_1.chatRoomController, roomMessage_controller_1.roomMessageController, roomsBannedUser_controller_1.roomBannedUsersController],
+        providers: [chatRoom_service_1.chatRoomService, roomMessage_service_1.roomMessageService, user_service_1.UserService, roomsBannedUser_service_1.roomBannedUserService],
     })
 ], chatRoomModule);
 exports.chatRoomModule = chatRoomModule;

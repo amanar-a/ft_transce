@@ -23,7 +23,7 @@ const messages = () => {
     let FriendsInformation: any = [];
 
     useEffect(() => {
-        axios.get("http://10.12.10.4:3300/message/getConntacts",
+        axios.get("http://localhost:3001/message/getConntacts",
         {headers:{'Authorization': `Bearer ${localStorage.getItem("accessToken")}`}}
         ).then((res) => {
             setFriends(res.data);

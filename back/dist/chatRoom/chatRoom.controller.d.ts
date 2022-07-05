@@ -15,4 +15,19 @@ export declare class chatRoomController {
     constructor(RoomService: chatRoomService, roomRep: Repository<chatRoom>, usersRepository: Repository<User>, jwtService: JwtService);
     createRoom(body: any, request: Request): Promise<void>;
     addUser(gameId: any, request: Request): Promise<void>;
+    getPublicRooms(body: any): Promise<chatRoom[]>;
+    getAllRooms(body: any): Promise<{
+        public: chatRoom[];
+        private: chatRoom[];
+    }>;
+    addAdministrator(body: any): Promise<void>;
+    getRoomMembers(body: any): Promise<any>;
+    getRoomAdministrators(body: any): Promise<any>;
+    changeOwner(body: any): Promise<void>;
+    getOwner(body: any): Promise<any>;
+    deleteUser(body: any): Promise<void>;
+    getRoomById(body: any): Promise<chatRoom>;
+    changeRoomPassword(body: any): Promise<void>;
+    changeRoomName(body: any): Promise<void>;
+    checkPassword(body: any): Promise<boolean>;
 }

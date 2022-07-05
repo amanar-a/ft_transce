@@ -1,3 +1,4 @@
+import {Player, Player2} from "../../components/game/cartPlayer";
 import style from "../../styles/game/HomeGame.module.css";
 import Game from "../../components/game";
 import UserInfoPopup from "../../components/UserInfoPopup/UserInfoPopup";
@@ -10,7 +11,6 @@ import CountDown from "../../components/conterDown/conterDown";
 import Cartwin from "../../components/cartwin/cartwin";
 import CartLose from "../../components/cartlose/cartlose";
 import Link from "next/link";
-import {Player, Player2} from "../../components/game/cartPlayer";
 
 const HomeGame = (props: any) => {
   const [oppenent, changeOpp] = useState("Waiting");
@@ -64,24 +64,24 @@ const HomeGame = (props: any) => {
         }
       });
       return () => props.socket?.off("matchmaking")
-      
-    }, [props.socket]);
-  useEffect(()=>{
-    props.socket?.on("gameOver",(data:any) =>{
-      changeOpp(data.status)
-      changeScore({player1:data.playerStat.player1score,player2:data.playerStat.player2score})
-      changeGameOver(data.player)
-    })
-    return () => props.socket?.off("gameOver")
-  },[props.socket])
-  useEffect(()=>{
-    props.socket?.on("opponentLeft",(data:any) =>{
-      console.log(data.user)
-      changeOpp("Winner")
-      changeGameOver(data.user)
-    })
-    return () => props.socket?.off("opponentLeft")
-  },[props.socket])
+
+  }, [props.socket]);
+    useEffect(()=>{
+      props.socket?.on("gameOver",(data:any) =>{
+        changeOpp(data.status)
+        changeScore({player1:data.playerStat.player1score,player2:data.playerStat.player2score})
+        changeGameOver(data.player)
+      })
+      return () => props.socket?.off("gameOver")
+    },[props.socket])
+    useEffect(()=>{
+      props.socket?.on("opponentLeft",(data:any) =>{
+        console.log(data.user)
+        changeOpp("Winner")
+        changeGameOver(data.user)
+      })
+      return () => props.socket?.off("opponentLeft")
+    },[props.socket])
   return (
     <>
       <div className={style.Container}>
@@ -98,24 +98,26 @@ const HomeGame = (props: any) => {
         ):
         oppenent === "Loser" ? (
           <CartLose userName={gameOver} score={gameOver == players.player1 ? score.player1 : score.player2} img={gameOver == players.player1 ? players.pic1: players.pic2}/>
-        ): oppenent == "Found" || oppenent == "Watcher" || oppenent == "playing"? (
+        ):oppenent == "Found" || oppenent == "Watcher" || oppenent == "playing"? (
           <>
-           <Link href={'/home'} ><button className={style.btn} onClick={() => props.socket.emit("leaving")}>Go back</button></Link>
-            <div className={style.cartPlayer1}>
-              <Player
-                score={score.player1}
-                name={players.player1}
-                img={players.pic1}
-              />
-            </div>
-            <Game changeScore={changeScore} socket={props.socket} score={score}/>
-            <div className={style.cartPlayer2}>
+              <Link href={'/home'} ><button className={style.btn} onClick={() => props.socket.emit("leaving")}>Go back</button></Link>
+            <div className={style.CartsPlayers}>
+              <div className={style.cartPlayer1}>
+                <Player
+                  score={score.player1}
+                  name={players.player1}
+                  img={players.pic1}
+                />
+              </div>
+              <div className={style.cartPlayer2}>
               <Player2
                 score={score.player2}
                 name={players.player2}
                 img={players.pic2}
               />
             </div>
+            </div>
+            <div className={style.containerGame}><Game changeScore={changeScore} socket={props.socket} score={score}/></div>
           </>
         ):""}
       </div>

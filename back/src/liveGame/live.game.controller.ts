@@ -1,5 +1,5 @@
+import { Controller, Get } from "@nestjs/common";
 import { liveGameService } from "./liveGame.service";
-import { Controller, Get } from '@nestjs/common';
 
 
 

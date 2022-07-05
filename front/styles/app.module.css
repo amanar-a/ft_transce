@@ -1,21 +1,16 @@
 
 .App{
-  overflow-y: scroll;
   display: flex;
   height: 100%;
   width: 100%;
   position: absolute;
-  bottom: 0;
-  right: 0;
   background-image: url('../public/images/cool.png');
   background-repeat: no-repeat;
   object-fit: fill;
   background-size: cover;
+  min-height: 900px;
 }
 
-.App::-webkit-scrollbar{
-  display: none;
-}
 /* .Container{
   background-color: black;
   width: 100%;

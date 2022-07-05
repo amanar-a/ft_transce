@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, OneToMany, ManyToMany } from 'typeorm';
 import { sign } from 'jsonwebtoken';
 import { User } from './user.entity';
 import { now } from 'moment';

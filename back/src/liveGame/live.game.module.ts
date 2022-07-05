@@ -11,4 +11,4 @@ import { liveGameService } from './liveGame.service';
     controllers:[livegamecontroller]
 })
 
-export default class livegamemodule{}
+export class livegamemodule{}

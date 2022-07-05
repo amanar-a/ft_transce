@@ -39,6 +39,10 @@ let messageService = class messageService {
             FROM public."messages" WHERE "reciverId" = '${user}')`);
         return name;
     }
+    async changeName(oldUserName, newUserName) {
+        await this.messageRep.query(`UPDATE public."messages" SET "senderId"='${newUserName}' WHERE "senderId"='${oldUserName}'`);
+        await this.messageRep.query(`UPDATE public."messages" SET "reciverId"='${newUserName}' WHERE "reciverId"='${oldUserName}'`);
+    }
 };
 messageService = __decorate([
     (0, common_1.Injectable)(),

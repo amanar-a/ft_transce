@@ -20,8 +20,7 @@ let TwoFaModule = class TwoFaModule {
 };
 TwoFaModule = __decorate([
     (0, common_1.Module)({
-        imports: [user_module_1.UserModule, typeorm_1.TypeOrmModule.forFeature([refresh_token_entity_1.RefreshToken]),
-            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]),
+        imports: [user_module_1.UserModule, typeorm_1.TypeOrmModule.forFeature([refresh_token_entity_1.RefreshToken, user_entity_1.User]),
         ],
         providers: [auth_service_1.AuthService, twoFactorAuthentication_service_1.TwoFactorAuthenticationService, _42_strategy_1.FtAuthStrategy],
         controllers: [twoFactorAuthentication_controller_1.TwoFactorAuthenticationController]

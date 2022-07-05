@@ -11,13 +11,15 @@ const passport_1 = require("@nestjs/passport");
 const common_1 = require("@nestjs/common");
 let Ft42AuthGuard = class Ft42AuthGuard extends (0, passport_1.AuthGuard)('42') {
     handleRequest(err, user, info) {
-        console.log('--from handle request--', user);
+        console.log("from guard");
+        console.log(user);
+        console.log("---------------------");
         if (info &&
             info.message ===
                 'The resource owner or authorization server denied the request.')
             return 'failure';
         else if (err || !user) {
-            throw err || new common_1.UnauthorizedException();
+            throw new common_1.UnauthorizedException();
         }
         return user;
     }

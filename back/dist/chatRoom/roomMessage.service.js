@@ -25,17 +25,24 @@ let roomMessageService = class roomMessageService {
         this.usersRepository = usersRepository;
         this.jwtService = jwtService;
     }
-    async creatRoomMessage(token, body) {
-        const tokenInfo = this.jwtService.decode(token);
-        let user_info = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-        var ow;
-        if (Object.keys(user_info).length != 0) {
-        }
+    async creatRoomMessage(sender, body) {
+        let message = await this.RoomRepository.create();
+        message.message = body.message;
+        message.roomId = body.roomId;
+        message.senderId = sender;
+        message.time = new Date();
+        await message.save();
+        return;
     }
     async getRoomMessages(roomId) {
-        console.log("here");
         let messages = await this.RoomRepository.findBy({ roomId: roomId });
         return messages;
+    }
+    async deleteMessagesRoom(roomId) {
+        await this.RoomRepository.delete({ roomId: roomId });
+    }
+    async changeName(oldUserName, newUserName) {
+        await this.RoomRepository.query(`UPDATE public."roomMessage" SET "senderId"='${newUserName}' WHERE "senderId"='${oldUserName}'`);
     }
 };
 roomMessageService = __decorate([

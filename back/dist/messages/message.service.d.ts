@@ -8,4 +8,5 @@ export declare class messageService {
     createMessage(message: messageDto): Promise<messageDto & messages>;
     getConversation(SId: string, RId: string): Promise<any>;
     getConntact(user: string): Promise<any>;
+    changeName(oldUserName: string, newUserName: string): Promise<void>;
 }

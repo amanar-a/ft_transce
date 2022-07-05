@@ -48,6 +48,61 @@ let chatRoomController = class chatRoomController {
         chat[0].members = [...chat[0].members, user];
         chat[0].save();
     }
+    async getPublicRooms(body) {
+        return await this.RoomService.getPublicRooms();
+    }
+    async getAllRooms(body) {
+        return await this.RoomService.getAllRooms();
+    }
+    async addAdministrator(body) {
+        console.log(body);
+        return await this.RoomService.addAdministrator(body.roomId, body.userName);
+    }
+    async getRoomMembers(body) {
+        let room = (await this.RoomService.getRoomById(body.roomId));
+        if (room !== "undefined" && room !== null) {
+            let members = room.members;
+            return members;
+        }
+        else
+            return null;
+    }
+    async getRoomAdministrators(body) {
+        let room = (await this.RoomService.getRoomById(body.roomId));
+        if (room !== "undefined" && room !== null) {
+            let Administrators = room.Administrators;
+            console.log(Administrators);
+            return Administrators;
+        }
+        else
+            return null;
+    }
+    async changeOwner(body) {
+        this.RoomService.changeOwner(body.roomId, body.newOwner);
+    }
+    async getOwner(body) {
+        let room = await this.RoomService.getRoomById(body.roomId);
+        if (room !== "undefined" && room !== null) {
+            return room.RoomOwner;
+        }
+        else
+            return null;
+    }
+    async deleteUser(body) {
+        await this.RoomService.deleteUser(body.roomId, body.user);
+    }
+    async getRoomById(body) {
+        return await this.RoomService.getRoomById(body.roomId);
+    }
+    async changeRoomPassword(body) {
+        return await this.RoomService.changeRoomPassword(body.roomId, body.newPassword);
+    }
+    async changeRoomName(body) {
+        return await this.RoomService.changeRoomName(body.roomId, body.newName);
+    }
+    async checkPassword(body) {
+        return await this.RoomService.checkPassword(body.roomId, body.password);
+    }
 };
 __decorate([
     (0, common_1.Post)('create'),
@@ -67,6 +122,102 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], chatRoomController.prototype, "addUser", null);
+__decorate([
+    (0, common_1.Post)('getPublicRooms'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], chatRoomController.prototype, "getPublicRooms", null);
+__decorate([
+    (0, common_1.Get)('getAllRooms'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], chatRoomController.prototype, "getAllRooms", null);
+__decorate([
+    (0, common_1.Post)('addAdministrator'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], chatRoomController.prototype, "addAdministrator", null);
+__decorate([
+    (0, common_1.Post)('getRoomMemebers'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], chatRoomController.prototype, "getRoomMembers", null);
+__decorate([
+    (0, common_1.Post)('getRoomAdministrators'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], chatRoomController.prototype, "getRoomAdministrators", null);
+__decorate([
+    (0, common_1.Post)('changeOwner'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], chatRoomController.prototype, "changeOwner", null);
+__decorate([
+    (0, common_1.Post)('getOwner'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], chatRoomController.prototype, "getOwner", null);
+__decorate([
+    (0, common_1.Post)('deleteUser'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], chatRoomController.prototype, "deleteUser", null);
+__decorate([
+    (0, common_1.Post)('getRoomById'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], chatRoomController.prototype, "getRoomById", null);
+__decorate([
+    (0, common_1.Post)('changeRoomPassword'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], chatRoomController.prototype, "changeRoomPassword", null);
+__decorate([
+    (0, common_1.Post)('changeRoomName'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], chatRoomController.prototype, "changeRoomName", null);
+__decorate([
+    (0, common_1.Post)('checkPassword'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], chatRoomController.prototype, "checkPassword", null);
 chatRoomController = __decorate([
     (0, common_1.Controller)('chatRoom'),
     __param(1, (0, typeorm_1.InjectRepository)(chatRoom_entity_1.chatRoom)),

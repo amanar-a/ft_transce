@@ -7,6 +7,8 @@ export declare class roomMessageService {
     private usersRepository;
     private readonly jwtService;
     constructor(RoomRepository: Repository<roomMessage>, usersRepository: Repository<User>, jwtService: JwtService);
-    creatRoomMessage(token: string, body: any): Promise<void>;
+    creatRoomMessage(sender: string, body: any): Promise<void>;
     getRoomMessages(roomId: number): Promise<roomMessage[]>;
+    deleteMessagesRoom(roomId: number): Promise<void>;
+    changeName(oldUserName: string, newUserName: string): Promise<void>;
 }

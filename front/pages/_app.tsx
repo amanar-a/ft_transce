@@ -7,15 +7,15 @@ import { Provider } from "react-redux";
 import store from "../redux/configureStore";
 import Login from "../components/login/Login";
 import { useRouter } from "next/router";
-import io from "socket.io-client";
+import io, { Socket } from "socket.io-client";
 import axios from "axios";
 
 
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [isConnect, changeStatus] = useState(true);
-  const [socket, changeSocket] = useState<any>()
   const [showSidBar, setShowSidBar] = useState<boolean>(false);
+  const [socket, changeSocket] = useState<Socket>()
   const [update, setUpdate] = useState<boolean>(false);
   const [userInfo, setUserInfo] = useState<any>();
   const [showContent, setShowContent] = useState<boolean>(false);
@@ -43,49 +43,20 @@ function MyApp({ Component, pageProps }: AppProps) {
       `${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}`,
       socketOptions
     ));
+  },[]);
+  
+  useEffect(()=>{
     socket?.emit("startChannels");
-  }, []);
-  useEffect(() => {
-    console.log(router.pathname);
-    console.log("im here");
-    // const response: any = axios
-    //   .post(
-    //     `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/users/profile`,
-    //     null,
-    //     {
-    //       headers: {
-    //         Authorization: `Bearer ${
-    //           localStorage.getItem("accessToken") as string
-    //         }`,
-    //       },
-    //     }
-    //   )
-    //   .then((res) => {
-    //     // console.log("im in then of the response")
-    //     setUserInfo(res.data.userInfo);
-    //     // setShowContent(true);
-    //   })
-    //   .catch(function (error){
-    //     if (error.response){
-    //         router.push({pathname :`/errorPage/${error.response.status}`})
-    //     }
-    // })
-  }, []);
-  // useEffect(() => {
-  // 	console.log("jfdsjfks",userInfo?.userName)
-  // 		if (userInfo?.userName === undefined)
-  // 			router.push("/login")
-  // },[router.pathname])
+  },[socket])
+
   return (
     <>
-      {console.log("Info =", userInfo?.userName)}
-      {userInfo?.userName !== "undefined" ? (
         <Provider store={store}>
           <div className={Style.App}>
             <Component {...pageProps} socket={socket} user={userInfo} />
             {console.log(",LooooooL",typeof window != "undefined" ?  window.location.pathname.split("/")[1] : "")}
             {typeof window != "undefined" &&
-            (window.location.href.split("/")[3].split("?")[0] != "game" && window.location.pathname.split("/")[1] != "errorPage" )? (
+            (window.location.href.split("/")[3].split("?")[0] != "game" && window.location.pathname.split("/")[1] != "errorPage" && window.location.pathname.split("/")[1] != "login")? (
               <SideBar
                 setShowSidBar={setShowSidBar}
                 showSidBar={showSidBar}
@@ -97,9 +68,6 @@ function MyApp({ Component, pageProps }: AppProps) {
             )}
           </div>
         </Provider>
-      ) : (
-        <Login />
-      )}
     </>
   );
 }

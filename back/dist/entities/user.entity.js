@@ -65,6 +65,10 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "bypassTwoFactorAuthentication", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "ifUserName", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => liveGame_entity_1.liveGame, (live) => live.id, { nullable: true }),
     __metadata("design:type", liveGame_entity_1.liveGame)
 ], User.prototype, "liveGame", void 0);
@@ -73,6 +77,10 @@ __decorate([
     (0, typeorm_1.JoinTable)({ name: 'chatIntUser' }),
     __metadata("design:type", Array)
 ], User.prototype, "chatRooms", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => chatRoom_entity_1.chatRoom, (room) => room.id),
+    __metadata("design:type", Array)
+], User.prototype, "adminsRoom", void 0);
 User = __decorate([
     (0, typeorm_1.Entity)('Users')
 ], User);

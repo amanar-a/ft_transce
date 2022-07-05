@@ -1,9 +1,9 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity('notification')
 
-export default class Notification extends BaseEntity
+export class Notification extends BaseEntity
 {
     @PrimaryGeneratedColumn({
         comment : 'the quiz unique indentifier',

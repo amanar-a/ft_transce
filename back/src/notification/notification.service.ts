@@ -4,7 +4,7 @@ import { Repository } from "typeorm";
 import { JwtService } from "@nestjs/jwt";
 import { User } from "src/entities/user.entity";
 import { UserService } from "src/user/user.service";
-import  Notification  from "src/entities/notification.entity";
+import { Notification } from "src/entities/notification.entity";
 import { notificationDto } from "src/dto-classes/notification.dto";
 
 @Injectable()
@@ -28,5 +28,11 @@ export class notificationService
     async getNotifications(userName : string)
     {
         return this.notificationRep.findBy({reciverName : userName})
+    }
+
+    async changeName(oldUserName : string, newUserName : string)
+    {
+        await this.notificationRep.query(`UPDATE public."notification" SET "senderName"='${newUserName}' WHERE "senderName"='${oldUserName}'`);
+        await this.notificationRep.query(`UPDATE public."notification" SET "reciverName"='${newUserName}' WHERE "reciverName"='${oldUserName}'`);
     }
 }

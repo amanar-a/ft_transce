@@ -18,7 +18,7 @@ export default function Settings(props:any) {
       >
         <Modal.Header>
             <Text b size={18}>
-              NextUI
+              Settings
             </Text>
         </Modal.Header>
         <Modal.Body>
@@ -36,8 +36,13 @@ export default function Settings(props:any) {
                         label="Speed" 
                         type="number"
                         onChange={(e) =>{
-                            if (parseInt(e.target.value) > 0 && parseInt(e.target.value) < 11)
                                 changeValues((oldValues) =>({...oldValues,speed:e.target.value}))
+                        }}
+                        onBlur={(e) =>{
+                          if (parseInt(e.target.value) < 1 || e.target.value == "")
+                            changeValues((oldValues) =>({...oldValues,speed:"1"}))
+                          if (parseInt(e.target.value) > 10)
+                            changeValues((oldValues) =>({...oldValues,speed:"10"}))
                         }}
                     />
                     <Input 
@@ -46,9 +51,15 @@ export default function Settings(props:any) {
                         label="Ball Size" 
                         type="number"
                         onChange={(e) =>{
-                            if (parseInt(e.target.value) > 3 && parseInt(e.target.value) < 41)
                                 changeValues((oldValues) =>({...oldValues,ballSize:e.target.value}))
                         }}
+                        onBlur={(e) =>{
+                          if (parseInt(e.target.value) < 4 || e.target.value == "")
+                            changeValues((oldValues) =>({...oldValues,ballSize:"4"}))
+                          if (parseInt(e.target.value) > 40)
+                            changeValues((oldValues) =>({...oldValues,ballSize:"40"}))
+                        }}
+                        
                     />
                 </div>
                 :

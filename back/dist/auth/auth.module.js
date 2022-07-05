@@ -17,12 +17,13 @@ const refresh_token_entity_1 = require("../entities/refresh-token.entity");
 const _42_strategy_1 = require("../strategies/42.strategy");
 const jwt_strategy_1 = require("../strategies/jwt.strategy");
 const twoFactorAuthentication_service_1 = require("../twofactor/twoFactorAuthentication.service");
+const jwt_1 = require("@nestjs/jwt");
 let AuthModule = class AuthModule {
 };
 AuthModule = __decorate([
     (0, common_1.Module)({
-        imports: [user_module_1.UserModule, typeorm_1.TypeOrmModule.forFeature([refresh_token_entity_1.RefreshToken]),
-            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]),
+        imports: [user_module_1.UserModule, typeorm_1.TypeOrmModule.forFeature([refresh_token_entity_1.RefreshToken, user_entity_1.User]),
+            jwt_1.JwtModule.register({ secret: process.env.ACCESS_SECRET })
         ],
         providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, twoFactorAuthentication_service_1.TwoFactorAuthenticationService, _42_strategy_1.FtAuthStrategy],
         controllers: [auth_controller_1.AuthController]

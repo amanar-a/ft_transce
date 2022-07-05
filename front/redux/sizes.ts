@@ -5,17 +5,16 @@ export const sizes = createSlice({
   initialState: {
     canvaWidth: 1000,
     canvaHeight: 1000/2,
-    rectWidth: 1000/80,
-    rectHeigth: 1000/8,
-    ballSize: 1000/80,
-    rectMovment: 1000/520,
+    rectWidth: 10,
+    rectHeigth: 50,
+    ballSize: 8,
+    rectMovment: 6,
     ballMovmentX: 1,
     ballMovmentY: 0,
     zak_test: false,
   },
   reducers: {
     change: (state, action) => {
-      console.log(action.payload)
       state.canvaWidth = action.payload.width;
       state.canvaHeight = action.payload.width / 2;
       state.rectWidth = action.payload.width / 80;

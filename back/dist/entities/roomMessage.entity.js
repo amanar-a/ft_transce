@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.roomMessage = void 0;
 const typeorm_1 = require("typeorm");
-const chatRoom_entity_1 = require("./chatRoom.entity");
 let roomMessage = class roomMessage extends typeorm_1.BaseEntity {
 };
 __decorate([
@@ -29,9 +28,13 @@ __decorate([
     __metadata("design:type", String)
 ], roomMessage.prototype, "message", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => chatRoom_entity_1.chatRoom, (chat) => chat.id),
+    (0, typeorm_1.Column)(),
     __metadata("design:type", Number)
 ], roomMessage.prototype, "roomId", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Date)
+], roomMessage.prototype, "time", void 0);
 roomMessage = __decorate([
     (0, typeorm_1.Entity)('roomMessage')
 ], roomMessage);

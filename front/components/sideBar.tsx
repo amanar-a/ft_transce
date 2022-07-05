@@ -47,7 +47,7 @@ function SidePar(props: any) {
             onClick={(e: any) => {
               setUsersInterface(!UsersInterface);
             }}
-           >
+          >
             <img src={friends.src} className={Style.iconimg} />
             <div className={Style.userInterface}>
               <ul className={Style.usersInterfaceUl}>
@@ -158,15 +158,15 @@ function SidePar(props: any) {
               ></img>
             </Link>
           </div>
-          <div className={Style.child}>
+          {/* <div className={Style.child}>
             <img
               src={setting.src}
               onClick={onclickHandler}
               className={
                 Style.iconimg
-              } /*onClick={(e:any) => {setNavBar(!isNavBar);}} */
+              }
             ></img>
-          </div>
+          </div> */}
         </div>
         <div
           className={Style.Logout}
@@ -178,23 +178,26 @@ function SidePar(props: any) {
               refreshToken: `${localStorage.getItem("refreshToken")}`,
             };
             axios
-              .delete("http://10.12.10.5:3000/auth/42/logout", {
-                headers,
-                data,
-              })
-              .then(() => {
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
-                console.log("Delete successful");
-                props.setUpdate(!props.update);
-              })
-              .catch(function (error) {
-                if (error.response) {
-                  router.push({
-                    pathname: `/errorPage/${error.response.status}`,
-                  });
-                }
-              });
+            .delete("http://localhost:3001/auth/42/logout", {
+              headers,
+              data,
+            })
+            .then(() => {
+              localStorage.removeItem("accessToken");
+              localStorage.removeItem("refreshToken");
+              console.log("Delete successful");
+              props.setUpdate(!props.update);
+            })
+            .catch(function (error) {
+              if (error.response) {
+                router.push({
+                  pathname: `/errorPage/${error.response.status}`,
+                });
+              }
+            });
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            router.push("/login");
           }}
         >
           <img

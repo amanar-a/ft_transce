@@ -14,7 +14,7 @@ export declare class AuthService {
     }>;
     refresh(refreshStr: string): Promise<string | undefined>;
     logout(refreshStr: any): Promise<void>;
-    cheskUser(req: any): Promise<0 | 1 | 2>;
+    cheskUser(req: any): Promise<0 | 1 | 3 | 2>;
     Login(req: any, res: any, values: {
         ipAddress: string;
     }): Promise<"No user from intra" | {

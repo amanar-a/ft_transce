@@ -19,6 +19,7 @@ const websockets_1 = require("@nestjs/websockets");
 const socket_io_1 = require("socket.io");
 const chatRoom_service_1 = require("../chatRoom/chatRoom.service");
 const roomMessage_service_1 = require("../chatRoom/roomMessage.service");
+const roomsBannedUser_service_1 = require("../chatRoom/roomsBannedUser.service");
 const game_dto_1 = require("../dto-classes/game.dto");
 const liveGame_dto_1 = require("../dto-classes/liveGame.dto");
 const message_dtp_1 = require("../dto-classes/message.dtp");
@@ -77,7 +78,7 @@ var opponentLeft = async (this_, sender_id) => {
 var sockets = new Map();
 var matchMakingarray = new Array;
 let chatGateway = class chatGateway {
-    constructor(messageServ, userServ, usersRepository, liveGameServ, gamePlaysServ, roomMessageServ, chatRoomServ, jwtService, gameServ, notifServ) {
+    constructor(messageServ, userServ, usersRepository, liveGameServ, gamePlaysServ, roomMessageServ, chatRoomServ, jwtService, gameServ, roomBannedUserServ, notifServ) {
         this.messageServ = messageServ;
         this.userServ = userServ;
         this.usersRepository = usersRepository;
@@ -87,8 +88,8 @@ let chatGateway = class chatGateway {
         this.chatRoomServ = chatRoomServ;
         this.jwtService = jwtService;
         this.gameServ = gameServ;
+        this.roomBannedUserServ = roomBannedUserServ;
         this.notifServ = notifServ;
-        this.server = [];
     }
     async handleDisconnect(client) {
         let auth_token = await client.handshake.auth.Authorization;
@@ -166,18 +167,21 @@ let chatGateway = class chatGateway {
                 data.senderId = sender_id[0].userName;
                 data.reciverId = text[1];
                 data.time = new Date();
-                console.log(data.time);
                 await this.messageServ.createMessage(data);
                 var conversation = await this.messageServ.getConversation(data.senderId, data.reciverId);
                 var senderSock = [];
                 var reciverSock = [];
                 senderSock = sockets.get(data.senderId);
-                for (let ids of senderSock) {
-                    ids.emit("message", conversation);
+                if (senderSock !== null && senderSock !== undefined) {
+                    for (let ids of senderSock) {
+                        ids.emit("message", conversation);
+                    }
                 }
                 reciverSock = sockets.get(data.reciverId);
-                for (let ids of reciverSock) {
-                    ids.emit("message", conversation);
+                if (reciverSock !== null && reciverSock !== undefined) {
+                    for (let ids of reciverSock) {
+                        ids.emit("message", conversation);
+                    }
                 }
             }
         }
@@ -210,10 +214,7 @@ let chatGateway = class chatGateway {
                             speed = 5;
                         if (body.ballSize == null || ballSize < 4 || ballSize > 40)
                             ballSize = 12.5;
-                        mods.push({
-                            userName: user_id[0].userName,
-                            speed: speed,
-                            ballSize: ballSize
+                        mods.push({ userName: user_id[0].userName, speed: speed, ballSize: ballSize
                         });
                         console.log(mods);
                     }
@@ -254,16 +255,6 @@ let chatGateway = class chatGateway {
                 for (let ids of player) {
                     ids.emit("matchmaking", [watchers[i].player1, watchers[i].player2, "Watcher"]);
                 }
-            }
-        }
-    }
-    async leaving(client, test) {
-        let auth_token = await client.handshake.auth.Authorization;
-        if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
-            const tokenInfo = this.jwtService.decode(auth_token);
-            let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-            if (Object.keys(userInfo).length != 0) {
-                opponentLeft(this, userInfo);
             }
         }
     }
@@ -323,6 +314,16 @@ let chatGateway = class chatGateway {
             }
         }
     }
+    async leaving(client, test) {
+        let auth_token = await client.handshake.auth.Authorization;
+        if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            const tokenInfo = this.jwtService.decode(auth_token);
+            let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+            if (Object.keys(userInfo).length != 0) {
+                opponentLeft(this, userInfo);
+            }
+        }
+    }
     async handleChannels(client, text) {
         console.log("--------startChannels-------------");
         let auth_token = client.handshake.auth.Authorization;
@@ -337,7 +338,7 @@ let chatGateway = class chatGateway {
                 let rooms = test[0].chatRooms;
                 if (rooms.length !== 0) {
                     for (let room of rooms) {
-                        client.join(room.id);
+                        client.join(room.id.toString());
                     }
                 }
             }
@@ -353,8 +354,18 @@ let chatGateway = class chatGateway {
             if (Object.keys(userInfo).length !== 0) {
                 let room = await this.chatRoomServ.createRoom(userInfo[0].userName, data);
                 let sock = [];
+                let users = data.users;
+                sock = sockets.get(userInfo[0].userName);
                 for (let so of sock) {
                     so.join(`${room.id}`);
+                }
+                if (users.length !== 0) {
+                    users.map((e) => {
+                        sock = sockets.get(e.usersName);
+                        for (let so of sock) {
+                            so.join(room.id);
+                        }
+                    });
                 }
             }
         }
@@ -363,12 +374,40 @@ let chatGateway = class chatGateway {
     async handleRoomMessage(client, data) {
         let auth_token = client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            console.log("------roomMessages----------");
             const tokenInfo = this.jwtService.decode(auth_token);
             let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
             if (Object.keys(userInfo).length !== 0) {
-                let room = await this.chatRoomServ.getRoomById(data.id);
+                await this.roomMessageServ.creatRoomMessage(userInfo[0].userName, data);
+                let messages = await this.roomMessageServ.getRoomMessages(data.roomId);
+                this.server.to(data.roomId).emit("messageRoom", messages);
+            }
+            console.log("--------------------------");
+        }
+    }
+    async addUserToChannel(client, data) {
+        console.log("------addUserToChannel----------");
+        let auth_token = client.handshake.auth.Authorization;
+        if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            const tokenInfo = this.jwtService.decode(auth_token);
+            let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+            if (Object.keys(userInfo).length !== 0) {
+                let sock;
+                console.log(data.users);
+                this.chatRoomServ.addUsersToChannel(data.roomId, data.users);
+                if (data.users.length !== 0) {
+                    data.users.map((e) => {
+                        sock = sockets.get(e.usersName);
+                        if (sock) {
+                            for (let so of sock) {
+                                so.join(`${data.room.id}`);
+                            }
+                        }
+                    });
+                }
             }
         }
+        console.log("--------------------------------");
     }
     async handleNotification(client, data) {
         console.log("------notifications----------");
@@ -381,8 +420,75 @@ let chatGateway = class chatGateway {
                 console.log(data);
                 this.notifServ.saveNotification(data, userInfo[0].userName);
                 for (let sock of recvSockts) {
-                    console.log(sock.id);
                     sock.emit("notification", { senderName: userInfo[0].userName, type: data.type });
+                }
+            }
+        }
+        console.log("--------------------------------");
+    }
+    async muteUser(client, data) {
+        console.log("------muteUser----------");
+        let auth_token = client.handshake.auth.Authorization;
+        if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            const tokenInfo = this.jwtService.decode(auth_token);
+            let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+            if (Object.keys(userInfo).length !== 0) {
+                let muteUserInfo = await this.roomBannedUserServ.muteUser(data.userName, data.roomId, data.periode);
+                let recvSockts = sockets.get(data.userName);
+                if (muteUserInfo !== "null") {
+                    for (let sock of recvSockts) {
+                        console.log("mel-hamra Hmaaaaaarr");
+                        sock.emit("mutedUser", muteUserInfo);
+                    }
+                }
+            }
+        }
+        console.log("--------------------------------");
+    }
+    async banUser(client, data) {
+        console.log("------banUser----------");
+        let auth_token = client.handshake.auth.Authorization;
+        if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            const tokenInfo = this.jwtService.decode(auth_token);
+            let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+            if (Object.keys(userInfo).length !== 0) {
+                let muteUserInfo = await this.roomBannedUserServ.banUser(data.userName, data.roomId);
+                let recvSockts = sockets.get(data.userName);
+                if (muteUserInfo !== "null") {
+                    for (let sock of recvSockts) {
+                        sock.leave(data.roomId);
+                    }
+                }
+            }
+        }
+        console.log("--------------------------------");
+    }
+    async changeUserName(client, data) {
+        console.log("------changeUserName----------");
+        let auth_token = client.handshake.auth.Authorization;
+        if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            const tokenInfo = this.jwtService.decode(auth_token);
+            let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+            if (Object.keys(userInfo).length !== 0) {
+                if ((await this.userServ.findUser(userInfo[0].userName, data.userName, userInfo[0].email)) === true) {
+                    let newMap = new Map();
+                    for (let [key, value] of sockets) {
+                        if (key == userInfo[0].userName) {
+                            newMap.set(data.userName, value);
+                        }
+                        else
+                            newMap.set(key, value);
+                    }
+                    sockets = newMap;
+                    console.log(data);
+                    for (let [key, value] of sockets) {
+                        console.log("key: ", key, "  value: ", value[0].id);
+                    }
+                    this.messageServ.changeName(userInfo[0].userName, data.userName);
+                    this.chatRoomServ.changeName(userInfo[0].userName, data.userName);
+                    this.roomMessageServ.changeName(userInfo[0].userName, data.userName);
+                    this.roomBannedUserServ.changeName(userInfo[0].userName, data.userName);
+                    this.notifServ.changeName(userInfo[0].userName, data.userName);
                 }
             }
         }
@@ -391,7 +497,7 @@ let chatGateway = class chatGateway {
 };
 __decorate([
     (0, websockets_1.WebSocketServer)(),
-    __metadata("design:type", Object)
+    __metadata("design:type", socket_io_1.Socket)
 ], chatGateway.prototype, "server", void 0);
 __decorate([
     (0, websockets_1.SubscribeMessage)('message'),
@@ -405,12 +511,6 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "matchmaking", null);
-__decorate([
-    (0, websockets_1.SubscribeMessage)('leaving'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
-    __metadata("design:returntype", Promise)
-], chatGateway.prototype, "leaving", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('setInterval'),
     __metadata("design:type", Function),
@@ -430,6 +530,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "playing", null);
 __decorate([
+    (0, websockets_1.SubscribeMessage)('leaving'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], chatGateway.prototype, "leaving", null);
+__decorate([
     (0, websockets_1.SubscribeMessage)('startChannels'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
@@ -448,11 +554,35 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "handleRoomMessage", null);
 __decorate([
+    (0, websockets_1.SubscribeMessage)('addUserToChannel'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], chatGateway.prototype, "addUserToChannel", null);
+__decorate([
     (0, websockets_1.SubscribeMessage)('notification'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "handleNotification", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('muteUser'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], chatGateway.prototype, "muteUser", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('banUser'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], chatGateway.prototype, "banUser", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('changeUserName'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], chatGateway.prototype, "changeUserName", null);
 chatGateway = __decorate([
     (0, websockets_1.WebSocketGateway)(),
     __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
@@ -464,6 +594,7 @@ chatGateway = __decorate([
         chatRoom_service_1.chatRoomService,
         jwt_1.JwtService,
         game_service_1.GamesService,
+        roomsBannedUser_service_1.roomBannedUserService,
         notification_service_1.notificationService])
 ], chatGateway);
 exports.chatGateway = chatGateway;

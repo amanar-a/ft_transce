@@ -14,6 +14,8 @@ export declare class User {
     twoFactorAuthenticationSecret?: string;
     isTwoFactorAuthenticationEnabled: boolean;
     bypassTwoFactorAuthentication: boolean;
+    ifUserName: boolean;
     liveGame: liveGame;
     chatRooms: chatRoom[];
+    adminsRoom: chatRoom[];
 }

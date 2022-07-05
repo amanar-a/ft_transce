@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { JwtService } from "@nestjs/jwt";
 import { User } from "src/entities/user.entity";
 import { Repository } from "typeorm";
@@ -10,5 +11,5 @@ export declare class roomMessageController {
     private readonly jwtService;
     constructor(RoomService: roomMessageService, roomMessageRep: Repository<roomMessage>, usersRepository: Repository<User>, jwtService: JwtService);
     createRoomMessage(data: any): Promise<any>;
-    getRoomMessages(data: any): Promise<roomMessage[]>;
+    getConv(roomId: any, request: Request): Promise<any>;
 }

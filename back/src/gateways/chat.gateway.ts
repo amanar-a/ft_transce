@@ -6,27 +6,27 @@ import { now } from "moment";
 import { SocketAddress } from "net";
 import { EMPTY } from "rxjs";
 import { Socket } from "socket.io";
-import { chatRoomService } from "../chatRoom/chatRoom.service";
+import { chatRoomService } from "src/chatRoom/chatRoom.service";
 import { roomMessageService } from "src/chatRoom/roomMessage.service";
+import { roomBannedUserService } from "src/chatRoom/roomsBannedUser.service";
 import { GamesDto } from "src/dto-classes/game.dto";
 import { LiveGameDto } from "src/dto-classes/liveGame.dto";
 import { messageDto } from "src/dto-classes/message.dtp";
 import { notificationDto } from "src/dto-classes/notification.dto";
-import { chatRoom } from "../entities/chatRoom.entity";
-import { liveGame } from "../entities/liveGame.entity";
-import  Notification  from "../entities/notification.entity";
-import { User } from "../entities/user.entity";
-import { GamesService } from "../games/game.service";
-import { liveGameService } from "../liveGame/liveGame.service";
-import { messageService } from "../messages/message.service";
-import { notificationService } from "../notification/notification.service";
-import { UserService } from "../user/user.service";
+import { chatRoom } from "src/entities/chatRoom.entity";
+import { liveGame } from "src/entities/liveGame.entity";
+import { Notification } from "src/entities/notification.entity";
+import { User } from "src/entities/user.entity";
+import { GamesService } from "src/games/game.service";
+import { liveGameService } from "src/liveGame/liveGame.service";
+import { messageService } from "src/messages/message.service";
+import { notificationService } from "src/notification/notification.service";
+import { UserService } from "src/user/user.service";
 import { Repository } from "typeorm";
 import  gamePlayService  from "./gamePlay.service";
 
 
 /*---------------------For Game ---------------------*/
-
 export class moveData {
 	player1 : number
 	player2 : number
@@ -78,7 +78,6 @@ var opponentLeft = async (this_:any, sender_id:any) =>{
 }
 
 /*-----------------------------------------------------*/
-
 var sockets = new Map<string,Array<Socket>>()
 
 var matchMakingarray = new Array
@@ -94,11 +93,12 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 	private chatRoomServ : chatRoomService ,
 	private readonly jwtService: JwtService,
 	private gameServ : GamesService,
+	private  roomBannedUserServ: roomBannedUserService ,
 	private notifServ : notificationService)
 	{
 	}
 	@WebSocketServer()
-	server = [];
+	server : Socket;
 	async handleDisconnect(client: Socket) 
 	{
 		let auth_token = await client.handshake.auth.Authorization;
@@ -196,20 +196,25 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 				data.senderId = sender_id[0].userName
 				data.reciverId = text[1]
 				data.time = new Date()
-				console.log(data.time)
 				await this.messageServ.createMessage(data)
 				var conversation : messageDto = await this.messageServ.getConversation(data.senderId,data.reciverId);
 				var senderSock : Socket[] = [];
 				var reciverSock : Socket[] = [];
 				senderSock = sockets.get(data.senderId);
-				for(let ids of senderSock)
+				if(senderSock !== null && senderSock !== undefined)
 				{
-					ids.emit("message",conversation)
+					for(let ids of senderSock)
+					{
+						ids.emit("message",conversation)
+					}
 				}
 				reciverSock = sockets.get(data.reciverId);
-				for(let ids of reciverSock)
+				if(reciverSock !== null && reciverSock !== undefined)
 				{
-					ids.emit("message",conversation)
+					for(let ids of reciverSock)
+					{
+						ids.emit("message",conversation)
+					}
 				}
 			}
 		}
@@ -246,10 +251,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 							speed = 5
 						if (body.ballSize == null || ballSize < 4 || ballSize > 40)
 							ballSize = 12.5
-						mods.push({
-							userName:user_id[0].userName,
-							speed:speed ,
-							ballSize:ballSize
+						mods.push({userName:user_id[0].userName,speed:speed ,ballSize:ballSize
 						})
 						console.log(mods)
 					}
@@ -296,19 +298,6 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 				{
 					ids.emit("matchmaking",  [watchers[i].player1, watchers[i].player2,"Watcher"])
 				}
-			}
-		}
-	}
-	@SubscribeMessage('leaving')
-	async leaving(client: Socket, test: any)
-	{
-		let auth_token = await client.handshake.auth.Authorization;
-		if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
-		{
-			const tokenInfo : any = this.jwtService.decode(auth_token);
-			let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-			if (Object.keys(userInfo).length != 0){
-				opponentLeft(this,userInfo)
 			}
 		}
 	}
@@ -378,7 +367,19 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 			}
 		}
 	}
-
+	@SubscribeMessage('leaving')
+	async leaving(client: Socket, test: any)
+	{
+		let auth_token = await client.handshake.auth.Authorization;
+		if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
+		{
+			const tokenInfo : any = this.jwtService.decode(auth_token);
+			let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+			if (Object.keys(userInfo).length != 0){
+				opponentLeft(this,userInfo)
+			}
+		}
+	}
 	@SubscribeMessage('startChannels')
 	async handleChannels(client : Socket , text: any)
 	{
@@ -399,7 +400,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 				{
 					for(let room of rooms)
 					{
-						client.join(room.id)
+						client.join(room.id.toString())
 					}
 				}
 			}
@@ -407,6 +408,7 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 		console.log("--------------------------------")
 
 	}
+
 	@SubscribeMessage('creatChannel')
 	async creatChannel(client : Socket , data: any)
 	{
@@ -420,10 +422,22 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 			{
 				let room : any = await this.chatRoomServ.createRoom(userInfo[0].userName,data)
 				let sock : Socket[] = []
+				let users : Array<any> = data.users
+				sock = sockets.get(userInfo[0].userName)
 				for(let so of sock)
 				{
-
 					so.join(`${room.id}`)
+				}
+				if(users.length !== 0)
+				{
+					users.map((e:any) => {
+						sock = sockets.get(e.usersName) 
+						for(let so of sock)
+						{
+							so.join(room.id)
+						}
+					})
+
 				}
 			}
 		}
@@ -435,14 +449,53 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 		let auth_token = client.handshake.auth.Authorization;
 		if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
 		{
+		console.log("------roomMessages----------")
+
 			const tokenInfo : any = this.jwtService.decode(auth_token);
 			let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
 			if(Object.keys(userInfo).length !== 0)
 			{
-				let room : chatRoom = await this.chatRoomServ.getRoomById(data.id)
-				
+				await this.roomMessageServ.creatRoomMessage(userInfo[0].userName , data)
+				let messages = await this.roomMessageServ.getRoomMessages(data.roomId)
+				this.server.to(data.roomId).emit("messageRoom" ,  messages)
+				// client.emit("messageRoom",messages)
+			}
+		console.log("--------------------------")
+		}
+	}
+
+
+	@SubscribeMessage('addUserToChannel')
+	async addUserToChannel(client : Socket , data: any)
+	{
+		console.log("------addUserToChannel----------")
+		let auth_token = client.handshake.auth.Authorization;
+		if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
+		{
+			const tokenInfo : any = this.jwtService.decode(auth_token);
+			let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+			if(Object.keys(userInfo).length !== 0)
+			{
+				let sock : Socket[]
+				console.log(data.users)
+				this.chatRoomServ.addUsersToChannel(data.roomId , data.users)
+				if(data.users.length !== 0)
+				{
+					data.users.map((e:any) => {
+						sock = sockets.get(e.usersName) 
+						if(sock)
+						{
+							for(let so of sock)
+							{
+								so.join(`${data.room.id}`)
+							}
+						}
+					})
+
+				}
 			}
 		}
+		console.log("--------------------------------")
 	}
 
 
@@ -465,8 +518,33 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 				this.notifServ.saveNotification(data,userInfo[0].userName)
 				for(let sock of recvSockts)
 				{
-					console.log(sock.id)
 					sock.emit("notification", {senderName : userInfo[0].userName , type : data.type})
+				}
+			}
+		}
+		console.log("--------------------------------")
+	}
+/////////////////////////////////////////////
+@SubscribeMessage('muteUser')
+	async muteUser(client : Socket , data: any)
+	{
+		console.log("------muteUser----------")
+		let auth_token = client.handshake.auth.Authorization;
+		if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
+		{
+			const tokenInfo : any = this.jwtService.decode(auth_token);
+			let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+			if(Object.keys(userInfo).length !== 0)
+			{
+				let muteUserInfo :any = await this.roomBannedUserServ.muteUser(data.userName, data.roomId, data.periode)
+				let recvSockts : Socket[] = sockets.get(data.userName);
+				if(muteUserInfo !== "null")
+				{
+					for(let sock of recvSockts)
+					{
+						console.log("mel-hamra Hmaaaaaarr")
+						sock.emit("mutedUser", muteUserInfo)
+					}
 				}
 			}
 		}
@@ -474,52 +552,66 @@ export class chatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 	}
 
 
+	@SubscribeMessage('banUser')
+	async banUser(client : Socket , data: any)
+	{
+		console.log("------banUser----------")
+		let auth_token = client.handshake.auth.Authorization;
+		if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
+		{
+			const tokenInfo : any = this.jwtService.decode(auth_token);
+			let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+			if(Object.keys(userInfo).length !== 0)
+			{
+				let muteUserInfo :any = await this.roomBannedUserServ.banUser(data.userName, data.roomId)
+				let recvSockts : Socket[] = sockets.get(data.userName);
+				if(muteUserInfo !== "null")
+				{
+					for(let sock of recvSockts)
+					{
+						sock.leave(data.roomId)
+					}
+				}
+			}
+		}
+		console.log("--------------------------------")
+	} 
+
+	@SubscribeMessage('changeUserName')
+    async changeUserName(client : Socket , data: any)
+    {
+        console.log("------changeUserName----------")
+        let auth_token = client.handshake.auth.Authorization;
+        if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
+        {
+            const tokenInfo : any = this.jwtService.decode(auth_token);
+            let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+            if(Object.keys(userInfo).length !== 0)
+            {
+				if((await this.userServ.findUser(userInfo[0].userName,data.userName,userInfo[0].email)) === true)
+				{
+					let newMap : Map<string,Array<Socket>> = new Map()
+					for (let [key, value] of sockets) {
+						if(key == userInfo[0].userName)
+						{
+							newMap.set(data.userName,value)
+						}
+						else
+						newMap.set(key,value)
+					}
+					sockets=newMap
+					console.log(data)
+					for (let [key, value] of sockets) {
+					    console.log("key: " ,key, "  value: " ,value[0].id )
+					}
+					this.messageServ.changeName(userInfo[0].userName,data.userName)
+					this.chatRoomServ.changeName(userInfo[0].userName,data.userName)
+					this.roomMessageServ.changeName(userInfo[0].userName,data.userName)
+					this.roomBannedUserServ.changeName(userInfo[0].userName,data.userName)
+					this.notifServ.changeName(userInfo[0].userName,data.userName)
+				}
+            }
+        }
+        console.log("--------------------------------")
+    } 
 }
-// @SubscribeMessage('typing')
-// async sendTyping(client: Socket, body: any)
-// {
-// 	console.log("--------typingMessages-------------")
-// 	let auth_token = client.handshake.auth.Authorization;
-// 	if(auth_token !== "null" && auth_token !== "undefined" && auth_token)
-// 	{
-// 		const tokenInfo : any = this.jwtService.decode(auth_token);
-// 		let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-// 		if(Object.keys(userInfo).length !== 0)
-// 		{
-// 			let sock = sockets.get(body[0])
-// 			if(sock !== undefined)
-// 			{
-// 				if(body[1] !== '')
-// 				{
-// 					for(let ids of sock)
-// 					{
-// 						console.log("is emiting true to " ,ids.id)
-// 						ids.emit("typing",true)
-// 					}
-// 				}
-// 				else
-// 				{
-// 					for(let ids of sock)
-// 					{
-// 						console.log("is emiting false to " ,ids.id)
-// 						ids.emit("typing",false)
-// 					}
-// 				}
-// 			}
-// 		}
-// 	}
-// 	console.log("--------------------------")
-
-// }
-/*SELECT "userName" from public."Users" Where "userName"
-IN
-(select "reciverId"
-	FROM public."messages" WHERE "senderId" = 'mel-hamr') 
- OR "userName" IN (select "senderId"
-	FROM public."messages" WHERE "reciverId" = 'mel-hamr') */
-
-	/*
-		messages : [
-			1: {messge: ,userName: ,dateTime:}
-		]
-	*/

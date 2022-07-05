@@ -92,8 +92,12 @@ let AuthService = class AuthService {
         });
         if (exist && exist.isTwoFactorAuthenticationEnabled === true)
             return 1;
-        else if (exist)
+        else if (exist) {
+            if (!exist.ifUserName) {
+                return 3;
+            }
             return 2;
+        }
         return 0;
     }
     async Login(req, res, values) {
@@ -110,7 +114,6 @@ let AuthService = class AuthService {
             userDto.userName = req.user.email.split('@')[0];
             await this.usersRepository.save(userDto);
         }
-        console.log('id : ', req.user);
         return {
             refAcc: await this.newRefreshAndAccessToken(userDto.email, false, values),
             UserEmail: userDto.email,

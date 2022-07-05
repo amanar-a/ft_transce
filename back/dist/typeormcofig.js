@@ -11,15 +11,17 @@ const message_entity_1 = require("./entities/message.entity");
 const chatRoom_entity_1 = require("./entities/chatRoom.entity");
 const roomMessage_entity_1 = require("./entities/roomMessage.entity");
 const notification_entity_1 = require("./entities/notification.entity");
+const roomsBannedUser_entity_1 = require("./entities/roomsBannedUser.entity");
 exports.typeOrmConfig = {
     type: 'postgres',
-    host: 'localhost',
+    host: 'db',
     port: 5432,
     username: 'postgres',
     password: 'postgres',
     database: 'trans',
     entities: [
-        notification_entity_1.default,
+        roomsBannedUser_entity_1.roomBannedUser,
+        notification_entity_1.Notification,
         liveGame_entity_1.liveGame,
         user_entity_1.User,
         game_entity_1.Games,

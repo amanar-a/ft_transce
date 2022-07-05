@@ -4,4 +4,5 @@ export declare class roomMessage extends BaseEntity {
     senderId: string;
     message: string;
     roomId: number;
+    time: Date;
 }

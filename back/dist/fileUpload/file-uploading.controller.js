@@ -34,24 +34,13 @@ let uploadController = class uploadController {
         };
         const jwt = request.headers.authorization.replace('Bearer ', '');
         let user = await this.userService.getUserJwt(jwt);
-        let root = 'http://10.12.11.3:3000/upload/' + response.filename;
+        let root = 'http://localhost:3001/upload/' + response.filename;
         await this.userRepo
             .createQueryBuilder('Users')
             .update('User')
             .set({ picture: root })
             .where('userName = :userName', { userName: user.userName })
             .execute();
-        return response;
-    }
-    async uploadMultipleFiles(files) {
-        const response = [];
-        files.forEach((file) => {
-            const fileReponse = {
-                originalname: file.originalname,
-                filename: file.filename,
-            };
-            response.push(fileReponse);
-        });
         return response;
     }
     seeUploadedFile(image, res) {
@@ -74,20 +63,6 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], uploadController.prototype, "uploadedFile", null);
-__decorate([
-    (0, common_1.Post)('multiple'),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('image', 20, {
-        storage: (0, multer_1.diskStorage)({
-            destination: './files',
-            filename: file_upload_utis_1.editFileName,
-        }),
-        fileFilter: file_upload_utis_1.imageFileFilter,
-    })),
-    __param(0, (0, common_1.UploadedFiles)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], uploadController.prototype, "uploadMultipleFiles", null);
 __decorate([
     (0, common_1.Get)(':imgpath'),
     __param(0, (0, common_1.Param)('imgpath')),

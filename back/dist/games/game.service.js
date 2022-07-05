@@ -26,7 +26,6 @@ let GamesService = class GamesService {
     }
     async InsertGame(gamesDto) {
         const gamesData = await this.gamesRepository.create(gamesDto);
-        await this.gamesRepository.save(gamesData);
     }
 };
 GamesService = __decorate([

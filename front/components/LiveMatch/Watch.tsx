@@ -1,3 +1,5 @@
+
+
 import style from '../../styles/watchMatch/livematch.module.css'
 import LiveListMatch from './ListeLiveMatch'
 import data from '../../achievement.json'
@@ -14,12 +16,10 @@ function Watch (props:any) {
 
   const closeHandler = () => {
     setVisible(false);
-    console.log("closed");
   };
 
     useEffect(()=>{
         axios.get(`http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/livegames`).then((res) =>{
-          console.log(res.data)
           res.data.forEach((element:any) => {
               axios.post( `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/users/getPicture`,
               { userName1: element.player1, userName2: element.player2 },

@@ -20,8 +20,7 @@ let FriendsModule = class FriendsModule {
 };
 FriendsModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([friendList_entity_1.FriendLsit]), typeorm_1.TypeOrmModule.forFeature([friendShip_entity_1.FriendShip]), typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]),
-            jwt_1.JwtModule.register({ secret: 'bda1843e3fa6f42e528dd2ec9f088a1d4b181d525faa9caaf65c9b3ca978ef54' })],
+        imports: [typeorm_1.TypeOrmModule.forFeature([friendList_entity_1.FriendLsit, friendShip_entity_1.FriendShip, user_entity_1.User]), jwt_1.JwtModule.register({ secret: process.env.ACCESS_SECRET })],
         controllers: [friends_controller_1.FriendsController],
         providers: [friends_service_1.friendsService, user_service_1.UserService]
     })

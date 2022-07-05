@@ -10,6 +10,5 @@ export declare class uploadController {
         originalname: any;
         filename: any;
     }>;
-    uploadMultipleFiles(files: any): Promise<any[]>;
     seeUploadedFile(image: any, res: any): any;
 }
