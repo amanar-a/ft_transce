@@ -77,7 +77,6 @@ let UserService = class UserService {
     async getUserJwt(token) {
         const tokenInfo = this.jwtService.decode(token);
         let user = await this.usersRepository.findOneBy({ email: tokenInfo.userId });
-        console.log("mail : ", user);
         if (user)
             return user;
     }

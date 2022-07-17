@@ -16,6 +16,7 @@ exports.FriendsController = exports.frienduser = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const typeorm_1 = require("@nestjs/typeorm");
+const friendList_entity_1 = require("../entities/friendList.entity");
 const typeorm_2 = require("typeorm");
 const friends_service_1 = require("./friends.service");
 const user_entity_1 = require("../entities/user.entity");
@@ -32,9 +33,10 @@ __decorate([
 ], frienduser.prototype, "userName", void 0);
 exports.frienduser = frienduser;
 let FriendsController = class FriendsController {
-    constructor(friendService, userRepo, userService, jwtService) {
+    constructor(friendService, userRepo, friendList, userService, jwtService) {
         this.friendService = friendService;
         this.userRepo = userRepo;
+        this.friendList = friendList;
         this.userService = userService;
         this.jwtService = jwtService;
     }
@@ -43,7 +45,7 @@ let FriendsController = class FriendsController {
         const tokenInfo = this.jwtService.decode(jwt);
         const user = await this.userService.getUserJwt(jwt);
         const userName = await this.userRepo.query(`select public."Users"."userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-        const userId = await this.userRepo.query(`select "id" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+        let userId = await this.userRepo.query(`select "id" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
         return await this.friendService.users(userName[0].userName, userId[0].id);
     }
     async getOne(data) {
@@ -116,7 +118,7 @@ let FriendsController = class FriendsController {
         const jwt = request.headers.authorization.replace('Bearer ', '');
         const tokenInfo = this.jwtService.decode(jwt);
         const userName = await this.userRepo.query(`select public."Users"."userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-        const userId = await this.userRepo.query(`select "id" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+        let userId = await this.userRepo.query(`select "id" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
         return this.friendService.rejectFriend(userName[0].userName, data.recipent_id, userId[0].id);
     }
     async BlockedFriends(request) {
@@ -137,7 +139,7 @@ let FriendsController = class FriendsController {
         let CurrentUserId;
         let FriendUserName;
         let FriendUserID;
-        const userId = await this.userRepo.query(`select "id" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+        let userId = await this.userRepo.query(`select "id" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
         const userName = await this.userRepo.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
         const FriendId = await this.userRepo.query(`select "id" from public."Users" WHERE public."Users"."userName" = '${data.userName}'`);
         CurrentUserId = userId[0].id;
@@ -161,7 +163,14 @@ let FriendsController = class FriendsController {
         const userId = await this.userRepo.query(`select "id" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
         await this.userRepo.query(`DELETE FROM public."FriendBlocked" WHERE  "Blocked" = '${data.userName}' AND "userId" = '${userId[0].id}'`);
     }
-    removeFriend() {
+    async removeFriend(data, request) {
+        let jwt = request.headers.authorization.replace('Bearer ', '');
+        let CurrentUser = await this.userService.getUserJwt(jwt);
+        let FriendUser = await this.userRepo.findOneBy({ userName: data.userName });
+        await this.friendList
+            .delete({ userName: CurrentUser.userName, user: FriendUser.id });
+        await this.friendList
+            .delete({ userName: FriendUser.userName, user: CurrentUser.id });
     }
 };
 __decorate([
@@ -244,16 +253,20 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], FriendsController.prototype, "unBlockFriend", null);
 __decorate([
-    (0, common_1.Post)(),
+    (0, common_1.Post)('removeFriend'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [frienduser, Object]),
+    __metadata("design:returntype", Promise)
 ], FriendsController.prototype, "removeFriend", null);
 FriendsController = __decorate([
     (0, common_1.Controller)('friends'),
     (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
     __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(2, (0, typeorm_1.InjectRepository)(friendList_entity_1.FriendLsit)),
     __metadata("design:paramtypes", [friends_service_1.friendsService,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         user_service_1.UserService,
         jwt_1.JwtService])

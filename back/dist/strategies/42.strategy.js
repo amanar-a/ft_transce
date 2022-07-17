@@ -20,7 +20,7 @@ let FtAuthStrategy = class FtAuthStrategy extends (0, passport_1.PassportStrateg
         super({
             clientID: process.env.CLIENTID,
             clientSecret: process.env.CLIENTSECRET,
-            callbackURL: 'http://10.12.10.2:3001/auth/42/callback',
+            callbackURL: 'http://localhost:3001/auth/42/callback',
         });
     }
     async validate(accessToken, refreshToken, profile, done) {

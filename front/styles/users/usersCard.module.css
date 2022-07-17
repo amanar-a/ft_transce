@@ -218,6 +218,36 @@
     color: white;
     /* border: 10px solid black; */
 }
+
+.kick {
+    position: absolute;
+    right: 12%;
+}
+
+.kick>img {
+    width: 30px;
+    height: 30px;
+}
+
+.permanently {
+    /* background-color: red; */
+    /* width: 50px; */
+    height: 50px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-20%);
+    font-weight: 700;
+}
+.LoadingContainer {
+    /* background-color: red; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(100% - 100px);
+    height: 100%;
+    position: absolute;
+    right: 0;
+}
 @media screen and (max-width: 550px)
 {
     .addUserIcon {

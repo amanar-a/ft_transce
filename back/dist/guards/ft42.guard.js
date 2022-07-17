@@ -12,7 +12,6 @@ const common_1 = require("@nestjs/common");
 let Ft42AuthGuard = class Ft42AuthGuard extends (0, passport_1.AuthGuard)('42') {
     handleRequest(err, user, info) {
         console.log("from guard");
-        console.log(user);
         console.log("---------------------");
         if (info &&
             info.message ===

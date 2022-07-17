@@ -38,6 +38,7 @@ var playersStat = new Array;
 var ballStat = new Array;
 var intervals = new Array;
 var watchers = new Array;
+var Invits = new Array;
 var mods = new Array;
 var opponentLeft = async (this_, sender_id) => {
     if (matchMakingarray.indexOf(sender_id[0].userName) != -1)
@@ -46,7 +47,6 @@ var opponentLeft = async (this_, sender_id) => {
         mods.splice(mods.indexOf(mods.find(element => (element === null || element === void 0 ? void 0 : element.userName) === sender_id[0].userName)), 1);
     let player2 = await this_.liveGameServ.getGameByPlayer(sender_id[0].userName);
     if (typeof player2 != "undefined" && Object.keys(player2).length > 0) {
-        console.log("test");
         var game = new (game_dto_1.GamesDto);
         game.winner_user = player2;
         game.loser_user = sender_id[0].userName;
@@ -96,11 +96,20 @@ let chatGateway = class chatGateway {
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = await this.jwtService.decode(auth_token);
             let sender_id = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-            console.log("------ desconnection -----");
             if (Object.keys(sender_id).length !== 0) {
                 opponentLeft(this, sender_id);
                 let array = sockets.get(sender_id[0].userName);
                 let i = 0;
+                let userRooms = await this.usersRepository.find({
+                    relations: ['chatRooms'],
+                    where: { userName: sender_id[0].userName }
+                });
+                let rooms = userRooms[0].chatRooms;
+                if (rooms.length !== 0) {
+                    for (let room of rooms) {
+                        client.join(room.id.toString());
+                    }
+                }
                 if (array != undefined) {
                     array.forEach(element => {
                         if (element.id == client.id)
@@ -118,7 +127,6 @@ let chatGateway = class chatGateway {
                         }
                     }
                 }
-                console.log("----------------------");
             }
         }
     }
@@ -127,9 +135,7 @@ let chatGateway = class chatGateway {
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
             let sender_id = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-            console.log("------ connection ...-----");
             if (Object.keys(sender_id).length !== 0) {
-                console.log(sender_id[0].userName);
                 if (sockets.get(sender_id[0].userName) != undefined) {
                     for (let [key, value] of sockets) {
                         if (key == sender_id[0].userName) {
@@ -151,12 +157,10 @@ let chatGateway = class chatGateway {
                     }
                 }
                 this.userServ.updateActive(true, sender_id[0].userName);
-                console.log("-----------------------");
             }
         }
     }
     async handleMessage(client, text) {
-        console.log("--------messaging-------------");
         let auth_token = await client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
@@ -185,7 +189,6 @@ let chatGateway = class chatGateway {
                 }
             }
         }
-        console.log("-------------------------------");
     }
     async matchmaking(client, body) {
         let auth_token = await client.handshake.auth.Authorization;
@@ -196,7 +199,6 @@ let chatGateway = class chatGateway {
             let user_id = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
             var player = [];
             var player2 = [];
-            console.log("----------matchMaking-------------");
             watchers.forEach(element => {
                 if (element.watchers.indexOf(user_id[0].userName) != -1) {
                     legal = "illegal";
@@ -206,7 +208,7 @@ let chatGateway = class chatGateway {
             });
             if (legal == "legal") {
                 if (typeof playersStat.find(element => element.player1 == user_id[0].userName || element.player2 == user_id[0].userName) == "undefined") {
-                    if (matchMakingarray.indexOf(user_id[0].userName) == -1) {
+                    if (matchMakingarray.indexOf(user_id[0].userName) == -1 && Invits.indexOf(user_id[0].userName) == -1) {
                         matchMakingarray.push(user_id[0].userName);
                         let speed = isNaN(body.speed) ? 5 : parseInt(body.speed);
                         let ballSize = isNaN(body.ballSize) ? 12.5 : 1000 / (1000 / parseInt(body.ballSize));
@@ -214,26 +216,34 @@ let chatGateway = class chatGateway {
                             speed = 5;
                         if (body.ballSize == null || ballSize < 4 || ballSize > 40)
                             ballSize = 12.5;
-                        mods.push({ userName: user_id[0].userName, speed: speed, ballSize: ballSize
-                        });
-                        console.log(mods);
+                        mods.push({ userName: user_id[0].userName, speed: speed, ballSize: ballSize });
                     }
-                    if (matchMakingarray.length > 1) {
+                    if (matchMakingarray.length > 1 || Invits.length > 1) {
                         let game = new (liveGame_dto_1.LiveGameDto);
-                        player = sockets.get(user_id[0].userName);
-                        player2 = sockets.get(matchMakingarray[0]);
-                        game.player1 = matchMakingarray[0];
-                        game.player2 = matchMakingarray[1];
-                        game.time = new Date();
+                        if (matchMakingarray.indexOf(user_id[0].userName) != -1) {
+                            player = sockets.get(user_id[0].userName);
+                            player2 = sockets.get(matchMakingarray[0]);
+                            game.player1 = matchMakingarray[0];
+                            game.player2 = matchMakingarray[1];
+                            game.time = new Date();
+                            matchMakingarray.splice(0, 2);
+                        }
+                        else {
+                            player = sockets.get(Invits[0]);
+                            player2 = sockets.get(Invits[1]);
+                            game.player1 = Invits[0];
+                            game.player2 = Invits[1];
+                            game.time = new Date();
+                            Invits.splice(0, 2);
+                        }
                         await this.liveGameServ.saveGame(game);
                         this.gamePlaysServ.init(game.player1, game.player2, playersStat, ballStat, watchers, mods);
                         for (let ids of player) {
-                            ids.emit("matchmaking", [matchMakingarray[0], matchMakingarray[1], "Found"]);
+                            ids.emit("matchmaking", [game.player1, game.player2, "Found"]);
                         }
                         for (let ids of player2) {
-                            ids.emit("matchmaking", [matchMakingarray[0], matchMakingarray[1], "Found"]);
+                            ids.emit("matchmaking", [game.player1, game.player2, "Found"]);
                         }
-                        matchMakingarray.splice(0, 2);
                         mods.splice(0, 2);
                     }
                     else {
@@ -266,9 +276,9 @@ let chatGateway = class chatGateway {
             if (Object.keys(userInfo).length > 0) {
                 let game = await this.liveGameServ.getGame(userInfo[0].userName);
                 if (Object.keys(game).length !== 0) {
-                    if (userInfo[0].userName == game[0].player1) {
+                    if (typeof intervals.find(element => element.player1 == userInfo[0].userName || element.player2 == userInfo[0].userName) == "undefined") {
                         let speed = ballStat.find(element => element.player1 == userInfo[0].userName || element.player2 == userInfo[0].userName).Settings.speed;
-                        const interval = setInterval(() => this.gamePlaysServ.movingBall(userInfo[0].userName, ballStat, playersStat, sockets, intervals, watchers), speed);
+                        const interval = setInterval(() => this.gamePlaysServ.movingBall(userInfo[0].userName, ballStat, playersStat, sockets, intervals, watchers), speed + 10);
                         intervals.push({ id: interval, player1: game[0].player1, player2: game[0].player2 });
                     }
                 }
@@ -282,10 +292,11 @@ let chatGateway = class chatGateway {
             let lega = "";
             const tokenInfo = this.jwtService.decode(auth_token);
             let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-            console.log("add Watchers =>", watchers);
             if (Object.keys(userInfo).length > 0) {
                 player = sockets.get(userInfo[0].userName);
                 if (watchers.find(element => element.player1 == body || element.player2 == body).watchers.indexOf(userInfo[0].userName) == -1) {
+                    if (matchMakingarray.indexOf(userInfo[0].userName))
+                        matchMakingarray.splice(matchMakingarray.indexOf(userInfo[0].userName), 1);
                     watchers.find(element => element.player1 == body || element.player2 == body).watchers.push(userInfo[0].userName);
                     lega = "added";
                 }
@@ -295,21 +306,65 @@ let chatGateway = class chatGateway {
                 for (let ids of player) {
                     ids.emit("addWatcher", lega);
                 }
-                console.log(watchers);
             }
         }
     }
-    async playing(client, body) {
-        console.log("--------playing-------------");
+    async acceptInvite(client, body) {
         let auth_token = await client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            var player = [];
+            var player2 = [];
             const tokenInfo = this.jwtService.decode(auth_token);
             let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
-            if (Object.keys(userInfo).length !== 0) {
-                let liveGame = await this.liveGameServ.getGame(userInfo[0].userName);
-                if (Object.keys(liveGame).length !== 0 && (userInfo[0].userName == liveGame[0].player1 || userInfo[0].userName == liveGame[0].player2)) {
-                    console.log("herre");
-                    this.gamePlaysServ.movingPaddles(playersStat, userInfo[0].userName, body, sockets, liveGame, watchers);
+            if (Object.keys(userInfo).length > 0) {
+                player = sockets.get(userInfo[0].userName);
+                player2 = sockets.get(body);
+                if (player2 !== undefined) {
+                    if (typeof playersStat.find(element => element.player1 == userInfo[0].userName || element.player2 == userInfo[0].userName) == "undefined" &&
+                        typeof playersStat.find(element => element.player1 == body || element.player2 == body) == "undefined") {
+                        let not = await this.notifServ.getNotificationBySR(body, userInfo[0].userName);
+                        if (not.length > 0) {
+                            Invits.push(userInfo[0].userName);
+                            Invits.push(body);
+                            mods.push({ userName: userInfo[0].userName, speed: 4, ballSize: 12.5 });
+                            mods.push({ userName: body, speed: 4, ballSize: 12.5 });
+                            for (let ids of player) {
+                                ids.emit("accepted", "Accepted");
+                            }
+                            for (let ids of player2) {
+                                ids.emit("accepted", "Accepted");
+                            }
+                            this.notifServ.deleteNotification(body, userInfo[0].userName);
+                        }
+                    }
+                    else {
+                        for (let ids of player) {
+                            ids.emit("accepted", "Playing");
+                        }
+                    }
+                }
+                else {
+                    for (let ids of player) {
+                        ids.emit("accepted", "Disconected");
+                    }
+                }
+            }
+        }
+    }
+    async declineInvite(client, body) {
+        let auth_token = await client.handshake.auth.Authorization;
+        if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            var player2 = [];
+            const tokenInfo = this.jwtService.decode(auth_token);
+            let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+            if (Object.keys(userInfo).length > 0) {
+                let not = await this.notifServ.getNotificationBySR(body, userInfo[0].userName);
+                if (not.length > 0) {
+                    player2 = sockets.get(body);
+                    this.notifServ.deleteNotification(body, userInfo[0].userName);
+                    for (let ids of player2) {
+                        ids.emit("declined", userInfo[0].userName);
+                    }
                 }
             }
         }
@@ -324,8 +379,20 @@ let chatGateway = class chatGateway {
             }
         }
     }
+    async playing(client, body) {
+        let auth_token = await client.handshake.auth.Authorization;
+        if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            const tokenInfo = this.jwtService.decode(auth_token);
+            let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+            if (Object.keys(userInfo).length !== 0) {
+                let liveGame = await this.liveGameServ.getGame(userInfo[0].userName);
+                if (Object.keys(liveGame).length !== 0 && (userInfo[0].userName == liveGame[0].player1 || userInfo[0].userName == liveGame[0].player2)) {
+                    this.gamePlaysServ.movingPaddles(playersStat, userInfo[0].userName, body, sockets, liveGame, watchers);
+                }
+            }
+        }
+    }
     async handleChannels(client, text) {
-        console.log("--------startChannels-------------");
         let auth_token = client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
@@ -343,10 +410,8 @@ let chatGateway = class chatGateway {
                 }
             }
         }
-        console.log("--------------------------------");
     }
     async creatChannel(client, data) {
-        console.log("------creatChannel----------");
         let auth_token = client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
@@ -369,12 +434,10 @@ let chatGateway = class chatGateway {
                 }
             }
         }
-        console.log("--------------------------------");
     }
     async handleRoomMessage(client, data) {
         let auth_token = client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
-            console.log("------roomMessages----------");
             const tokenInfo = this.jwtService.decode(auth_token);
             let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
             if (Object.keys(userInfo).length !== 0) {
@@ -382,18 +445,15 @@ let chatGateway = class chatGateway {
                 let messages = await this.roomMessageServ.getRoomMessages(data.roomId);
                 this.server.to(data.roomId).emit("messageRoom", messages);
             }
-            console.log("--------------------------");
         }
     }
     async addUserToChannel(client, data) {
-        console.log("------addUserToChannel----------");
         let auth_token = client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
             let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
             if (Object.keys(userInfo).length !== 0) {
                 let sock;
-                console.log(data.users);
                 this.chatRoomServ.addUsersToChannel(data.roomId, data.users);
                 if (data.users.length !== 0) {
                     data.users.map((e) => {
@@ -407,27 +467,23 @@ let chatGateway = class chatGateway {
                 }
             }
         }
-        console.log("--------------------------------");
     }
     async handleNotification(client, data) {
-        console.log("------notifications----------");
         let auth_token = client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
             let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
             if (Object.keys(userInfo).length !== 0) {
                 let recvSockts = sockets.get(data.reciverName);
-                console.log(data);
                 this.notifServ.saveNotification(data, userInfo[0].userName);
+                let user = await this.usersRepository.findOneBy({ userName: userInfo[0].userName });
                 for (let sock of recvSockts) {
-                    sock.emit("notification", { senderName: userInfo[0].userName, type: data.type });
+                    sock.emit("notification", { user: user, type: data.type });
                 }
             }
         }
-        console.log("--------------------------------");
     }
     async muteUser(client, data) {
-        console.log("------muteUser----------");
         let auth_token = client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
@@ -437,16 +493,13 @@ let chatGateway = class chatGateway {
                 let recvSockts = sockets.get(data.userName);
                 if (muteUserInfo !== "null") {
                     for (let sock of recvSockts) {
-                        console.log("mel-hamra Hmaaaaaarr");
                         sock.emit("mutedUser", muteUserInfo);
                     }
                 }
             }
         }
-        console.log("--------------------------------");
     }
     async banUser(client, data) {
-        console.log("------banUser----------");
         let auth_token = client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
@@ -456,15 +509,29 @@ let chatGateway = class chatGateway {
                 let recvSockts = sockets.get(data.userName);
                 if (muteUserInfo !== "null") {
                     for (let sock of recvSockts) {
-                        sock.leave(data.roomId);
+                        sock.leave(data.roomId.toString());
                     }
                 }
             }
         }
-        console.log("--------------------------------");
+    }
+    async kickUser(client, data) {
+        let auth_token = client.handshake.auth.Authorization;
+        if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            const tokenInfo = this.jwtService.decode(auth_token);
+            let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+            if (Object.keys(userInfo).length !== 0) {
+                await this.chatRoomServ.deleteUser(data.roomId, data.userName);
+                let kickedSocket = sockets.get(data.userName);
+                if (kickedSocket !== null) {
+                    for (let sock of kickedSocket) {
+                        sock.leave(data.roomId.toString());
+                    }
+                }
+            }
+        }
     }
     async changeUserName(client, data) {
-        console.log("------changeUserName----------");
         let auth_token = client.handshake.auth.Authorization;
         if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
             const tokenInfo = this.jwtService.decode(auth_token);
@@ -480,9 +547,7 @@ let chatGateway = class chatGateway {
                             newMap.set(key, value);
                     }
                     sockets = newMap;
-                    console.log(data);
                     for (let [key, value] of sockets) {
-                        console.log("key: ", key, "  value: ", value[0].id);
                     }
                     this.messageServ.changeName(userInfo[0].userName, data.userName);
                     this.chatRoomServ.changeName(userInfo[0].userName, data.userName);
@@ -492,7 +557,15 @@ let chatGateway = class chatGateway {
                 }
             }
         }
-        console.log("--------------------------------");
+    }
+    async Refreche(client, data) {
+        let auth_token = client.handshake.auth.Authorization;
+        if (auth_token !== "null" && auth_token !== "undefined" && auth_token) {
+            const tokenInfo = this.jwtService.decode(auth_token);
+            let userInfo = await this.usersRepository.query(`select "userName" from public."Users" WHERE public."Users".email = '${tokenInfo.userId}'`);
+            if (Object.keys(userInfo).length !== 0) {
+            }
+        }
     }
 };
 __decorate([
@@ -524,17 +597,29 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "addWatcher", null);
 __decorate([
-    (0, websockets_1.SubscribeMessage)('playing'),
+    (0, websockets_1.SubscribeMessage)('acceptInvite'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [socket_io_1.Socket, moveData]),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", Promise)
-], chatGateway.prototype, "playing", null);
+], chatGateway.prototype, "acceptInvite", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('declineInvite'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], chatGateway.prototype, "declineInvite", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('leaving'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "leaving", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('playing'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, moveData]),
+    __metadata("design:returntype", Promise)
+], chatGateway.prototype, "playing", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('startChannels'),
     __metadata("design:type", Function),
@@ -578,11 +663,23 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "banUser", null);
 __decorate([
+    (0, websockets_1.SubscribeMessage)('kickUser'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], chatGateway.prototype, "kickUser", null);
+__decorate([
     (0, websockets_1.SubscribeMessage)('changeUserName'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", Promise)
 ], chatGateway.prototype, "changeUserName", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('Refreche'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], chatGateway.prototype, "Refreche", null);
 chatGateway = __decorate([
     (0, websockets_1.WebSocketGateway)(),
     __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),

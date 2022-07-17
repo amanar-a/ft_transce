@@ -12,4 +12,5 @@ export declare class roomMessageController {
     constructor(RoomService: roomMessageService, roomMessageRep: Repository<roomMessage>, usersRepository: Repository<User>, jwtService: JwtService);
     createRoomMessage(data: any): Promise<any>;
     getConv(roomId: any, request: Request): Promise<any>;
+    getLastMessage(roomId: any, request: Request): Promise<any>;
 }

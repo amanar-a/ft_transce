@@ -42,8 +42,8 @@ export default class gamePlayService
             player2:player2, 
             ballX:gameStat.with / 2, 
             ballY:gameStat.height / 2, 
-            ballMovmentX:2,
-            ballMovmentY:2,
+            ballMovmentX:7.5,
+            ballMovmentY:7.5,
             trajectX:false,
             trajectY:true,
             Settings:mods[random],
@@ -110,9 +110,11 @@ export default class gamePlayService
     }
 
     movingBall(player:string,ballStat:any, playersStat:any,sockets:any,intervals:any,watchers:any){
+        let watchers_
         let stats_Ball =  ballStat.find(element => element.player1 === player || element.player2 === player)
         let stats_player = playersStat.find(element => element.player1 === player || element.player2 === player)
-        let watchers_ = watchers.find(element => element.player1 == player || element.player2 == player).watchers
+        if(typeof watchers.find(element => element.player1 == player || element.player2 == player) != "undefined")
+            watchers_ = watchers.find(element => element.player1 == player || element.player2 == player).watchers
         var player1 : Socket[] = [];
 		var player2 : Socket[] = [];
         //hitting player 2 paddle
@@ -169,7 +171,7 @@ export default class gamePlayService
         player1 = sockets.get(ballStat.find(element => element.player1 === player || element.player2 === player).player1)
 		player2 = sockets.get(ballStat.find(element => element.player1 === player || element.player2 === player).player2)
         //Game Over
-        if (playerStat.player1score >= 10|| playerStat.player2score >= 10){
+        if (playerStat.player1score >= 8|| playerStat.player2score >= 8){
             let player1_ = playerStat.player1score > playerStat.player2score ? "Winner" : "Loser"
             let player2_ = playerStat.player1score < playerStat.player2score ? "Winner" : "Loser"
             var game : GamesDto = new(GamesDto)
@@ -202,7 +204,7 @@ export default class gamePlayService
                 player = sockets.get(watchers_[index])
                 for(let ids of player)
                 {
-                    console.log(watchers_)
+                    //console.log(watchers_)
                     ids.emit("gameOver",{
                         ballStats, 
                         playerStat,
@@ -251,7 +253,7 @@ export default class gamePlayService
         let legal = "illegal"
         let i = 0
         if (Object.keys(watchers).length > 0){
-            console.log(typeof watchers.find(element => element?.player1 === userName || element?.player2 === userName))
+            //console.log(typeof watchers.find(element => element?.player1 === userName || element?.player2 === userName))
             if (typeof watchers.find(element => element?.player1 === userName || element?.player2 === userName) == "undefined"){    
                 watchers.forEach(element => {
                     if (element.watchers.indexOf(userName) != -1){
@@ -286,6 +288,6 @@ export default class gamePlayService
 
         if(impact < 0)
             impact *= -1
-        return {y:impact / 30 ,x:4 - (impact / 30)}
+        return {y:impact /8 ,x:15 - (impact / 8)}
     }
 }

@@ -43,6 +43,14 @@ let liveGameService = class liveGameService {
         const games = await this.liveGameRepository.query('SELECT "player1", "player2", "time" FROM public."liveGame"');
         return games;
     }
+    async getLiveGame(player) {
+        let game = await this.liveGameRepository.findOne({ where: [{ player1: player }, { player2: player }] });
+        if (game !== null) {
+            return game;
+        }
+        else
+            return null;
+    }
 };
 liveGameService = __decorate([
     (0, common_1.Injectable)(),

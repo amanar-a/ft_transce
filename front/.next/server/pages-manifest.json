@@ -1,6 +1,11 @@
 {
   "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/users/[id]": "pages/users/[id].js"
+  "/_error": "pages/_error.js",
+  "/errorPage/[id]": "pages/errorPage/[id].js",
+  "/game": "pages/game.js",
+  "/users/friends": "pages/users/friends.js",
+  "/home": "pages/home.js",
+  "/users": "pages/users.js",
+  "/login": "pages/login.js"
 }

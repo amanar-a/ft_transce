@@ -31,12 +31,10 @@ let chatRoomService = class chatRoomService {
         this.jwtService = jwtService;
     }
     async createRoom(owner, data) {
-        console.log("data=", data);
         let user = await this.usersRepository.findOneBy({ userName: owner });
         let room = await this.RoomRepository.create({ RoomOwner: owner });
         room.members = [user];
         room.RoomOwner = owner;
-        console.log(data.name);
         room.name = data.name;
         room.type = data.type;
         room.protected = data.protected;
@@ -65,7 +63,6 @@ let chatRoomService = class chatRoomService {
     }
     async addUsersToChannel(roomId, users) {
         let room = await this.getRoomById(roomId);
-        console.log(room);
         if (users.length !== 0) {
             users.map(async (e) => {
                 let userInfo = await this.usersRepository.findOneBy({ userName: e.userName });
@@ -100,7 +97,6 @@ let chatRoomService = class chatRoomService {
     async deleteUser(roomId, userToDelete) {
         var _a, _b;
         let room = await this.getRoomById(roomId);
-        console.log(room);
         let i = 0;
         let index = -1;
         if (room) {
@@ -126,7 +122,6 @@ let chatRoomService = class chatRoomService {
             if (index !== -1)
                 room.administrators.splice(index, 1);
             if (room.members.length === 0) {
-                console.log("im In delete Room");
                 this.deleteRoom(room.id);
                 return;
             }

@@ -36,21 +36,18 @@ let AuthController = class AuthController {
                 .query(`SELECT "isTwoFactorAuthenticationEnabled" \
       FROM public."Users" WHERE "email" = '${info.email}'; `);
             response.cookie('token', info.refAcc);
-            console.log(info);
             let ret = await this.authService.cheskUser(req);
             if (ret == 1)
-                response.redirect(`http://10.12.10.2:3000/authentication?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
+                response.redirect(`http://localhost:3000/authentication?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
             else if (ret == 2)
-                response.redirect(`http://10.12.10.2:3000/home?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
+                response.redirect(`http://localhost:3000/home?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
             else
-                response.redirect(`http://10.12.10.2:3000/home?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
+                response.redirect(`http://localhost:3000/home?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
         }
         catch (e) {
-            console.log(e);
         }
     }
     async refreshToken(body) {
-        console.log('ref-->', body.refreshToken);
         return this.authService.refresh(body.refreshToken);
     }
     async logout(req, body) {

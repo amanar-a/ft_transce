@@ -1,12 +1,10 @@
 import style from "../../styles/addUser.module.css";
 import { useState, useRef, useEffect } from "react";
-import imagee from "../../public/images/profile.jpg";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
 import { update_test } from "../../redux/sizes";
-import ErrorType from "../AllError/ErrorType";
-
+import Link from "next/link";
 const CinFormation2 = (props: any) => {
   const [valid, setValid] = useState<number>(0);
   const [image, setImage] = useState<any>();
@@ -33,7 +31,7 @@ const CinFormation2 = (props: any) => {
           )
           .then((res) => {
             setUserInfo(res.data.userInfo);
-            console.log("pictureUrl=",res.data.userInfo.picture)
+            // console.log("pictureUrl=",res.data.userInfo.picture)
           })
           .catch(function (error) {
             if (error.response) {
@@ -224,6 +222,7 @@ const CinFormation2 = (props: any) => {
             </button>
           </form>
         </div>
+          <Link href={'/twofactor'}><button className={style.ActiveAuth}>2FA</button></Link>
       </div>
     </>
   );

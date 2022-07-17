@@ -37,8 +37,10 @@ export declare class chatGateway implements OnGatewayConnection, OnGatewayDiscon
     matchmaking(client: Socket, body: any): Promise<void>;
     setInterval(client: Socket, test: any): Promise<void>;
     addWatcher(client: Socket, body: any): Promise<void>;
-    playing(client: Socket, body: moveData): Promise<void>;
+    acceptInvite(client: Socket, body: any): Promise<void>;
+    declineInvite(client: Socket, body: any): Promise<void>;
     leaving(client: Socket, test: any): Promise<void>;
+    playing(client: Socket, body: moveData): Promise<void>;
     handleChannels(client: Socket, text: any): Promise<void>;
     creatChannel(client: Socket, data: any): Promise<void>;
     handleRoomMessage(client: Socket, data: any): Promise<void>;
@@ -46,5 +48,7 @@ export declare class chatGateway implements OnGatewayConnection, OnGatewayDiscon
     handleNotification(client: Socket, data: any): Promise<void>;
     muteUser(client: Socket, data: any): Promise<void>;
     banUser(client: Socket, data: any): Promise<void>;
+    kickUser(client: Socket, data: any): Promise<void>;
     changeUserName(client: Socket, data: any): Promise<void>;
+    Refreche(client: Socket, data: any): Promise<void>;
 }

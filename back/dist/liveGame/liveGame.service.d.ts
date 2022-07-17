@@ -9,4 +9,5 @@ export declare class liveGameService {
     getGameByPlayer(player: string): Promise<string>;
     deleteGame(player: string): Promise<void>;
     getgames(): Promise<any>;
+    getLiveGame(player: string): Promise<liveGame>;
 }

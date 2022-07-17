@@ -32,12 +32,10 @@ let chatRoomController = class chatRoomController {
         this.jwtService = jwtService;
     }
     async createRoom(body, request) {
-        console.log("here");
         const jwt = request.headers.authorization.replace('Bearer ', '');
         this.RoomService.createRoom(jwt, body);
     }
     async addUser(gameId, request) {
-        console.log("here");
         const jwt = request.headers.authorization.replace('Bearer ', '');
         const tokenInfo = this.jwtService.decode(jwt);
         let user = await this.usersRepository.createQueryBuilder('Users').where('Users.email = :email', { email: tokenInfo.userId }).getOne();
@@ -55,7 +53,6 @@ let chatRoomController = class chatRoomController {
         return await this.RoomService.getAllRooms();
     }
     async addAdministrator(body) {
-        console.log(body);
         return await this.RoomService.addAdministrator(body.roomId, body.userName);
     }
     async getRoomMembers(body) {
@@ -71,7 +68,6 @@ let chatRoomController = class chatRoomController {
         let room = (await this.RoomService.getRoomById(body.roomId));
         if (room !== "undefined" && room !== null) {
             let Administrators = room.Administrators;
-            console.log(Administrators);
             return Administrators;
         }
         else
@@ -92,7 +88,13 @@ let chatRoomController = class chatRoomController {
         await this.RoomService.deleteUser(body.roomId, body.user);
     }
     async getRoomById(body) {
-        return await this.RoomService.getRoomById(body.roomId);
+        let room = await this.RoomService.getRoomById(body.roomId);
+        if (room !== null) {
+            return room;
+        }
+        else {
+            return null;
+        }
     }
     async changeRoomPassword(body) {
         return await this.RoomService.changeRoomPassword(body.roomId, body.newPassword);

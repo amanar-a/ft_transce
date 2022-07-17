@@ -25,20 +25,35 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
+    "/errorPage/[id]": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/errorPage/[id].js"
+    ],
+    "/game": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/game.js"
+    ],
     "/home": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/home.js"
     ],
-    "/profile": [
+    "/login": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/profile.js"
+      "static/chunks/pages/login.js"
     ],
-    "/users/[id]": [
+    "/users": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/users/[id].js"
+      "static/chunks/pages/users.js"
+    ],
+    "/users/friends": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/users/friends.js"
     ]
   },
   "ampFirstPages": []

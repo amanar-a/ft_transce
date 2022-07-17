@@ -35,9 +35,12 @@ let roomMessageController = class roomMessageController {
     async getConv(roomId, request) {
         const jwt = request.headers.authorization.replace('Bearer ', '');
         const tokenInfo = this.jwtService.decode(jwt);
-        console.log("RoomId=", roomId.roomId);
         let conv = await this.RoomService.getRoomMessages(roomId.roomId);
         return conv;
+    }
+    async getLastMessage(roomId, request) {
+        let conv = await this.RoomService.getRoomMessages(roomId.roomId);
+        return conv[conv.length - 1];
     }
 };
 __decorate([
@@ -49,6 +52,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], roomMessageController.prototype, "getConv", null);
+__decorate([
+    (0, common_1.Post)('getLastMessage'),
+    (0, common_1.UseGuards)(jwt_auth_gguard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], roomMessageController.prototype, "getLastMessage", null);
 roomMessageController = __decorate([
     (0, common_1.Controller)('roomMessage'),
     __param(1, (0, typeorm_1.InjectRepository)(roomMessage_entity_1.roomMessage)),

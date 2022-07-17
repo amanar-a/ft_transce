@@ -46,19 +46,19 @@ export class AuthController {
       // console.log('aceRefTok', '|', info.refAcc);
 
       response.cookie('token', info.refAcc);
-      console.log(info);
+      // console.log(info);
       let ret: number = await this.authService.cheskUser(req);
       // if (ip == '::ffff:10.12.11.5') {
       if (ret == 1)
         response.redirect(
-          `http://10.12.10.2:3000/authentication?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`,
+          `http://localhost:3000/authentication?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`,
         );
       else if (ret == 2)
         response.redirect(
-          `http://10.12.10.2:3000/home?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`,
+          `http://localhost:3000/home?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`,
         );
       else 
-        response.redirect(`http://10.12.10.2:3000/home?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
+        response.redirect(`http://localhost:3000/home?token=${info.refAcc.accessToken}&refreshToken=${info.refAcc.refreshToken}`);
 
       // } else {
       //   if (ret == 1)
@@ -74,7 +74,7 @@ export class AuthController {
       // }
     } catch (e) {
       // }
-      console.log(e);
+      // console.log(e);
     }
   }
 
@@ -88,7 +88,7 @@ export class AuthController {
   @Get('refresh')
   // @UseGuards(JwtAuthGuard)
   async refreshToken(@Body() body: RefreshTokenDto) {
-    console.log('ref-->', body.refreshToken);
+    // console.log('ref-->', body.refreshToken);
     return this.authService.refresh(body.refreshToken);
   }
 

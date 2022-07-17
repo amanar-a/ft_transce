@@ -28,8 +28,8 @@ let gamesController = class gamesController {
     finGames(request) {
         return this.gamesService.findAll();
     }
-    getGames(gamesData) {
-        this.gamesService.InsertGame(gamesData);
+    async getGames(gamesData) {
+        await this.gamesService.InsertGame(gamesData);
     }
 };
 __decorate([
@@ -46,7 +46,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [game_dto_1.GamesDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], gamesController.prototype, "getGames", null);
 gamesController = __decorate([
     (0, common_1.Controller)('games'),

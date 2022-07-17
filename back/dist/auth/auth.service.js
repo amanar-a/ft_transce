@@ -30,7 +30,6 @@ let AuthService = class AuthService {
     async retrieveRefreshToken(refreshStr) {
         try {
             const decoded = (0, jsonwebtoken_1.verify)(refreshStr, process.env.REFRESH_SECRET);
-            console.log(decoded);
             if (typeof decoded === 'string') {
                 return undefined;
             }
@@ -38,7 +37,6 @@ let AuthService = class AuthService {
             return Promise.resolve(await this.tokenRepository.findOneBy({ email: decoded.email }));
         }
         catch (e) {
-            console.log(e.message);
             return undefined;
         }
     }
@@ -66,7 +64,6 @@ let AuthService = class AuthService {
         const user = await this.usersRepository.findOneBy({
             email: refreshToken.email,
         });
-        console.log('______)', user);
         if (!user) {
             return undefined;
         }
@@ -77,11 +74,8 @@ let AuthService = class AuthService {
     }
     async logout(refreshStr) {
         const refreshToken = await this.retrieveRefreshToken(refreshStr);
-        console.log('------------------');
-        console.log(refreshToken);
         if (!refreshToken)
             return;
-        console.log('------------------');
         await this.tokenRepository.query(`DELETE FROM public.refresh_token WHERE "email" = '${refreshToken.email}'`);
     }
     async cheskUser(req) {

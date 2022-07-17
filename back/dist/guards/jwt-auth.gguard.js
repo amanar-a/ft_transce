@@ -13,7 +13,6 @@ const jsonwebtoken_1 = require("jsonwebtoken");
 let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
     handleRequest(err, user, info, context, status) {
         if (info instanceof jsonwebtoken_1.JsonWebTokenError) {
-            console.log("-----------------------------------------------------------------");
             throw new common_1.UnauthorizedException('Invalid JWT');
         }
         return super.handleRequest(err, user, info, context, status);

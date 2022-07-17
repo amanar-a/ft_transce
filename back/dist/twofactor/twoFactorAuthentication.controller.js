@@ -54,7 +54,6 @@ let TwoFactorAuthenticationController = class TwoFactorAuthenticationController 
         const accessTokenCookie = this.authenticationService.newRefreshAndAccessToken(email, true, {
             ipAddress: 'ip',
         });
-        console.log(accessTokenCookie);
         return accessTokenCookie;
     }
 };

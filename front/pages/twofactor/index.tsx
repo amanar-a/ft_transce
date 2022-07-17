@@ -28,22 +28,7 @@ const twofactor = () => {
           router.push({pathname :`/errorPage/${error.response.status}`})
       }
   });
-  });
-  // axios({
-  //     url: `http://10.12.10.2/2fa/generate`,
-  //     headers:{ 'Authorization': `Bearer ${localStorage.getItem("accessToken") as string}`},
-  //     method: 'POST',
-  //     responseType: 'blob', // important
-  // }).then((response) => {
-  //     console.log(response);
-  //     // const url = window.URL.createObjectURL(new Blob([response.data]));
-  //     // const link = document.createElement('a');
-  //     // link.href = url;
-  //     // link.setAttribute('download', 'file.pdf'); //or any other extension
-  //     // document.body.appendChild(link);
-  //     // link.click();
-  // });
-  // })
+  },[]);
   let result: any = [];
   let counter = 6;
   const handleClick = (first: any, last: string) => {
@@ -130,14 +115,14 @@ const twofactor = () => {
                 hendleDelete(e, "fifth");
               }}
             />
-            <h2>{counter}</h2>
+            {/* <h2>{counter}</h2> */}
             <input
               type="submit"
-              value={`       lettere left`}
+              value={`submit`}
               className={styles.submitButton}
               onClick={(e: any) => {
                 const data = { twoFactorAuthenticationCode: result.join("") };
-                console.log("data =", data);
+                // console.log("data =", data);
                 axios
                   .post(
                     `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/2fa/turn-on`,

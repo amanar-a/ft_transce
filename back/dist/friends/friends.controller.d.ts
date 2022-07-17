@@ -12,9 +12,10 @@ export declare class frienduser {
 export declare class FriendsController {
     private readonly friendService;
     private userRepo;
+    private friendList;
     private readonly userService;
     private readonly jwtService;
-    constructor(friendService: friendsService, userRepo: Repository<User>, userService: UserService, jwtService: JwtService);
+    constructor(friendService: friendsService, userRepo: Repository<User>, friendList: Repository<FriendLsit>, userService: UserService, jwtService: JwtService);
     findall(data: FriendsInviteDto, request: Request): Promise<{
         all_users: any;
         user_rinvite: any;
@@ -40,5 +41,5 @@ export declare class FriendsController {
     BlockedFriends(request: Request): Promise<any>;
     BlockFriend(data: frienduser, request: Request): Promise<void>;
     unBlockFriend(data: frienduser, request: Request): Promise<void>;
-    removeFriend(): void;
+    removeFriend(data: frienduser, request: Request): Promise<void>;
 }
