@@ -16,9 +16,7 @@ export class TwoFactorAuthenticationService {
     const secret =  authenticator.generateSecret();
     
     const app_name = process.env.TWO_FACTOR_AUTHENTICATION_APP_NAME;
-    // //console.logog("oursec", user.userId, app_name, secret);
     const otpauthUrl =  authenticator.keyuri(user.userId, app_name, secret);
-    // //console.logog(otpauthUrl);
     
     await this.usersService.setTwoFactorAuthenticationSecret(secret, user.userId);
  
@@ -35,6 +33,7 @@ export class TwoFactorAuthenticationService {
       token: twoFactorAuthenticationCode,
       secret: user.twoFactorAuthenticationSecret
     })
+    console.log("from here", twoFactorAuthenticationCode, user.twoFactorAuthenticationSecret);
 
     return verf;
   }

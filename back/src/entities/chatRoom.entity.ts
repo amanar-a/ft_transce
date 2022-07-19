@@ -8,9 +8,7 @@ import { User } from "./user.entity";
 
 export class chatRoom extends BaseEntity
 {
-    @PrimaryGeneratedColumn({
-        comment : 'the quiz unique indentifier',
-    })
+    @PrimaryGeneratedColumn()
     id : number
 
     @Column()
@@ -34,4 +32,5 @@ export class chatRoom extends BaseEntity
     @ManyToMany(() => User , (user) => user.userName)
     @JoinTable({name : 'administrators'})
     Administrators : User[]
+
 }

@@ -1,13 +1,6 @@
 import styles from '../../styles/messages/messages.module.css'
 import { useEffect, useState } from 'react';
-import io from 'socket.io-client';
-import Friends from '../../dataFriend.json'
-import Router, { useRouter } from 'next/router';
-import FriendsZone from '../../components/Messages/friendsZone';
-import Image from 'next/image';
-import image from '../../public/images/profile.jpg'
-import UserInfo from '../../components/Messages/UserInfo';
-// const socket = io("10.12.11.5:3000",{transports:['websocket']});
+import { useRouter } from 'next/router';
 import ChatZone from '../../components/Messages/chatZone';
 import axios from 'axios';
 import { Loading, Grid } from "@nextui-org/react";
@@ -18,11 +11,9 @@ const Messages = (props:any) => {
     const [userInfo ,setUserInfo] = useState<any>();
     const [blockedUsers, setBlockedUsers] = useState<any>([]);
     const [isBlocked, setisBlocked] = useState<boolean>(false);
-	const [updateIsBlocked, setUpdateIsBlocked] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	const userNameFromUrl: string = typeof window != "undefined" ? window.location.href.split("/")[4] : "";
-	// console.log("userNameFrom Url=",userNameFromUrl,"id==",router.query.id);
     
     useEffect(() => {
         const response: any = axios
@@ -58,9 +49,8 @@ const Messages = (props:any) => {
             }
           )
           .then((res) => {
-            setBlockedUsers(res.data);
-            // console.log("BlockedUsers=",res.data);
-		    	  res.data.map((e:any) => {
+            setBlockedUsers(res.data.users_T_blocked);
+		    	  res.data.users_T_blocked.map((e:any) => {
 				    if (e.userName === userNameFromUrl)
 					    setisBlocked(true);
 					})

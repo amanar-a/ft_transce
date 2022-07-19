@@ -1,16 +1,11 @@
 import style from '../../styles/watchMatch/livelisteMatch.module.css'
 import styleP from '../../styles/watchMatch/livelisteMatchP.module.css'
-import Image from 'next/image'
-import imge from '../../public/images/profile.jpg'
-import { useEffect } from 'react';
 import Router from 'next/router';
 
 const LiveListMatch = (props: any) =>{
-    useEffect(()=>{
-        props.socket?.on("addWatcher",(data:any) =>{
+        props.socket?.off("addWatcher").on("addWatcher",(data:any) =>{
             Router.push({pathname:"/game"})
         })
-    },)
     return (
         <div className={!props.LiveM ? style.listeMtch : styleP.listeMtch}>
         <div className={!props.LiveM ? style.player1 : styleP.player1}>
@@ -28,8 +23,7 @@ const LiveListMatch = (props: any) =>{
         </div>
            <button id={props.data?.player1} className={!props.LiveM ? style.watch : styleP.watch}
            onClick={(e:any)=>{
-                   props.socket.emit("addWatcher",e.target.id)
-                   //console.logogog("test")
+                   props.socket?.emit("addWatcher",e.target.id);
                    }}>Watch
            </button>
     </div>

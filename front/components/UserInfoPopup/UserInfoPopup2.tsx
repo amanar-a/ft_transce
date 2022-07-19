@@ -1,5 +1,5 @@
 import style from "../../styles/addUser.module.css";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
@@ -9,36 +9,11 @@ const CinFormation2 = (props: any) => {
   const [valid, setValid] = useState<number>(0);
   const [image, setImage] = useState<any>();
   const [userName, setUserName] = useState<string>("");
-  const [file, setFile] = useState<any>();
-  const [imageName, changeImageName] = useState<string>("");
+  const [file, setFile] = useState<any>([]);
   const changeStyle = useRef(null);
-  const [userInfo, setUserInfo] = useState<any>({});
   const dispatch = useDispatch();
   const router = useRouter();
 
-  useEffect(() => {
-        axios
-          .post(
-            `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/users/profile`,
-            null,
-            {
-              headers: {
-                Authorization: `Bearer ${
-                  localStorage.getItem("accessToken") as string
-                }`,
-              },
-            }
-          )
-          .then((res) => {
-            setUserInfo(res.data.userInfo);
-            // console.log("pictureUrl=",res.data.userInfo.picture)
-          })
-          .catch(function (error) {
-            if (error.response) {
-              router.push({pathname :`/errorPage/${error.response.status}`})
-            }
-          });
-  }, []);
 
   const handelChange = (e: any) => {
     let lent: string = e.target.value;
@@ -69,7 +44,6 @@ const CinFormation2 = (props: any) => {
       } else resolve(false);
     });
   }
-  // {console.log("====>", image)};
   let putfile = (e: any) => {
     var reader = new FileReader();
     var file = document.querySelector("input[type=file]") as HTMLInputElement;
@@ -87,7 +61,6 @@ const CinFormation2 = (props: any) => {
       let image_: FileList | null = file.files;
       if (image_ && image_.length > 0) {
         if (image_[0].name != undefined) {
-          changeImageName(image_[0].name);
           var ext = image_[0].name.split(".").pop();
           if (ext === "png" || ext === "jpg" || ext === "jpeg")
             reader.readAsDataURL(image_[0]);
@@ -101,42 +74,27 @@ const CinFormation2 = (props: any) => {
     e.preventDefault();
     dispatch(update_test());
     const data = new FormData();
-    const dataUserName = {userName};
-    data.append("image", file[0]);
-    axios
-    .post(
-      `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/users/complet`,
-      dataUserName,
-      {
-        headers: {
-          Authorization: `Bearer ${
-            localStorage.getItem("accessToken") as string
-          }`,
-        },
-      }
-      )
-      .then((res) => {
-        props.setUpdate(!props.update);
-        if (
-          res.data.message &&
-          (res.data.message == "valid username" ||
-          res.data.message == "Already have a username")
-          ) {
-            props.setUpdate(!props.update);
-          } else if (res.data.message) alert(res.data.message);
-        })
-        .catch(function (error) {
-          if (error.response) {
-            router.push({pathname :`/errorPage/${error.response.status}`})
-          }
-          props.setPopup(!props.Popup);
-    });
+    let dataUserName:any;
+    if (userName === "")
+    {
+      dataUserName = {userName: props.data?.userName}
+    }
+    else
+      dataUserName = {userName};
+    if (file.length < 1)
+      data.append("image", props.data?.picture);
+    else
+      data.append("image", file[0]);
 
-
-    axios
+    props.setPopup(!props.Popup);
+    props.socket?.emit("changeUserName", dataUserName);
+    props.setRefresh(!props.refresh);
+    if (file.length >= 1)
+    {
+      axios
       .post(
-        `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/upload`,
-        data,
+      `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/upload`,
+      data,
         {
           headers: {
             Authorization: `Bearer ${
@@ -144,21 +102,32 @@ const CinFormation2 = (props: any) => {
             }`,
           },
         }
-      )
+      ).then((res) => {
+            axios.post(`http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/users/profile`,null,
+            {headers: {Authorization: `Bearer ${localStorage.getItem("accessToken") as string}`,},})
+            .then((res) => {
+                props.setData(res.data.userInfo);;
+              })
+            .catch(function (error){
+                if (error.response){
+                   router.push({pathname :`/errorPage/${error.response.status}`})
+                } 
+            })
+      })
       .catch(function (error) {
         if (error.response) {
           router.push({pathname :`/errorPage/${error.response.status}`})
         }
       });
-  };
-  return (
+    };
+  }
+    return (
     <>
       <div className={style.container}>
         <div className={style.row0}>
           <div className={style.row}>
             <p className={style.text1}>
-              The user should be able to upload an avatar. If the user doesn’t
-              upload an avatar.
+            Please upload an avatar (if not a default avatar will be set)
             </p>
           </div>
           <form
@@ -171,12 +140,12 @@ const CinFormation2 = (props: any) => {
               <div className={style.imge}>
                 <img
                   className={style.img}
-                  src={image !== "undefined" ? image :  userInfo?.picture}
+                  src={image === undefined ? props.data?.picture : image}
                 ></img>
               </div>
               <div className={style.child}>
                 <p className={style.text2}>
-                  should be able to upload an avatar
+                  you should be able to upload an avatar
                 </p>
                 <input
                   style={{ display: "none" }}

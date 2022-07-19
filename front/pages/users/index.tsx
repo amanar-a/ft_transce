@@ -1,6 +1,5 @@
 import Users from "../../components/users/Users";
 import React, { Component } from "react";
-import FakeData from "../../data.json";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import styles from "../../styles/users/users.module.css";
@@ -15,7 +14,7 @@ function users(props:any) {
   const [update, setUpdateVar] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [userInfo, setUserInfo] = useState<any>({});
-//   console.log(process.env.NEXT_PUBLIC_IP_ADRESSE)
+	const [blockedMe, setblockedMe] = useState<any>([]);
 	useEffect(() => {
 		axios.post(`http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/users/profile`,null,
 		  {headers: {Authorization: `Bearer ${localStorage.getItem("accessToken") as string}`,},})
@@ -36,16 +35,24 @@ function users(props:any) {
         },
       })
       .then((res) => {
-		  console.log("res=",res.data)
+		axios.get(`http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/friends/block`, {
+			headers: {
+			  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+			},
+		  })
+		  .then((res2) => {
+				setblockedMe(res.data.users_T_blocked);
+		  })
         setUsersData(res.data);
 		setIsLoading(false);
+	
       }).catch(function (error){
         if (error.response){
             router.push({pathname :`/errorPage/${error.response.status}`})
         }
     });
   }, [update]);
-  console.log("user=",props.user);
+	props.socket?.off("Refresh").on("Refresh", (data:any) => {setUpdateVar(!update)});
   return (
     <>
       {
@@ -64,6 +71,8 @@ function users(props:any) {
 			inBlock={false}
 			update={update}
 			user={userInfo}
+			socket={props.socket}
+			blockedMed={blockedMe}
 			/>
       }
     </>

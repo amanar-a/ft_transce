@@ -1,10 +1,7 @@
 import {Player, Player2} from "../../components/game/cartPlayer";
 import style from "../../styles/game/HomeGame.module.css";
 import Game from "../../components/game";
-import UserInfoPopup from "../../components/UserInfoPopup/UserInfoPopup";
-import { useEffect, useState, useRef } from "react";
-import { useSelector } from "react-redux";
-import leagend from "../../public/images/3amii9.png";
+import { useEffect, useState } from "react";
 import { Loading } from "@nextui-org/react";
 import axios from "axios";
 import CountDown from "../../components/conterDown/conterDown";
@@ -14,7 +11,6 @@ import Link from "next/link";
 
 const HomeGame = (props: any) => {
   const [oppenent, changeOpp] = useState("Waiting");
-  const refOppenent = useRef(oppenent)
   const [players, changeName] = useState({
     player1: "",
     pic1: "",
@@ -26,7 +22,6 @@ const HomeGame = (props: any) => {
     player1: 0,
     player2: 0,
   });
-  refOppenent.current = oppenent
   useEffect(() => {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
@@ -57,8 +52,7 @@ const HomeGame = (props: any) => {
               changeOpp("counter")
               window.setTimeout(()=>{
                 props.socket?.emit("setInterval");
-                if (refOppenent.current == "counter")
-                  changeOpp(data[2]);
+                changeOpp(data[2]);
                 },6000)  
             } else if (data[2] === "Watcher" ||data[2] === "playing"){
               changeOpp(data[2])
@@ -79,7 +73,6 @@ const HomeGame = (props: any) => {
     },[props.socket])
     useEffect(()=>{
       props.socket?.on("opponentLeft",(data:any) =>{
-        // console.log(data.user)
         changeOpp("Winner")
         changeGameOver(data.user)
       })
@@ -124,8 +117,6 @@ const HomeGame = (props: any) => {
           </>
         ):""}
       </div>
-
-      {/* {test.sizes_.zak_test && <UserInfoPopup />} */}
     </>
   );
 };

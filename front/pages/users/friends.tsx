@@ -1,7 +1,6 @@
 import Users from "../../components/users/Users";
 import React, { Component } from "react";
-import FakeData from "../../data.json";
-import axios from "axios";
+  import axios from "axios";
 import { useEffect, useState } from "react";
 import styles from "../../styles/users/users.module.css";
 import {useRouter} from 'next/router';
@@ -15,7 +14,6 @@ function users() {
   const [update, setUpdateVar] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-//   console.log(process.env.NEXT_PUBLIC_IP_ADRESSE)
   useEffect(() => {
     axios.get(`http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/friends/all`, {
         headers: {

@@ -1,28 +1,14 @@
 import styles from '../../styles/messages/index.module.css'
 import { useEffect, useState } from 'react';
-import io from 'socket.io-client';
-import Friends from '../../dataFriend.json'
-import Router, { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import FriendsZone from '../../components/Messages/friendsZone';
-import Image from 'next/image';
-import image from '../../public/images/profile.jpg'
-import UserInfo from '../../components/Messages/UserInfo';
-import ChatZone from '../../components/Messages/chatZone';
-import UserInfoPopup2 from '../../components/UserInfoPopup/UserInfoPopup2'
-import {useSelector} from 'react-redux'
 import axios from 'axios';
 const messages = (props: any) => {
     const [Status ,setStatus] = useState<boolean>(false);
     const [showFriends, setShowFriends] = useState<boolean>(true);
     const router = useRouter();
-    const [filterData] = Friends.filter((value: any) => {
-        return (value.first_name === router.query.id);
-    });
-    const [ContactInformation, setContatInformation] = useState<any>([]);
     const [friends, setFriends] = useState<any>();
-    let FriendsInformation: any = [];
     const [blockedUsers, setBlockedUsers] = useState<any>([]);
-    // console.log("prrrrroooops======>", props);
     useEffect(() => {
         axios.get("http://localhost:3001/message/getConntacts",
         {headers:{'Authorization': `Bearer ${localStorage.getItem("accessToken")}`}}
@@ -48,15 +34,13 @@ const messages = (props: any) => {
             }
           )
           .then((res) => {
-            setBlockedUsers(res.data);
-            // console.log("BlockedUsers=",res.data)
+            setBlockedUsers(res.data.users_T_blocked);
           }).catch(function (error){
             if (error.response){
                 router.push({pathname :`/errorPage/${error.response.status}`})
             }
         });
       }, []);
-    const test:any = useSelector<any>(state=>state);
         return (
         <>
             <div className={styles.globaleContainer}>
@@ -68,7 +52,6 @@ const messages = (props: any) => {
                     </div>
                 </div>
             </div>
-            {test.sizes_.zak_test && <UserInfoPopup2 />}
         </>
     );
 }

@@ -1,25 +1,19 @@
 import styles from "../../styles/users/usersCard.module.css";
-import Image from "next/image";
 import Link from "next/link";
-import image from "../../public/images/profile.jpg";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import addUser from "../../public/images/usersImages/add-user.png";
 import chatting from "../../public/images/usersImages/chatting.png";
 import { useRouter } from "next/router";
-import profileIcon from "../../public/images/profile.jpg";
 import blockUser from "../../public/images/usersImages/block-user.png";
 import accept from "../../public/images/usersImages/accept.png";
 import reject from "../../public/images/usersImages/reject.png";
-import users from "../../pages/users";
-import ErrorType from "../AllError/ErrorType";
 import { Loading, Grid } from "@nextui-org/react";
 
 const UsersCart = (props: any) => {
   const [myData, setData] = useState<any>(props.data);
   const router = useRouter();
-  const [status, setStatus] = useState<boolean>(false);
-	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     setData(props.data);
@@ -48,27 +42,10 @@ const UsersCart = (props: any) => {
   let checkFriends: boolean;
   let checkInviteRecive: boolean;
   let checkInviteSend: boolean;
-  const isActive = (userName: string) => {
-    console.log("inIsActive=",userName)
-	const [userStatus, setUserStatus] = useState<boolean>(false);
-    axios.post(`http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/users/profile`,{userName: userName},
-    {headers: {Authorization: `Bearer ${localStorage.getItem("accessToken") as string}`,},})
-    .then((res) => {
-      setUserStatus(res.data.userInfo.isActive);
-	  setIsLoading(false);
-    })
-    .catch(function (error) {
-      if (error.response) {
-        router.push({pathname :`/errorPage/${error.response.status}`})
-      }
-    });
-    return userStatus;
-  }
+
   return (
     <>
       {props.data?.map((e: any | any[]) => {
-        let userStatus: boolean = isActive(e.userName);
-        console.log(e.userName," ,userStatus=",userStatus);
         return (
           <div className={styles.userCard} key={Math.random()}>
 
@@ -78,17 +55,27 @@ const UsersCart = (props: any) => {
 				  	<div className={styles.LoadingContainer}>
 		  				<Grid><Loading type="points" /></Grid>
 	 				</div>
-			 	:
-              	<Link href={`/users/${e.userName}`} key={Math.random()}>
-                	<img
-                  	src={e.picture}
-                  	width={80}
-                  	height={80}
-                  	className={`${styles.profileImage} ${
-					  userStatus ? styles.userStatusOn : styles.userStatusOff
-					}`}
-					/>
-              </Link>
+			 		:
+					 props.user?.userName === e.userName ?
+              		<Link href={`/profile`} key={Math.random()}>
+                		<img
+                  		src={e.picture}
+                  		width={80}
+                  		height={80}
+                  		className={`${styles.profileImage} ${e.isActive ? styles.userStatusOn : styles.userStatusOff
+						}`}
+						/>
+              		</Link>
+					  :
+              		<Link href={`/users/${e.userName}`} key={Math.random()}>
+                		<img
+                  		src={e.picture}
+                  		width={80}
+                  		height={80}
+                  		className={`${styles.profileImage} ${e.isActive ? styles.userStatusOn : styles.userStatusOff
+						}`}
+						/>
+              		</Link>
 				}
             </div>
             <div className={styles.userName}>
@@ -128,12 +115,17 @@ const UsersCart = (props: any) => {
                           )}`,
                         },
                       }
-                    )
+                    ).then((res) => {
+						const data = { reciverName: `${e.target.id}`, type : "invit" };
+                        props.socket?.emit("notification", data);
+						props.socket?.emit("Refresh", [{userName: e.target.id}])
+                    })
                     .catch(function (error) {
                       if (error.response) {
                         router.push({pathname :`/errorPage/${error.response.status}`})
                       }
                     });
+                    props.socket.emit("Refresh",[{userName: e.target.id}]);
                   props.setUpdate(!props.update);
                 }}
               />
@@ -164,6 +156,9 @@ const UsersCart = (props: any) => {
                         },
                       }
                     )
+                    .then((res) => {
+                      props.socket.emit("Refresh",[{userName: e.target.id}]);
+                    })
                     .catch(function (error) {
                       if (error.response) {
                         router.push({pathname :`/errorPage/${error.response.status}`})
@@ -200,7 +195,9 @@ const UsersCart = (props: any) => {
                           )}`,
                         },
                       }
-                    )
+                    ).then((res) => {
+                      props.socket.emit("Refresh",[{userName: e.target.id}]);
+                    })
                     .catch(function (error) {
                       if (error.response) {
                         router.push({pathname :`/errorPage/${error.response.status}`})
@@ -230,12 +227,14 @@ const UsersCart = (props: any) => {
                     .post(
                       `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/friends/unblock`,
                       data,{headers: {Authorization: `Bearer ${localStorage.getItem("accessToken")}`,},})
+                      .then((res:any) => {
+                        props.setUpdate(!props.update);
+                      })
                     .catch(function (error) {
                       if (error.response) {
                         router.push({pathname :`/errorPage/${error.response.status}`})
                       }
                     });
-                  props.setUpdate(!props.update);
                 }}
               />
             </div>

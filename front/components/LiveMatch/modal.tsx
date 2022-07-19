@@ -22,10 +22,12 @@ export default function Settings(props:any) {
             </Text>
         </Modal.Header>
         <Modal.Body>
+          <Radio.Group defaultValue="default">
             <Row justify="space-evenly">
                 <Radio checked={setting == "default" ? true : false} value="default" onChange={() =>changeSetting("default")}>Default </Radio>
                 <Radio checked={setting == "advanced" ? true : false} value="advanced" onChange={() =>changeSetting("advanced")}>Advanced</Radio>
             </Row>
+          </Radio.Group>
             { setting == "advanced" ?
                 <div style={{display:"flex",flexFlow:"column",alignItems:"center"}}>
                     <Input

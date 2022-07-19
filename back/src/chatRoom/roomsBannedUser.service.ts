@@ -56,6 +56,8 @@ export class roomBannedUserService
     async getMutedUserByRoomId(roomId : number)
     {
         let user : roomBannedUser[] = await this.banRoomRepository.findBy({roomId : roomId , banType : "mute"})
+        if(user.length <= 0)
+            return [];
         return user;
     }
 

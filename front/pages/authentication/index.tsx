@@ -2,44 +2,8 @@ import { useEffect } from "react";
 import styles from "../../styles/twofactor/twofactor.module.css";
 import axios from "axios";
 import { useRouter } from "next/router";
-import ErrorType from "../../components/AllError/ErrorType";
 import shield from '../../public/images/shield.png'
 const authentication = () => {
-  // useEffect(() => {
-  //     let data;
-  // axios({
-  //     url: `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/2fa/generate`,
-  //     data:data,
-  //     headers: {Authorization: `Bearer ${localStorage.getItem("accessToken") as string}`},
-  //     method:'POST',
-  //     responseType: 'blob'
-  // })
-  // .then((response) => {
-  //     console.log(response);
-  //     const url = window.URL.createObjectURL(new Blob([response.data]));
-  //     const link = document.createElement('img');
-  //     link.src = url;
-  //     link.setAttribute(`style`, `width:250px;heght250px;`); //or any other extension
-  //     console.log(link);
-  //     document.getElementById("QrcodeContainer")?.appendChild(link);
-  //     link.click();
-  // });
-  // })
-  // axios({
-  //     url: `http://10.12.10.2/2fa/generate`,
-  //     headers:{ 'Authorization': `Bearer ${localStorage.getItem("accessToken") as string}`},
-  //     method: 'POST',
-  //     responseType: 'blob', // important
-  // }).then((response) => {
-  //     console.log(response);
-  //     // const url = window.URL.createObjectURL(new Blob([response.data]));
-  //     // const link = document.createElement('a');
-  //     // link.href = url;
-  //     // link.setAttribute('download', 'file.pdf'); //or any other extension
-  //     // document.body.appendChild(link);
-  //     // link.click();
-  // });
-  // })
   const router = useRouter()
   const route = useRouter();
   useEffect(() => {
@@ -51,14 +15,10 @@ const authentication = () => {
           route.query.refreshToken as string
         );
       }
-      // route.query.token = '';
-      // route.query.refreshToken = '';
     }
   }, [route.query.token]);
   let result: any = [];
-  let counter = 6;
   const handleClick = (first: any, last: string) => {
-    counter--;
     if (last === "none") result.push(first.target.value);
     else if (first?.target.value?.length) {
       result.push(first.target.value);
@@ -67,10 +27,8 @@ const authentication = () => {
   };
   const hendleDelete = (first: any, last: string) => {
     if (first.code === "Backspace") {
-      counter++;
       if (first?.target.value?.length === 0) {
         result.pop();
-        const two: any = document.getElementById(last)?.focus();
       }
     }
   };
@@ -188,12 +146,3 @@ const authentication = () => {
 };
 
 export default authentication;
-
-// {data: {…}, status: 200, statusText: 'OK', headers: {…}, config: {…}, …}
-// config: {transitional: {…}, transformRequest: Array(1), transformResponse: Array(1), timeout: 0, adapter: ƒ, …}
-// data: {refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6I…TE3fQ.fu54u-MCAr8NmnmEWCoVnpmZxNtaSyka0dSv-TusZQY', accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO…cxN30.i_a1NabN7isUo5rRpd32fs08YPovUZ8ctorzag-Opjw'}
-// headers: {content-length: '459', content-type: 'application/json; charset=utf-8'}
-// request: XMLHttpRequest {onreadystatechange: null, readyState: 4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
-// status: 200
-// statusText: "OK"
-// [[Prototype]]: Object

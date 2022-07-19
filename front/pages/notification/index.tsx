@@ -1,4 +1,4 @@
-import { Progress } from '@nextui-org/react';
+
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -11,7 +11,7 @@ const Notification = (props:any) => {
     const [userInfo, setUserInfo] = useState<any>({});
     const [allnotification, setNotification] = useState([])
     const [alluser, setAlluser] = useState([])
-
+    const [refresh, setRefresh] = useState<boolean>(false);
 
     useEffect(() => {
             axios.get(
@@ -65,13 +65,13 @@ const Notification = (props:any) => {
             }
         ).then((res) =>{
             setNotification(res.data);
-            // console.log("response=", res.data)
         }).catch(function (error){
             if (error.response){
                 router.push({pathname :`/errorPage/${error.response.status}`})
             }
         })
-    },[userInfo])
+    },[userInfo, refresh]);
+    props.socket?.off("Refresh").on("Refresh", (data:any) => {setRefresh(!refresh)})
     const getSenderInformation = (userName:string) => {
         const filterData: any = alluser.filter((e:any) => {
             return (e.userName === userName);
@@ -85,9 +85,9 @@ const Notification = (props:any) => {
                 allnotification.map((Data, index) =>{
                     const [senderInformation]: any = getSenderInformation(Data.senderName);
                     return (
-                        <>
+                        <div className={style.containerDiv} key={index}>
                             <CartNotification socket={props.socket} MyP={false} key={index} data={Data} PicSender={senderInformation}/>
-                        </>
+                        </div>
                         )
                 }
                 )

@@ -115,14 +115,12 @@ const twofactor = () => {
                 hendleDelete(e, "fifth");
               }}
             />
-            {/* <h2>{counter}</h2> */}
             <input
               type="submit"
               value={`submit`}
               className={styles.submitButton}
               onClick={(e: any) => {
                 const data = { twoFactorAuthenticationCode: result.join("") };
-                // console.log("data =", data);
                 axios
                   .post(
                     `http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/2fa/turn-on`,
@@ -142,7 +140,6 @@ const twofactor = () => {
                         "refreshToken",
                         res.data.refreshToken
                       );
-                      // axios.post(`http://${process.env.NEXT_PUBLIC_IP_ADRESSE}:${process.env.NEXT_PUBLIC_PORT}/2fa/turn-one`,{twoFactorAuthenticationCode:result.join('')},{headers:{'Authorization': `Bearer ${res.data.accessToken}`}})
                     }
                   }).catch(function (error){
                     if (error.response){
@@ -160,12 +157,3 @@ const twofactor = () => {
 };
 
 export default twofactor;
-
-// {data: {…}, status: 200, statusText: 'OK', headers: {…}, config: {…}, …}
-// config: {transitional: {…}, transformRequest: Array(1), transformResponse: Array(1), timeout: 0, adapter: ƒ, …}
-// data: {refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6I…TE3fQ.fu54u-MCAr8NmnmEWCoVnpmZxNtaSyka0dSv-TusZQY', accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO…cxN30.i_a1NabN7isUo5rRpd32fs08YPovUZ8ctorzag-Opjw'}
-// headers: {content-length: '459', content-type: 'application/json; charset=utf-8'}
-// request: XMLHttpRequest {onreadystatechange: null, readyState: 4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
-// status: 200
-// statusText: "OK"
-// [[Prototype]]: Object
